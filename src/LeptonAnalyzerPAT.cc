@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: LeptonAnalyzerPAT.cc,v 1.5 2010/04/05 15:25:37 sturdy Exp $
+// $Id: LeptonAnalyzerPAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
 //
 //
 
@@ -214,6 +214,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
       m_ElecIdTight[i]    = (*elecHandle)[i].electronID("eidTight");
       m_ElecIdRobLoose[i] = (*elecHandle)[i].electronID("eidRobustLoose");
       m_ElecIdRobTight[i] = (*elecHandle)[i].electronID("eidRobustTight"); 
+      m_ElecIdRobHighE[i] = (*elecHandle)[i].electronID("eidRobustHighEnergy"); 
       
       m_ElecCaloEnergy[i] = (*elecHandle)[i].caloEnergy();
       m_ElecHOverE[i]     = (*elecHandle)[i].hadronicOverEm();
@@ -549,6 +550,7 @@ void LeptonAnalyzerPAT::bookTTree() {
   mLeptonData->Branch(prefix_+"ElecIdTight",    m_ElecIdTight,    prefix_+"ElecIdTight["+prefix_+"ElecN]/double");
   mLeptonData->Branch(prefix_+"ElecIdRobLoose", m_ElecIdRobLoose, prefix_+"ElecIdRobLoose["+prefix_+"ElecN]/double");
   mLeptonData->Branch(prefix_+"ElecIdRobTight", m_ElecIdRobTight, prefix_+"ElecIdRobTight["+prefix_+"ElecN]/double");
+  mLeptonData->Branch(prefix_+"ElecIdRobHighE", m_ElecIdRobHighE, prefix_+"ElecIdRobHighE["+prefix_+"ElecN]/double");
   mLeptonData->Branch(prefix_+"ElecChargeMode", m_ElecChargeMode, prefix_+"ElecChargeMode["+prefix_+"ElecN]/double");
   mLeptonData->Branch(prefix_+"ElecPtMode",     m_ElecPtTrkMode,  prefix_+"ElecPtMode["+prefix_+"ElecN]/double");
 

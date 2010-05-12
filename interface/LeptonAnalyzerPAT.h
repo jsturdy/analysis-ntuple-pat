@@ -93,6 +93,7 @@ private:
   double m_ElecIdTight[50];
   double m_ElecIdRobLoose[50];
   double m_ElecIdRobTight[50];
+  double m_ElecIdRobHighE[50];
   double m_ElecChargeMode[50];
   double m_ElecPtTrkMode[50];
   double m_ElecQOverPErrTrkMode[50];

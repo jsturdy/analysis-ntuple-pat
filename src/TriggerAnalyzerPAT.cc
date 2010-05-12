@@ -13,7 +13,7 @@ Description: Collects the trigger results and performs a basic trigger selection
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: TriggerAnalyzerPAT.cc,v 1.4 2010/04/05 15:25:37 sturdy Exp $
+// $Id: TriggerAnalyzerPAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
 //
 //
 //#include "SusyAnalysis/EventSelector/interface/BJetEventSelector.h"
@@ -116,22 +116,6 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup&
   // Get results
   const edm::TriggerNames & trgNames = iEvent.triggerNames(*hltHandle);
     
-  //if( triggerNames.triggerIndex("HLT_PhysicsDeclared") != triggerNames.size() )
-  //  if (triggerResults->accept(triggerNames.triggerIndex("HLT_PhysicsDeclared"))) {
-  //    if (physdecME) physdecME->Fill(1.5);
-  //    if(_doHLTPhysicsOn) bPhysicsDeclared = true;
-  //  }
-  //
-  ////sanity check
-  //assert(triggerResults->size()==hltConfig_.size());
-  ////check the trigger results
-  //for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
-  //  if (triggerResults->accept(j)){
-  //    if (hltpathME) hltpathME->Fill(j);
-  //  }
-  //}
-
-  //trgNames.init(*hltHandle);
   unsigned int trgSize = trgNames.size();
   
   // Example for OR of all specified triggers
@@ -149,19 +133,6 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup&
     if (accept) ++nAccept_;
     if (hltHandle->error() ) nErrors_++;
   }
-  //if (!init_) {
-  //  init_=true;
-  //  triggerNames_.init(*hltHandle);
-  //  pathNames_=triggerNames_.triggerNames();
-  //  const unsigned int n(pathNames_.size());
-  //  hlWasRun_.resize(n);
-  //  hlAccept_.resize(n);
-  //  hlErrors_.resize(n);
-  //  for (unsigned int i=0; i!=n; ++i) {
-  //    hlWasRun_[i]=0;
-  //    hlAccept_[i]=0;
-  //    hlErrors_[i]=0;
-  //  }}
 
   // decision for each HL algorithm
   const unsigned int n(pathNames_.size());

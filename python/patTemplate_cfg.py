@@ -24,7 +24,8 @@ process.GlobalTag.globaltag = cms.string('START36_V4::All')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Standard PAT Configuration File
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+#process.load("PhysicsTools.PatAlgos.patSequences_cff")
+from PhysicsTools.PatAlgos.patSequences_cff import *
 
 ## Output Module Configuration (expects a path 'p')
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent

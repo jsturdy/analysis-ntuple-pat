@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.4 2010/04/05 15:25:37 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
 //
 //
 
@@ -162,10 +162,12 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	jetsumpx += (*jetHandle)[k].momentum().X();
 	jetsumpy += (*jetHandle)[k].momentum().Y();
 	
+	//if (doMCData_) {
 	if((*jetHandle)[k].genJet()!= 0) {
 	  gensumpt += (*jetHandle)[k].genJet()->pt();
 	  gensumpx += (*jetHandle)[k].genJet()->momentum().X();
 	  gensumpy += (*jetHandle)[k].genJet()->momentum().Y();
+	//}
 	}
       }
     }
@@ -318,12 +320,13 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
   m_MHx    = -jetsumpx;
   m_MHy    = -jetsumpy;
   m_MHt    = -sqrt(jetsumpx*jetsumpx+jetsumpy*jetsumpy);
-    
-  m_GenHt  = gensumpt;
-  m_GenMHx = -gensumpx;
-  m_GenMHy = -gensumpy;
-  m_GenMHt = -sqrt(gensumpx*gensumpx+gensumpy*gensumpy);
-
+  
+  //if (doMCData_) {
+    m_GenHt  = gensumpt;
+    m_GenMHx = -gensumpx;
+    m_GenMHy = -gensumpy;
+    m_GenMHt = -sqrt(gensumpx*gensumpx+gensumpy*gensumpy);
+    //}
   //determine preselection requirement based on calo jets
   //if (m_NJets>int(selJetMaxEta_.size())) {
   //  m_JetPreselection = true;
@@ -352,23 +355,23 @@ void JetAnalyzerPAT::bookTTree() {
   mJetData->Branch(prefix_+"MHy",     &m_MHy,     prefix_+"MHy/double");
   mJetData->Branch(prefix_+"MHt",     &m_MHt,     prefix_+"MHt/double");
     
-  mJetData->Branch(prefix_+"JetE",     m_JetE,     prefix_+"JetE[NJets]/double");
-  mJetData->Branch(prefix_+"JetEt",    m_JetEt,    prefix_+"JetEt[NJets]/double");
-  mJetData->Branch(prefix_+"JetPt",    m_JetPt,    prefix_+"JetPt[NJets]/double");
-  mJetData->Branch(prefix_+"JetPx",    m_JetPx,    prefix_+"JetPx[NJets]/double");
-  mJetData->Branch(prefix_+"JetPy",    m_JetPy,    prefix_+"JetPy[NJets]/double");
-  mJetData->Branch(prefix_+"JetPz",    m_JetPz,    prefix_+"JetPz[NJets]/double");
-  mJetData->Branch(prefix_+"JetRawE",  m_JetRawE,  prefix_+"JetRawE[NJets]/double");
-  mJetData->Branch(prefix_+"JetRawEt", m_JetRawEt, prefix_+"JetRawEt[NJets]/double");
-  mJetData->Branch(prefix_+"JetRawPt", m_JetRawPt, prefix_+"JetRawPt[NJets]/double");
-  mJetData->Branch(prefix_+"JetRawPx", m_JetRawPx, prefix_+"JetRawPx[NJets]/double");
-  mJetData->Branch(prefix_+"JetRawPy", m_JetRawPy, prefix_+"JetRawPy[NJets]/double");
-  mJetData->Branch(prefix_+"JetRawPz", m_JetRawPz, prefix_+"JetRawPz[NJets]/double");
-  mJetData->Branch(prefix_+"JetEta",   m_JetEta,   prefix_+"JetEta[NJets]/double");
-  mJetData->Branch(prefix_+"JetPhi",   m_JetPhi,   prefix_+"JetPhi[NJets]/double");
-  mJetData->Branch(prefix_+"JetFem",   m_JetFem,   prefix_+"JetFem[NJets]/double");
-  mJetData->Branch(prefix_+"JetFhad",  m_JetFhad,  prefix_+"JetFhad[NJets]/double");
-  //mJetData->Branch(prefix_+"JetHemi", m_JetHemi, prefix_+"JetHemi[NJets]/int");
+  mJetData->Branch(prefix_+"JetE",     m_JetE,     prefix_+"JetE["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetEt",    m_JetEt,    prefix_+"JetEt["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetPt",    m_JetPt,    prefix_+"JetPt["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetPx",    m_JetPx,    prefix_+"JetPx["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetPy",    m_JetPy,    prefix_+"JetPy["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetPz",    m_JetPz,    prefix_+"JetPz["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetRawE",  m_JetRawE,  prefix_+"JetRawE["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetRawEt", m_JetRawEt, prefix_+"JetRawEt["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetRawPt", m_JetRawPt, prefix_+"JetRawPt["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetRawPx", m_JetRawPx, prefix_+"JetRawPx["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetRawPy", m_JetRawPy, prefix_+"JetRawPy["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetRawPz", m_JetRawPz, prefix_+"JetRawPz["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetEta",   m_JetEta,   prefix_+"JetEta["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetPhi",   m_JetPhi,   prefix_+"JetPhi["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetFem",   m_JetFem,   prefix_+"JetFem["+prefix_+"NJets]/double");
+  mJetData->Branch(prefix_+"JetFhad",  m_JetFhad,  prefix_+"JetFhad["+prefix_+"NJets]/double");
+  //mJetData->Branch(prefix_+"JetHemi", m_JetHemi, prefix_+"JetHemi["+prefix_+"NJets]/int");
   mJetData->Branch(prefix_+"JetPreselection", &m_JetPreselection, prefix_+"JetPreselection/bool");
 
   //b-tagging information

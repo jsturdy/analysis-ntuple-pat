@@ -11,7 +11,7 @@
 //
 // Original Author:  Jared Sturdy
 //         Created:  Tue Feb 2 12:11:44 PDT 2010
-// $Id: METAnalyzerPAT.cc,v 1.4 2010/04/05 15:25:37 sturdy Exp $
+// $Id: METAnalyzerPAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/METAnalyzerPAT.h"
@@ -142,22 +142,22 @@ void METAnalyzerPAT::bookTTree() {
   mMETData->Branch("nFull"+prefix_+"MET",   &nFullMET,   "nFull"+prefix_+"MET/int");
   mMETData->Branch("nUncorr"+prefix_+"MET", &nUncorrMET, "nUncorr"+prefix_+"MET/int");
 
-  mMETData->Branch(prefix_+"MET_fullcorr_nocc",              m_MET_Fullcorr_nocc,             prefix_+"MET_Fullcorr_nocc[nFull"+prefix_+prefix_+"MET]/double");
+  mMETData->Branch(prefix_+"MET_fullcorr_nocc",              m_MET_Fullcorr_nocc,             prefix_+"MET_Fullcorr_nocc[nFull"+prefix_+"MET]/double");
   mMETData->Branch(prefix_+"METphi_fullcorr_nocc",          &m_METphi_Fullcorr_nocc,          prefix_+"METphi_Fullcorr_nocc/double");
   mMETData->Branch(prefix_+"METsumEt_fullcorr_nocc",        &m_METsumEt_Fullcorr_nocc,        prefix_+"METsumEt_Fullcorr_nocc/double");
   mMETData->Branch(prefix_+"METsignificance_Fullcorr_nocc", &m_METsignificance_Fullcorr_nocc, prefix_+"METsignificance_Fullcorr_nocc/double");
   
-  mMETData->Branch(prefix_+"MET_nocorr_nocc",       m_MET_Nocorr_nocc,      prefix_+"MET_Nocorr_nocc[nUncorr"+prefix_+prefix_+"MET]/double");
+  mMETData->Branch(prefix_+"MET_nocorr_nocc",       m_MET_Nocorr_nocc,      prefix_+"MET_Nocorr_nocc[nUncorr"+prefix_+"MET]/double");
   mMETData->Branch(prefix_+"METpt_nocorr_nocc",    &m_METpt_Nocorr_nocc,    prefix_+"METpt_Nocorr_nocc/double");
   mMETData->Branch(prefix_+"METphi_nocorr_nocc",   &m_METphi_Nocorr_nocc,   prefix_+"METphi_Nocorr_nocc/double");
   mMETData->Branch(prefix_+"METsumEt_nocorr_nocc", &m_METsumEt_Nocorr_nocc, prefix_+"METsumEt_Nocorr_nocc/double");
   
-  mMETData->Branch(prefix_+"MET_muoncorr_nocc",       m_MET_Muoncorr_nocc,      prefix_+"MET_Muoncorr_nocc[nUncorr"+prefix_+prefix_+"MET]/double");
+  mMETData->Branch(prefix_+"MET_muoncorr_nocc",       m_MET_Muoncorr_nocc,      prefix_+"MET_Muoncorr_nocc[nUncorr"+prefix_+"MET]/double");
   mMETData->Branch(prefix_+"METpt_muoncorr_nocc",    &m_METpt_Muoncorr_nocc,    prefix_+"METpt_Muoncorr_nocc/double");
   mMETData->Branch(prefix_+"METphi_muoncorr_nocc",   &m_METphi_Muoncorr_nocc,   prefix_+"METphi_Muoncorr_nocc/double");
   mMETData->Branch(prefix_+"METsumEt_muoncorr_nocc", &m_METsumEt_Muoncorr_nocc, prefix_+"METsumEt_Muoncorr_nocc/double");
   
-  mMETData->Branch(prefix_+"MET_jeccorr_nocc",       m_MET_JECcorr_nocc,       prefix_+"MET_JECcorr_nocc[nUncorr"+prefix_+prefix_+"MET]/double");
+  mMETData->Branch(prefix_+"MET_jeccorr_nocc",       m_MET_JECcorr_nocc,       prefix_+"MET_JECcorr_nocc[nUncorr"+prefix_+"MET]/double");
   mMETData->Branch(prefix_+"METpt_jeccorr_nocc",    &m_METpt_JECcorr_nocc,     prefix_+"METpt_JECcorr_nocc/double");
   mMETData->Branch(prefix_+"METphi_jeccorr_nocc",   &m_METphi_JECcorr_nocc,    prefix_+"METphi_JECcorr_nocc/double");
   mMETData->Branch(prefix_+"METsumEt_jeccorr_nocc",  &m_METsumEt_JECcorr_nocc, prefix_+"METsumEt_JECcorr_nocc/double");
