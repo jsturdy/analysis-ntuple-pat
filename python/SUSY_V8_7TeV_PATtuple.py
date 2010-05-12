@@ -11,8 +11,8 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.29 $'),
-            name = cms.untracked.string('$Source: /local/projects/CMSSW/rep/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
+        version = cms.untracked.string('$Revision: 1.1 $'),
+            name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/UserCode/JSturdy/SUSY/AnalysisNtuplePAT/python/SUSY_V8_7TeV_PATtuple.py,v $'),
             annotation = cms.untracked.string('SUSY pattuple definition')
         )
 
@@ -57,8 +57,6 @@ process.out.dropMetaData = cms.untracked.string('DROPPED')   # Get rid of metada
 process.out.outputCommands = cms.untracked.vstring('drop *', *SUSY_pattuple_outputCommands )
 
 ################################## Extras ####################################
-process.load("JSturdy.AnalysisNtuplePAT.eventCleanupPAT_cfi")
-process.load("JSturdy.AnalysisNtuplePAT.rerecoCleanedCollections_cfi")
 
 #-- Execution path ----------------------------------------------------------#
 
@@ -78,6 +76,12 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 
 #from JSturdy.DiJetAnalysis.diJetAnalyzer_cff import doDiJetAnalysis
 process.load("JSturdy.AnalysisNtuplePAT.analysisNtuplePAT_cff")
+#from JSturdy.AnalysisNtuplePAT.eventCleanupPAT_cfi import *
+process.load("JSturdy.AnalysisNtuplePAT.eventCleanupPAT_cfi")
+#from JSturdy.AnalysisNtuplePAT.rerecoCleanedCollections_cfi import *
+process.load("JSturdy.AnalysisNtuplePAT.rerecoCleanedCollections_cfi")
+
+
 
 ## Full path
 #process.pattify = cms.Path(
@@ -86,18 +90,23 @@ process.load("JSturdy.AnalysisNtuplePAT.analysisNtuplePAT_cff")
 #    process.seqSUSYDefaultSequence 
 #)
 
+#process.p = cms.Path(
+#    process.rerecoData             *
+#    process.cleanupFilterData      *
+#    process.seqSUSYDefaultSequence *
+#    process.doAnalysisNtuplePAT
+#)
+
 process.schedule = cms.Schedule(
+    process.rerecoData,
     process.cleanupFilterData,
-    reflagging_step,
-    rereco_step,
-    highlevelreco_step,
     process.seqSUSYDefaultSequence,
     process.doAnalysisNtuplePAT
 )
 
-#-- Dump config ------------------------------------------------------------
-file = open('SusyPAT_cfg.py','w')
-file.write(str(process.dumpPython()))
-file.close()
+##-- Dump config ------------------------------------------------------------
+#file = open('SusyPAT_cfg.py','w')
+#file.write(str(process.dumpPython()))
+#file.close()
 
 

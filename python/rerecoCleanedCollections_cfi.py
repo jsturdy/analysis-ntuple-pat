@@ -37,6 +37,7 @@ from JetMETAnalysis.HcalReflagging.HFrechitreflaggerJETMET_cff import *
 #hfrecoReflagged = HFrechitreflaggerJETMETv1.clone()
 #hfrecoReflagged = HFrechitreflaggerJETMETv2.clone()
 hfrecoReflagged = HFrechitreflaggerJETMETv3.clone()
+###Do not use for MC until global timing phase has been solidified
 #hfrecoReflagged = HFrechitreflaggerJETMETv4.clone()
 
 # do all cloning for the jetmetreco sequence:
@@ -46,10 +47,9 @@ towerMaker.hfInput = cms.InputTag("hfrecoReflagged")
 
 # Need to specify new severity levels to make use of the new flags!
 import JetMETAnalysis.HcalReflagging.RemoveAddSevLevel as RemoveAddSevLevel
-# Both hf and hbhe reflagging store their new flags in bit 31 (UserDefinedBit31) --
+# Both hf and hbhe reflagging store their new flags in bit 31 (UserDefinedBit0) --
 # set this value to 10 so that flagged hits are excluded from the towers
-#hcalRecAlgos = RemoveAddSevLevel.AddFlag(hcalRecAlgos,"UserDefinedBit0",10) ##typo?
-hcalRecAlgos = RemoveAddSevLevel.AddFlag(hcalRecAlgos,"UserDefinedBit31",10)
+hcalRecAlgos = RemoveAddSevLevel.AddFlag(hcalRecAlgos,"UserDefinedBit0",10)
 
 #-- ECAL Cleaning - ---------------------------------------------------------#
 from RecoEcal.EgammaClusterProducers.ecalRecHitFlags_cfi import *
@@ -84,6 +84,7 @@ rereco_step = cms.Sequence(
     )     *
     recoJetAssociations *
     metreco
+    #cleanedmetreco?
 ) # re-reco jets and met
 
 #The following sequence is very similar to highlevelreco step in reconstruction.
@@ -95,3 +96,8 @@ highlevelreco_step = cms.Sequence(
     btagging
 )
 
+rerecoData = cms.Sequence(
+    reflagging_step +
+    rereco_step     +
+    highlevelreco_step
+)

@@ -8,7 +8,7 @@ cleanTCMET = cms.EDProducer('CleanedTCMETProducer',
     eeRechitInputTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
     jetInputTag       = cms.InputTag("ak5CaloJets"),
     jetIDinputTag     = cms.InputTag("ak5JetID"),
-    alias             = cms.string("cleanedTCMET"),
+    alias             = cms.string("tcMetCleaned"),
     useHFcorrection   = cms.bool(True),
     useECALcorrection = cms.bool(True),
     useHCALcorrection = cms.bool(True)
@@ -16,35 +16,35 @@ cleanTCMET = cms.EDProducer('CleanedTCMETProducer',
 
 cleanCaloMET = cleanTCMET.clone(
     tcmetInputTag     = cms.InputTag("met"),
-    alias             = cms.string("cleanedCaloMET")
+    alias             = cms.string("metCleaned")
 )
 cleanCaloMETNoHF = cleanTCMET.clone(
     tcmetInputTag     = cms.InputTag("metNoHF"),
-    alias             = cms.string("cleanedCaloMETNoHF")
+    alias             = cms.string("metNoHFCleaned")
 )
 cleanCaloMETHO = cleanTCMET.clone(
     tcmetInputTag     = cms.InputTag("metHO"),
-    alias             = cms.string("cleanedCaloMETHO")
+    alias             = cms.string("metHOCleaned")
 )
 cleanCaloMETNoHFHO = cleanTCMET.clone(
     tcmetInputTag     = cms.InputTag("metNoHFHO"),
-    alias             = cms.string("cleanedCaloMETNoHFHO")
+    alias             = cms.string("metNoHFHOCleaned")
 )
 cleanCaloMETOpt = cleanTCMET.clone(
     tcmetInputTag     = cms.InputTag("metOpt"),
-    alias             = cms.string("cleanedCaloMETOpt")
+    alias             = cms.string("metOptCleaned")
 )
 cleanCaloMETOptNoHF = cleanTCMET.clone(
     tcmetInputTag     = cms.InputTag("metOptNoHF"),
-    alias             = cms.string("cleanedCaloMETOptNoHF")
+    alias             = cms.string("metOptNoHFCleaned")
 )
 cleanCaloMETOptHO = cleanTCMET.clone(
     tcmetInputTag     = cms.InputTag("metOptHO"),
-    alias             = cms.string("cleanedCaloMETOptHO")
+    alias             = cms.string("metOptHOCleaned")
 )
 cleanCaloMETOptNoHFHO = cleanTCMET.clone(
     tcmetInputTag     = cms.InputTag("metOptNoHFHO"),
-    alias             = cms.string("cleanedCaloMETOptNoHFHO")
+    alias             = cms.string("metOptNoHFHOCleaned")
 )
 
 #-- PKAM Filtering ----------------------------------------------------------#
@@ -56,17 +56,18 @@ removePKAM = cms.EDFilter("FilterOutScraping",
 )
 
 #-- Vertex Filtering --------------------------------------------------------#
-primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
+primaryVertexFilter = cms.EDFilter("VertexSelector",
+    src = cms.InputTag("offlinePrimaryVertices"),
+    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"), # tracksSize() > 3 for the older cut
+    filter = cms.bool(True)   # otherwise it won't filter the events, just produce an empty vertex collection.
+)
+
+#method 2, not sure which is better
+primaryVertexFilter2 = cms.EDFilter("GoodVertexFilter",
     vertexCollection = cms.InputTag('offlinePrimaryVertices'),
     minimumNDOF = cms.uint32(4) ,
     maxAbsZ = cms.double(15),
     maxd0 = cms.double(2)
-)
-#method 2, not sure which is better
-primaryVertexFilter2 = cms.EDFilter("VertexSelector",
-    src = cms.InputTag("offlinePrimaryVertices"),
-    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"), # tracksSize() > 3 for the older cut
-    filter = cms.bool(True)   # otherwise it won't filter the events, just produce an empty vertex collection.
 )
 
 #-- L1 Tech Trig Filtering --------------------------------------------------#
@@ -112,17 +113,20 @@ physicsDeclared = hltPhysicsDeclared.clone(
 
 cleanupFilterMC = cms.Sequence(
     removePKAM          +
-    primaryVertexFilter +
-    cleanTCMET          +
-    cleanCaloMET
+    primaryVertexFilter #+
+    #(
+    #    cleanTCMET      +
+    #    cleanCaloMET
+    #)
 )
 
 cleanupFilterData = cms.Sequence(
-    removePKAM          +
+    cleanupFilterMC     +
     l1TechFilter        +
-    primaryVertexFilter +
-    physicsDeclared     +
-    cleanTCMET          +
-    cleanCaloMET
+    physicsDeclared     #+
+    #(
+    #    cleanTCMET          +
+    #    cleanCaloMET
+    #)
 )
     
