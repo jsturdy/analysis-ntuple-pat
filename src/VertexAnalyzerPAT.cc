@@ -13,7 +13,7 @@ Description: Collects variables related to vertices, performs a primary vertex c
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: VertexAnalyzerPAT.cc,v 1.5 2010/04/05 15:25:37 sturdy Exp $
+// $Id: VertexAnalyzerPAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
 //
 //
 
@@ -94,19 +94,22 @@ bool VertexAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
 
   // get the Vertex collection
 
-  LogDebug("VertexAnalyzerPAT") << "Vertex results for InputTag" << _vtxTag;
+  edm::LogVerbatim("VertexAnalyzerPAT") << "Vertex results for InputTag" << _vtxTag;
   Handle<VertexCollection> vertices;
   iEvent.getByLabel(_vtxTag, vertices);
+
   if ( !vertices.isValid() ) {
-    LogDebug("VertexAnalyzerPAT") << "No Vertex results for InputTag" << _vtxTag;
+    edm::LogWarning("VertexAnalyzerPAT") << "No Vertex results for InputTag" << _vtxTag;
     return vertexDecision;
   } 
 
-  int tmpnVtx = (*vertices).size();
-  int numVtx = 0;
+  int tmpnVtx  = (*vertices).size();
+  int numVtx   = 0;
+  int tmpNtrks = 0;
   if (tmpnVtx > 10) tmpnVtx = 10;
   for (int i=0; i< tmpnVtx; i++){  
     const reco::Vertex* pVertex = &(*vertices)[i];
+
     if(pVertex->isValid()) {
       m_VtxNormalizedChi2[i] = pVertex->normalizedChi2();
       m_VtxIsValid[i]        = pVertex->isValid();
@@ -120,16 +123,24 @@ bool VertexAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
       m_VtxdY[i]             = pVertex->yError();
       m_VtxdZ[i]             = pVertex->zError();
       m_Vtxd0[i]             = pVertex->position().rho();
-      
-      for (Vertex::trackRef_iterator vertex_curTrack = pVertex->tracks_begin(); vertex_curTrack!=pVertex->tracks_end(); vertex_curTrack++) {
+            
+      int cur_index = 0;
+      for (Vertex::trackRef_iterator vertex_curTrack = pVertex->tracks_begin(); 
+	   vertex_curTrack!=pVertex->tracks_end(); 
+	   vertex_curTrack++) {
+
 	m_VtxSumTrkPt[i] += (*vertex_curTrack)->pt();
+
 	if (pVertex->trackWeight(*vertex_curTrack) > 0.5) 
-	  ++m_VtxNTrks[i];
+	  ++tmpNtrks;
+
+	++cur_index;
       }
-      
+      m_VtxNTrks[i] = tmpNtrks;
       ++numVtx;
     }
   } 
+
   m_nVtx = numVtx;
   if (m_nVtx>=_minNVtx)
     //if (m_VtxNTrks[0]>=_minVtxTrks)
@@ -181,8 +192,8 @@ void VertexAnalyzerPAT::bookTTree() {
   mVertexData->Branch("nVtx",               &m_nVtx,             "nVtx/int");
   mVertexData->Branch("VertexChi2",          m_VtxChi2,          "VertexChi2[nVtx]/double");
   mVertexData->Branch("VertexNdof",          m_VtxNdof,          "VertexNdof[nVtx]/double");
-  mVertexData->Branch("VertexNTrks",          m_VtxNTrks,          "VertexNTrks[nVtx]/double");
-  mVertexData->Branch("VertexNRawTrks",       m_VtxNRawTrks,       "VertexNRawTrks[nVtx]/double");
+  mVertexData->Branch("VertexNTrks",         m_VtxNTrks,         "VertexNTrks[nVtx]/double");
+  mVertexData->Branch("VertexNRawTrks",      m_VtxNRawTrks,      "VertexNRawTrks[nVtx]/double");
   mVertexData->Branch("VertexIsValid",       m_VtxIsValid,       "VertexIsValid[nVtx]/double");
   mVertexData->Branch("VertexNormalizedChi2",m_VtxNormalizedChi2,"VertexNormalizedChi2[nVtx]/double");
 

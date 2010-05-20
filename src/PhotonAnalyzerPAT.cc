@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: PhotonAnalyzerPAT.cc,v 1.3 2010/04/05 15:25:37 sturdy Exp $
+// $Id: PhotonAnalyzerPAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
 //
 //
 
@@ -73,7 +73,7 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   std::ostringstream dbg;
   
   // GEN INFO do only if running on MC data
-  if(doMCData_) {
+  if (doMCData_) {
     
     Handle<reco::GenParticleCollection>  genParticles;
     iEvent.getByLabel(genTag_, genParticles);   
@@ -134,12 +134,12 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   int ph = 0;
   if ( m_PhotN > 50 ) {
     m_PhotN = 50;
-    sprintf(logmessage,"Photon/%d      E     Et    Pt    Px    Py    Pz    Eta    Phi",m_PhotN);
+    if (debug_) sprintf(logmessage,"Photon/%d      E     Et    Pt    Px    Py    Pz    Eta    Phi",m_PhotN);
     if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
   }
   for (int i=0;i<m_PhotN;i++) {
     if ( ((*photHandle)[i].pt() > photMinEt_) && !((*photHandle)[i].eta() > photMaxEta_) ) {
-      edm::LogVerbatim("PhotonEvent") << " looping over good photons " << std::endl;      
+      if (debug_) edm::LogVerbatim("PhotonEvent") << " looping over good photons " << std::endl;      
       m_PhotE[i]   = (*photHandle)[i].energy();
       m_PhotEt[i]  = (*photHandle)[i].et();
       m_PhotPt[i]  = (*photHandle)[i].pt();
@@ -149,7 +149,7 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
       m_PhotEta[i] = (*photHandle)[i].eta();
       m_PhotPhi[i] = (*photHandle)[i].phi();
 
-      sprintf(logmessage,"%6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f", \
+      if (debug_) sprintf(logmessage,"%6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f", \
 	     i,m_PhotE[i],m_PhotEt[i],m_PhotPt[i],m_PhotPx[i],m_PhotPy[i],m_PhotPz[i],m_PhotEta[i],m_PhotPhi[i]);
       if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
     
@@ -167,7 +167,7 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
       	//reco::Particle* part = const_cast<reco::Particle*>( (*photHandle)[i].genPhoton() );
       	const reco::Candidate* candPhot = (*photHandle)[i].genPhoton();
 
-      	sprintf(logmessage,"      PhotGenon      E     Et    Pt    Px    Py    Pz    PdgId    Mother\n");
+      	if (debug_) sprintf(logmessage,"      PhotGenon      E     Et    Pt    Px    Py    Pz    PdgId    Mother\n");
 	if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
 
       	if ( candPhot ) {
@@ -201,7 +201,7 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
       	  m_PhotGenE[i]      = -999;
       	}
 
-      	sprintf(logmessage,"      %6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f\n", \
+      	if (debug_) sprintf(logmessage,"      %6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f\n", \
       	       i,m_PhotGenE[i],m_PhotGenEt[i],m_PhotGenPt[i],m_PhotGenPx[i],m_PhotGenPy[i],m_PhotGenPz[i],m_PhotGenPdgId[i],m_PhotGenMother[i]);
 	if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
 

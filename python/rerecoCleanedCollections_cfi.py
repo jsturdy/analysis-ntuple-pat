@@ -11,7 +11,7 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Services_cff import *
 from FWCore.MessageService.MessageLogger_cfi import *
 from Configuration.StandardSequences.GeometryExtended_cff import *
-from Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff import *
+#from Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 from Configuration.EventContent.EventContent_cff import *
@@ -19,13 +19,10 @@ from Configuration.EventContent.EventContent_cff import *
 
 ################################# Extras ####################################
 #-- HCAL reflagging ---------------------------------------------------------#
-#HBHE Noise
-from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import *
-hbheNoise = HBHENoiseFilter.clone()
-
 from JetMETAnalysis.HcalReflagging.hbherechitreflaggerJETMET_cfi import *
+
 hbherecoReflagged = hbherechitreflaggerJETMET.clone(
-    debug = cms.int32(0)
+    debug = cms.untracked.int32(0)
 )
 
 
@@ -72,17 +69,17 @@ ecalCleaning = hybridSuperClusters.clone(
 
 
 
-reflagging_step = cms.Sequence(hfrecoReflagged)
+reflagging_step = cms.Sequence(hfrecoReflagged + hbherecoReflagged)
 
 
 rereco_step = cms.Sequence(
-    caloTowersRec       *
+    caloTowersRec         *
     (
-        recoJets   * #does this include jpt, and pf?
-        recoJetIds +
+        recoJets          * #does this include jpt, and pf?
+        recoJetIds        +
         recoTrackJets
-    )     *
-    recoJetAssociations *
+    )                     *
+    recoJetAssociations   *
     metreco
     #cleanedmetreco?
 ) # re-reco jets and met
@@ -91,13 +88,14 @@ rereco_step = cms.Sequence(
 #However, the PF is removed as it needs input from normal reco
 #(see Configuration/StandardSequences/python/Reconstruction_cff.py)
 highlevelreco_step = cms.Sequence(
-    recoJetAssociations*
+    recoJetAssociations   *
+    recoJPTJets           *
     # re-associate to jets
     btagging
 )
 
-rerecoData = cms.Sequence(
-    reflagging_step +
-    rereco_step     +
-    highlevelreco_step
-)
+#rerecoData = cms.Sequence(
+#    reflagging_step +
+#    rereco_step     +
+#    highlevelreco_step
+#)

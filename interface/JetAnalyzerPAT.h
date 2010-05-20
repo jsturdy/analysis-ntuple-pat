@@ -141,16 +141,26 @@ class JetAnalyzerPAT {
   double m_JetfRBX[50];
   double m_JetN90[50];
 
+  //jpt jet specific
+  double m_JetElecMult[50];
+
   //pf jet specific
   double m_JetChargedFem[50];
   double m_JetNeutralFem[50];
   double m_JetChargedFhad[50];
   double m_JetNeutralFhad[50];
   double m_JetChargedFmu[50];
+  double m_JetChargedFele[50];
+  double m_JetChargedFHFHad[50];
+  double m_JetChargedFHFEM[50];
   
   double m_JetChargedMult[50];
   double m_JetNeutralMult[50];
   double m_JetMuonMult[50];
+  double m_JetPhotMult[50];
+  double m_JetHFHadMult[50];
+  double m_JetHFEMMult[50];
+  double m_JetHFMult[50];
 
   // track info:
   int    m_JetTrackNo[50];

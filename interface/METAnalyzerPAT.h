@@ -86,11 +86,11 @@ class METAnalyzerPAT {
   double m_METsumEt_Muoncorr_nocc;
   double m_METsignificance_Muoncorr_nocc;
 
-  double m_MET_JECcorr_nocc[2];
-  double m_METpt_JECcorr_nocc;
-  double m_METphi_JECcorr_nocc;
-  double m_METsumEt_JECcorr_nocc;
-  double m_METsignificance_JECcorr_nocc;
+  double m_MET_JEScorr_nocc[2];
+  double m_METpt_JEScorr_nocc;
+  double m_METphi_JEScorr_nocc;
+  double m_METsumEt_JEScorr_nocc;
+  double m_METsignificance_JEScorr_nocc;
 
   double localPi;
 };

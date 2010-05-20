@@ -22,9 +22,11 @@ def addDefaultSUSYPAT(process, mcInfo=True, HLTMenu='HLT', JetMetCorrections='Sp
 
     # Full path
     process.susyPatDefaultSequence = cms.Sequence( process.eventCountProducer 
-                                                   * process.patDefaultSequence * process.patPF2PATSequencePF
-                                                   * process.patTrigger * process.patTriggerEvent
-                                                    )
+                                                 * process.patDefaultSequence
+                                                 * process.patPF2PATSequencePF
+                                                 * process.patTrigger
+                                                 * process.patTriggerEvent
+                                                 )
 
     if mcVersion == '35x' and 'JPT' in ''.join(theJetNames): 
     	process.susyPatDefaultSequence.replace(process.eventCountProducer, process.eventCountProducer * process.recoJPTJets)
@@ -159,12 +161,45 @@ def addJetMET(process,theJetNames,mcVersion):
     
     # Add tcMET
     from PhysicsTools.PatAlgos.tools.metTools import addTcMET #, addPfMET
-    addTcMET(process,'TC')
+    addTcMET(process,'TC', 'tcMet')
+    ###tcMET cleaned as per FGolf's code
+    addTcMET(process,'TCClean','tcMetCleaned')
     #addPfMET(process,'PF') #is in PF2PAT
 
     # Rename default jet collection for uniformity
     process.cleanPatJetsAK5Calo = process.cleanPatJets
-    process.patMETsAK5Calo      = process.patMETs
+    process.patMETsAK5Calo      = process.patMETs.clone(
+        metSource = cms.InputTag("myMETJESCorAK5CaloJetMuons")
+        )
+    ###updated Type II corrected MET
+    process.patMETsAK5CaloTypeII = process.patMETs.clone(
+        metSource = cms.InputTag("myMETJESCorAK5CaloJetMuonsTypeII")
+    )
+
+    ###updated Type II corrected MET and  metOpt Collection
+    process.patMETsAK5CaloOpt = process.patMETs.clone(
+        metSource = cms.InputTag("myMETJESCorAK5CaloJetMuonsOpt")
+    )
+    process.patMETsAK5CaloOptTypeII = process.patMETs.clone(
+        metSource = cms.InputTag("myMETJESCorAK5CaloJetMuonsOptTypeII")
+    )
+
+    ###updated Type II corrected MET and ECAL cleaned input met Collection
+    process.patMETsAK5CaloClean = process.patMETs.clone(
+        metSource = cms.InputTag("myMETJESCorAK5CaloJetMuonsClean")
+    )
+    process.patMETsAK5CaloCleanTypeII = process.patMETs.clone(
+        metSource = cms.InputTag("myMETJESCorAK5CaloJetMuonsCleanTypeII")
+    )
+
+    ###updated Type II corrected MET and ECAL cleaned input metOpt Collection
+    process.patMETsAK5CaloCleanOpt = process.patMETs.clone(
+        metSource = cms.InputTag("myMETJESCorAK5CaloJetMuonsCleanOpt")
+    )
+    process.patMETsAK5CaloCleanOptTypeII = process.patMETs.clone(
+        metSource = cms.InputTag("myMETJESCorAK5CaloJetMuonsCleanOptTypeII")
+    )
+
     process.patMHTsAK5Calo      = process.patMHTs
 
     # Modify subsequent modules
@@ -182,7 +217,16 @@ def addJetMET(process,theJetNames,mcVersion):
 
     # Modify counters' input
     process.patCandidateSummary.candidates.remove(cms.InputTag('patMETs'))
+    ##updated Type I and Type II cleaned Muon Corrected and JES corrected CaloMET
     process.patCandidateSummary.candidates.append(cms.InputTag('patMETsAK5Calo'))
+    process.patCandidateSummary.candidates.append(cms.InputTag('patMETsAK5CaloOpt'))
+    process.patCandidateSummary.candidates.append(cms.InputTag('patMETsAK5CaloClean'))
+    process.patCandidateSummary.candidates.append(cms.InputTag('patMETsAK5CaloCleanOpt'))
+    process.patCandidateSummary.candidates.append(cms.InputTag('patMETsAK5CaloTypeII'))
+    process.patCandidateSummary.candidates.append(cms.InputTag('patMETsAK5CaloOptTypeII'))
+    process.patCandidateSummary.candidates.append(cms.InputTag('patMETsAK5CaloCleanTypeII'))
+    process.patCandidateSummary.candidates.append(cms.InputTag('patMETsAK5CaloCleanOptTypeII'))
+
     process.patCandidateSummary.candidates.append(cms.InputTag('patMHTsAK5Calo'))
     process.cleanPatCandidateSummary.candidates.remove(cms.InputTag('cleanPatJets'))
     process.cleanPatCandidateSummary.candidates.append(cms.InputTag('cleanPatJetsAK5Calo'))

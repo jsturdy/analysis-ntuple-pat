@@ -8,10 +8,10 @@
 # Starting with a skeleton process which gets imported with the following line
 #from PhysicsTools.PatAlgos.patTemplate_cfg import *
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-
+isData = True
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.2 $'),
+        version = cms.untracked.string('$Revision: 1.3 $'),
             name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/UserCode/JSturdy/SUSY/AnalysisNtuplePAT/python/SUSY_V8_7TeV_PATtuple.py,v $'),
             annotation = cms.untracked.string('SUSY pattuple definition')
         )
@@ -38,13 +38,13 @@ process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 
 #-- Calibration tag -----------------------------------------------------------
 # Should match input file's tag
-process.GlobalTag.globaltag = 'GR10_P_V5::All'
+process.GlobalTag.globaltag = 'GR_R_36X_V10::All'
 
 ############################# START SUSYPAT specifics ####################################
-from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
+from JSturdy.AnalysisNtuplePAT.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
 #from PhysicsTools.Configuration.SUSY_pattuple_cff import *
 #Apply SUSYPAT, parameters are: mcInfo, HLT menu, Jet energy corrections, mcVersion ('35x' for 35x samples, empty string for 36X samples),JetCollections
-addDefaultSUSYPAT(process,False,'HLT','Spring10','35x',['AK5Track', 'AK5PF','AK5JPT'])
+addDefaultSUSYPAT(process,False,'HLT','Spring10','35x',['AK5Calo','AK5Track', 'AK5PF','AK5JPT'])
 SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 ############################## END SUSYPAT specifics ####################################
 
@@ -76,40 +76,63 @@ process.TFileService = cms.Service("TFileService",
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 
+#from JSturdy.AnalysisNtuplePAT.analysisNtuplePAT_cff import *
+#theNtupler = doAnalysisNtuplePAT
 process.load("JSturdy.AnalysisNtuplePAT.analysisNtuplePAT_cff")
+process.theNtupler = cms.Path(process.doAnalysisNtuplePAT)
+
+#from JSturdy.AnalysisNtuplePAT.rerecoCleanedCollections_cfi import *
+#process.redojetmet = cms.Path(process.rerecoData)
+process.load("JSturdy.AnalysisNtuplePAT.rerecoCleanedCollections_cfi")
+process.reflagstep       = cms.Path(process.reflagging_step)
+process.redorecostep     = cms.Path(process.rereco_step)
+process.redoassociations = cms.Path(process.highlevelreco_step)
+#process.redojetmet       = cms.Path(process.reflagstuff*process.redorecostep*process.redoassociations)
 #from JSturdy.AnalysisNtuplePAT.eventCleanupPAT_cfi import *
 process.load("JSturdy.AnalysisNtuplePAT.eventCleanupPAT_cfi")
-#from JSturdy.AnalysisNtuplePAT.rerecoCleanedCollections_cfi import *
-process.load("JSturdy.AnalysisNtuplePAT.rerecoCleanedCollections_cfi")
-#process.load("JSturdy.AnalysisNtuplePAT.patSequences_cff")
+if isData :
+    process.cleanEvents = cms.Sequence(process.cleanupFilterData)
+else :
+    process.cleanEvents = cms.Sequence(process.cleanupFilterMC)
+
+process.selectClean = cms.Path(process.cleanEvents)
+
+process.load("JSturdy.AnalysisNtuplePAT.MetTypeICorrections_cff")
+process.load("JSturdy.AnalysisNtuplePAT.jetMETCorrections_cff")
+
+process.makethemets = cms.Path(
+    process.myMetJESCorrections   *
+    process.myMetMuonCorrections
+    )
+    
+process.susyStep = cms.Path(process.susyPatDefaultSequence)
 
 
-## Full path
-#process.pattify = cms.Path(
-#    #process.fixedMETSequence          *
-#    #process.addTrackJets          *
-#    process.seqSUSYDefaultSequence 
-#)
-
-process.p = cms.Path(
-    process.rerecoData             *
-    process.cleanupFilterData      *
-    #process.seqSUSYDefaultSequence *
-    process.susyPatDefaultSequence  *
-    process.doAnalysisNtuplePAT
-)
-
-#process.schedule = cms.Schedule(
-#    process.rerecoData,
-#    process.cleanupFilterData,
-#    #process.seqSUSYDefaultSequence,
-#    process.susyPatDefaultSequence,
+#process.p = cms.Path(
+#    process.reflagging_step         *
+#    process.rereco_step             *
+#    process.highlevelreco_step      *
+#    process.cleanEvents             *
+#    process.myMetJESCorrections     *
+#    process.myMetMuonCorrections    *
+#    process.susyPatDefaultSequence  *
 #    process.doAnalysisNtuplePAT
 #)
 
-##-- Dump config ------------------------------------------------------------
-#file = open('SusyPAT_cfg.py','w')
-#file.write(str(process.dumpPython()))
-#file.close()
+process.schedule = cms.Schedule(
+    process.reflagstep,
+    process.redorecostep,
+    process.redoassociations,
+    process.selectClean,
+    process.makethemets,
+    #process.seqSUSYDefaultSequence,
+    process.susyStep#,
+#    process.theNtupler
+)
+
+#-- Dump config ------------------------------------------------------------
+file = open('SusyPAT_cfg.py','w')
+file.write(str(process.dumpPython()))
+file.close()
 
 

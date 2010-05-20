@@ -78,8 +78,8 @@ class VertexAnalyzerPAT {
   double m_Beamspot_BetaStar;
 
   int    m_nVtx;
-  int    m_VtxNTrks[10];
-  int    m_VtxNRawTrks[10];
+  double m_VtxNTrks[10];
+  double m_VtxNRawTrks[10];
   double m_VtxChi2[10];
   double m_VtxNdof[10];
   double m_VtxIsValid[10];

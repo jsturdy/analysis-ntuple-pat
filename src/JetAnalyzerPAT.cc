@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.3 2010/05/12 22:35:47 sturdy Exp $
 //
 //
 
@@ -62,7 +62,7 @@ JetAnalyzerPAT::JetAnalyzerPAT(const edm::ParameterSet& jetParams, TTree* tmpAll
   // get the data tags
   usePFJets_    = jetParams.getUntrackedParameter<bool>("usePFJets",false);
   useJPTJets_   = jetParams.getUntrackedParameter<bool>("useJPTJets",false);
-  useCaloJets_  = jetParams.getUntrackedParameter<bool>("useCaloJets",true);
+  useCaloJets_  = jetParams.getUntrackedParameter<bool>("useCaloJets",false);
   useTrackJets_ = jetParams.getUntrackedParameter<bool>("useTrackJets",false);
 
   jetTag_     = jetParams.getUntrackedParameter<edm::InputTag>("jetTag");
@@ -127,18 +127,29 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
     return false;
   }
 
-  edm::Handle< std::vector<pat::Jet> > jptHandle;
-  if (useJPTJets_) {
-    // get the JPT-corrected pat::Jets
-    iEvent.getByLabel(jptJetTag_, jptHandle);
-    if ( !jptHandle.isValid() ) {
-      edm::LogWarning("DiJetEvent::JetAnalyzerPAT") << "No JetCorrFactor results for InputTag " << jptJetTag_;
-      return false;
-    }
-  }
+  //edm::Handle< std::vector<pat::Jet> > jptHandle;
+  //if (useJPTJets_) {
+  //  // get the JPT-corrected pat::Jets
+  //  iEvent.getByLabel(jptJetTag_, jptHandle);
+  //  if ( !jptHandle.isValid() ) {
+  //    edm::LogWarning("DiJetEvent::JetAnalyzerPAT") << "No JetCorrFactor results for InputTag " << jptJetTag_;
+  //    return false;
+  //  }
+  //}
 
   //get number of jets
   m_NJets = jetHandle->size();
+  edm::LogInfo("DiJetEvent::JetAnalyzerPAT") << "Processing Jets for InputTag " << jetTag_;
+  if (debug_) std::cout<< "Processing "<<jetHandle->size() <<" Jets for InputTag " << jetTag_<<std::endl;
+  if (debug_) {
+    if (m_NJets) {
+      std::cout<< "isCalo "<<(*jetHandle)[0].isCaloJet() <<" Jets for InputTag " << jetTag_<<std::endl;
+      std::cout<< "isJPT "<<(*jetHandle)[0].isJPTJet() <<" Jets for InputTag " << jetTag_<<std::endl;
+      std::cout<< "isPF "<<(*jetHandle)[0].isPFJet() <<" Jets for InputTag " << jetTag_<<std::endl;
+      //std::cout<< "isTrack "<<(*jetHandle)[0].isTrackJet() <<" Jets for InputTag " << jetTag_<<std::endl;
+      std::cout<< "isBasic "<<(*jetHandle)[0].isBasicJet() <<" Jets for InputTag " << jetTag_<<std::endl;
+    }
+  }
 
   // Add the jets
   int i = 0;
@@ -176,35 +187,42 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
     /******************Now collect all the Jet related variables***************************/
     if ((*jetHandle)[k].pt() > jetMinPt_) {
       if (fabs((*jetHandle)[k].eta()) < jetMaxEta_) {
+	if (debug_) std::cout<<"Passed minimum jet id requirements"<<std::endl;
 	
-	const reco::TrackRefVector & mrTracksInJet = (*jetHandle)[k].associatedTracks();
-	
-	m_JetTrackPt[k]          = 0;
-	m_JetTrackPhi[k]         = 0;
-	m_JetTrackPhiWeighted[k] = 0;
-	m_JetTrackNo[k]          = 0;
-	
-	float JetPhi = (*jetHandle)[k].phi();
-	
-	for (reco::TrackRefVector::iterator aIter = mrTracksInJet.begin();aIter!= mrTracksInJet.end();aIter++)
-	  {
-	    m_JetTrackPt[k] += (*aIter)->pt();
-	    float myPhi = (*aIter)->phi();
-	    if( JetPhi > 2. ) {
-	      if(myPhi<0) myPhi = myPhi + 2*TMath::Pi();
+
+	if ((*jetHandle)[k].isCaloJet()) {
+	  
+	  if (debug_) std::cout<<"Getting track information from jets"<<std::endl;
+	  const reco::TrackRefVector & mrTracksInJet = (*jetHandle)[k].associatedTracks();
+	  
+	  m_JetTrackPt[k]          = 0;
+	  m_JetTrackPhi[k]         = 0;
+	  m_JetTrackPhiWeighted[k] = 0;
+	  m_JetTrackNo[k]          = 0;
+	  
+	  float JetPhi = (*jetHandle)[k].phi();
+	  
+	  for (reco::TrackRefVector::iterator aIter = mrTracksInJet.begin();aIter!= mrTracksInJet.end();aIter++)
+	    {
+	      m_JetTrackPt[k] += (*aIter)->pt();
+	      float myPhi = (*aIter)->phi();
+	      if( JetPhi > 2. ) {
+		if(myPhi<0) myPhi = myPhi + 2*TMath::Pi();
+	      }
+	      if( JetPhi < -2. ) {
+		if(myPhi>0) myPhi = myPhi - 2*TMath::Pi();
+	      }
+	      m_JetTrackPhiWeighted[k] += (*aIter)->pt()*myPhi;
+	      m_JetTrackPhi[k]         += myPhi;
+	      m_JetTrackNo[k]++;
+	      
 	    }
-	    if( JetPhi < -2. ) {
-	      if(myPhi>0) myPhi = myPhi - 2*TMath::Pi();
-	    }
-	    m_JetTrackPhiWeighted[k] += (*aIter)->pt()*myPhi;
-	    m_JetTrackPhi[k]         += myPhi;
-	    m_JetTrackNo[k]++;
-	    
-	  }
-	
-	m_JetTrackPhiWeighted[k] = m_JetTrackPhiWeighted[k]/m_JetTrackPt[k];
-	m_JetTrackPhi[k]         = m_JetTrackPhi[k]/float(m_JetTrackNo[k]);
-	
+	  
+	  m_JetTrackPhiWeighted[k] = m_JetTrackPhiWeighted[k]/m_JetTrackPt[k];
+	  m_JetTrackPhi[k]         = m_JetTrackPhi[k]/float(m_JetTrackNo[k]);
+	}
+
+	if (debug_) std::cout<<"Standard kinematic variables"<<std::endl;
 	m_JetE[i]    = (*jetHandle)[k].energy();
 	m_JetPt[i]   = (*jetHandle)[k].pt();
 	m_JetEt[i]   = (*jetHandle)[k].et();
@@ -215,6 +233,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	m_JetPhi[i]  = (*jetHandle)[k].phi();
 	
 	//Uncorrected values
+	if (debug_) std::cout<<"Uncorrected kinematic variables"<<std::endl;
 	m_JetRawE[i]    = uncorrJet.energy();
 	m_JetRawPt[i]   = uncorrJet.pt();
 	m_JetRawEt[i]   = uncorrJet.et();
@@ -223,16 +242,48 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	m_JetRawPz[i]   = uncorrJet.momentum().Z();
 
 	//Calo jet type specific
-	if (useCaloJets_||useJPTJets_) {
+	if (useCaloJets_) {
+	  if (debug_) std::cout<<"Calo jet specific variables"<<std::endl;
 	  m_JetN90[i]  = (*jetHandle)[k].jetID().n90Hits;
 	  m_JetfHPD[i] = (*jetHandle)[k].jetID().fHPD;
 	  m_JetfRBX[i] = (*jetHandle)[k].jetID().fRBX;
 	  m_JetFem[i]  = (*jetHandle)[k].emEnergyFraction();
 	  m_JetFhad[i] = (*jetHandle)[k].energyFractionHadronic();
 	}
+
+	if (useJPTJets_) {
+	  if (debug_) std::cout<<"JPT jet specific variables"<<std::endl;
+	  if (debug_) std::cout<<"n90hits"<<std::endl;
+	  m_JetN90[i]         = (*jetHandle)[k].jetID().n90Hits;
+	  if (debug_) std::cout<<"fHPD"<<std::endl;
+	  m_JetfHPD[i]        = (*jetHandle)[k].jetID().fHPD;
+	  if (debug_) std::cout<<"fRBX"<<std::endl;
+	  m_JetfRBX[i]        = (*jetHandle)[k].jetID().fRBX;
+	  if (debug_) std::cout<<"chargedEMFrac"<<std::endl;
+	  m_JetChargedFem[i]  = (*jetHandle)[k].chargedEmEnergyFraction();
+	  if (debug_) std::cout<<"neutralEMFrac"<<std::endl;
+	  m_JetNeutralFem[i]  = (*jetHandle)[k].neutralEmEnergyFraction();
+	  if (debug_) std::cout<<"chargedHadronFrac"<<std::endl;
+	  m_JetChargedFhad[i] = (*jetHandle)[k].chargedHadronEnergyFraction();
+	  if (debug_) std::cout<<"neutralHadFrac"<<std::endl;
+	  m_JetNeutralFhad[i] = (*jetHandle)[k].neutralHadronEnergyFraction();
+
+	  if (debug_) std::cout<<"chargedMult"<<std::endl;
+	  m_JetChargedMult[i] = (*jetHandle)[k].chargedMultiplicity();
+	  if (debug_) std::cout<<"elecMult"<<std::endl;
+	  m_JetElecMult[i]    = (*jetHandle)[k].elecMultiplicity();
+	  if (debug_) std::cout<<"muonMult"<<std::endl;
+	  m_JetMuonMult[i]    = (*jetHandle)[k].muonMultiplicity();
+
+	  m_JetFem[i]  = (*jetHandle)[k].neutralEmEnergyFraction()+
+	    (*jetHandle)[k].chargedEmEnergyFraction();
+	  m_JetFhad[i] = (*jetHandle)[k].neutralHadronEnergyFraction()+
+	    (*jetHandle)[k].chargedHadronEnergyFraction();
+	}
 	
 	//PF jet type specific variables
 	if (usePFJets_) {
+	  if (debug_) std::cout<<"PF jet specific variables"<<std::endl;
 	  m_JetChargedFem[i]  = (*jetHandle)[k].chargedEmEnergyFraction();
 	  m_JetNeutralFem[i]  = (*jetHandle)[k].neutralEmEnergyFraction();
 	  m_JetChargedFhad[i] = (*jetHandle)[k].chargedHadronEnergyFraction();
@@ -253,6 +304,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	m_JetPartonFlavour[i]   = (*jetHandle)[k].partonFlavour();
 
 	//get b-tagging information
+	if (debug_) std::cout<<"B-Tagging variables"<<std::endl;
 	m_JetBTag_TCHE[i]           = (*jetHandle)[k].bDiscriminator("trackCountingHighEffBJetTags");
 	m_JetBTag_TCHP[i]           = (*jetHandle)[k].bDiscriminator("trackCountingHighPurBJetTags");
 	m_JetBTag_jetProb[i]        = (*jetHandle)[k].bDiscriminator("jetProbabilityBJetTags");
@@ -411,6 +463,16 @@ void JetAnalyzerPAT::bookTTree() {
   mJetData->Branch(prefix_+"JetPartonEta",        m_JetPartonEta,        prefix_+"JetPartonEta["+prefix_+"NJets]/double"); 
   mJetData->Branch(prefix_+"JetPartonFlavour",    m_JetPartonFlavour,    prefix_+"JetPartonFlavour["+prefix_+"NJets]/int");
     
+
+  if (useJPTJets_) {
+    mJetData->Branch(prefix_+"JetChargedFhad", m_JetChargedFhad, prefix_+"JetChargedFhad["+prefix_+"NJets]/double");
+    mJetData->Branch(prefix_+"JetNeutralFhad", m_JetNeutralFhad, prefix_+"JetNeutralFhad["+prefix_+"NJets]/double");
+    mJetData->Branch(prefix_+"JetChargedFem",  m_JetChargedFem,  prefix_+"JetChargedFem["+prefix_+"NJets]/double");
+    mJetData->Branch(prefix_+"JetNeutralFem",  m_JetNeutralFem,  prefix_+"JetNeutralFem["+prefix_+"NJets]/double");
+    mJetData->Branch(prefix_+"JetChargedMult", m_JetChargedMult, prefix_+"JetChargedMult["+prefix_+"NJets]/int");
+    mJetData->Branch(prefix_+"JetElecMulti",   m_JetElecMult,    prefix_+"JetElecMulti["+prefix_+"NJets]/int");
+    mJetData->Branch(prefix_+"JetMuonMulti",   m_JetMuonMult,    prefix_+"JetMuonMulti["+prefix_+"NJets]/int");
+  }
 
   if (usePFJets_) {
     mJetData->Branch(prefix_+"JetChargedFhad", m_JetChargedFhad, prefix_+"JetChargedFhad["+prefix_+"NJets]/double");

@@ -11,7 +11,7 @@
 //
 // Original Author:  Jared Sturdy
 //         Created:  Tue Feb 2 12:11:44 PDT 2010
-// $Id: METAnalyzerPAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
+// $Id: METAnalyzerPAT.cc,v 1.3 2010/05/12 22:35:47 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/METAnalyzerPAT.h"
@@ -25,7 +25,7 @@ METAnalyzerPAT::METAnalyzerPAT(const edm::ParameterSet& metParams, TTree* tmpAll
 
 
   debug_     = metParams.getUntrackedParameter<int>("debugMET",0);
-  prefix_    = metParams.getUntrackedParameter<std::string>("metprefix","Calo");
+  prefix_    = metParams.getUntrackedParameter<std::string>("prefixMET","Calo");
 
   // get the data tags
   doMCData_  = metParams.getUntrackedParameter<bool>("doMCMET",true);
@@ -106,20 +106,20 @@ bool METAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
   m_METsumEt_Nocorr_nocc = metHandle->front().corSumEt(pat::MET::uncorrALL);
   
   // Do the MET save for muon corr no cc MET
-  // i.e., remove JEC corrections
+  // i.e., remove JES corrections
   m_MET_Muoncorr_nocc[0]   = metHandle->front().corEx(pat::MET::uncorrJES);
   m_MET_Muoncorr_nocc[1]   = metHandle->front().corEy(pat::MET::uncorrJES);
   m_METpt_Muoncorr_nocc    = metHandle->front().uncorrectedPt(pat::MET::uncorrJES);
   m_METphi_Muoncorr_nocc   = metHandle->front().uncorrectedPhi(pat::MET::uncorrJES);
   m_METsumEt_Muoncorr_nocc = metHandle->front().corSumEt(pat::MET::uncorrJES);
   
-  // Do the MET save for JEC corr no cc MET
+  // Do the MET save for JES corr no cc MET
   // i.e., remove muon corrections
-  m_MET_JECcorr_nocc[0]   = metHandle->front().corEx(pat::MET::uncorrMUON);
-  m_MET_JECcorr_nocc[1]   = metHandle->front().corEy(pat::MET::uncorrMUON);
-  m_METpt_JECcorr_nocc    = metHandle->front().uncorrectedPt(pat::MET::uncorrMUON);
-  m_METphi_JECcorr_nocc   = metHandle->front().uncorrectedPhi(pat::MET::uncorrMUON);
-  m_METsumEt_JECcorr_nocc = metHandle->front().corSumEt(pat::MET::uncorrMUON);
+  m_MET_JEScorr_nocc[0]   = metHandle->front().corEx(pat::MET::uncorrMUON);
+  m_MET_JEScorr_nocc[1]   = metHandle->front().corEy(pat::MET::uncorrMUON);
+  m_METpt_JEScorr_nocc    = metHandle->front().uncorrectedPt(pat::MET::uncorrMUON);
+  m_METphi_JEScorr_nocc   = metHandle->front().uncorrectedPhi(pat::MET::uncorrMUON);
+  m_METsumEt_JEScorr_nocc = metHandle->front().corSumEt(pat::MET::uncorrMUON);
   
   //
   // sanity check on collection
@@ -142,25 +142,25 @@ void METAnalyzerPAT::bookTTree() {
   mMETData->Branch("nFull"+prefix_+"MET",   &nFullMET,   "nFull"+prefix_+"MET/int");
   mMETData->Branch("nUncorr"+prefix_+"MET", &nUncorrMET, "nUncorr"+prefix_+"MET/int");
 
-  mMETData->Branch(prefix_+"MET_fullcorr_nocc",              m_MET_Fullcorr_nocc,             prefix_+"MET_Fullcorr_nocc[nFull"+prefix_+"MET]/double");
-  mMETData->Branch(prefix_+"METphi_fullcorr_nocc",          &m_METphi_Fullcorr_nocc,          prefix_+"METphi_Fullcorr_nocc/double");
-  mMETData->Branch(prefix_+"METsumEt_fullcorr_nocc",        &m_METsumEt_Fullcorr_nocc,        prefix_+"METsumEt_Fullcorr_nocc/double");
+  mMETData->Branch(prefix_+"MET_Fullcorr_nocc",              m_MET_Fullcorr_nocc,             prefix_+"MET_Fullcorr_nocc[nFull"+prefix_+"MET]/double");
+  mMETData->Branch(prefix_+"METphi_Fullcorr_nocc",          &m_METphi_Fullcorr_nocc,          prefix_+"METphi_Fullcorr_nocc/double");
+  mMETData->Branch(prefix_+"METsumEt_Fullcorr_nocc",        &m_METsumEt_Fullcorr_nocc,        prefix_+"METsumEt_Fullcorr_nocc/double");
   mMETData->Branch(prefix_+"METsignificance_Fullcorr_nocc", &m_METsignificance_Fullcorr_nocc, prefix_+"METsignificance_Fullcorr_nocc/double");
   
-  mMETData->Branch(prefix_+"MET_nocorr_nocc",       m_MET_Nocorr_nocc,      prefix_+"MET_Nocorr_nocc[nUncorr"+prefix_+"MET]/double");
-  mMETData->Branch(prefix_+"METpt_nocorr_nocc",    &m_METpt_Nocorr_nocc,    prefix_+"METpt_Nocorr_nocc/double");
-  mMETData->Branch(prefix_+"METphi_nocorr_nocc",   &m_METphi_Nocorr_nocc,   prefix_+"METphi_Nocorr_nocc/double");
-  mMETData->Branch(prefix_+"METsumEt_nocorr_nocc", &m_METsumEt_Nocorr_nocc, prefix_+"METsumEt_Nocorr_nocc/double");
+  mMETData->Branch(prefix_+"MET_Nocorr_nocc",       m_MET_Nocorr_nocc,      prefix_+"MET_Nocorr_nocc[nUncorr"+prefix_+"MET]/double");
+  mMETData->Branch(prefix_+"METpt_Nocorr_nocc",    &m_METpt_Nocorr_nocc,    prefix_+"METpt_Nocorr_nocc/double");
+  mMETData->Branch(prefix_+"METphi_Nocorr_nocc",   &m_METphi_Nocorr_nocc,   prefix_+"METphi_Nocorr_nocc/double");
+  mMETData->Branch(prefix_+"METsumEt_Nocorr_nocc", &m_METsumEt_Nocorr_nocc, prefix_+"METsumEt_Nocorr_nocc/double");
   
-  mMETData->Branch(prefix_+"MET_muoncorr_nocc",       m_MET_Muoncorr_nocc,      prefix_+"MET_Muoncorr_nocc[nUncorr"+prefix_+"MET]/double");
-  mMETData->Branch(prefix_+"METpt_muoncorr_nocc",    &m_METpt_Muoncorr_nocc,    prefix_+"METpt_Muoncorr_nocc/double");
-  mMETData->Branch(prefix_+"METphi_muoncorr_nocc",   &m_METphi_Muoncorr_nocc,   prefix_+"METphi_Muoncorr_nocc/double");
-  mMETData->Branch(prefix_+"METsumEt_muoncorr_nocc", &m_METsumEt_Muoncorr_nocc, prefix_+"METsumEt_Muoncorr_nocc/double");
+  mMETData->Branch(prefix_+"MET_Muoncorr_nocc",       m_MET_Muoncorr_nocc,      prefix_+"MET_Muoncorr_nocc[nUncorr"+prefix_+"MET]/double");
+  mMETData->Branch(prefix_+"METpt_Muoncorr_nocc",    &m_METpt_Muoncorr_nocc,    prefix_+"METpt_Muoncorr_nocc/double");
+  mMETData->Branch(prefix_+"METphi_Muoncorr_nocc",   &m_METphi_Muoncorr_nocc,   prefix_+"METphi_Muoncorr_nocc/double");
+  mMETData->Branch(prefix_+"METsumEt_Muoncorr_nocc", &m_METsumEt_Muoncorr_nocc, prefix_+"METsumEt_Muoncorr_nocc/double");
   
-  mMETData->Branch(prefix_+"MET_jeccorr_nocc",       m_MET_JECcorr_nocc,       prefix_+"MET_JECcorr_nocc[nUncorr"+prefix_+"MET]/double");
-  mMETData->Branch(prefix_+"METpt_jeccorr_nocc",    &m_METpt_JECcorr_nocc,     prefix_+"METpt_JECcorr_nocc/double");
-  mMETData->Branch(prefix_+"METphi_jeccorr_nocc",   &m_METphi_JECcorr_nocc,    prefix_+"METphi_JECcorr_nocc/double");
-  mMETData->Branch(prefix_+"METsumEt_jeccorr_nocc",  &m_METsumEt_JECcorr_nocc, prefix_+"METsumEt_JECcorr_nocc/double");
+  mMETData->Branch(prefix_+"MET_JEScorr_nocc",       m_MET_JEScorr_nocc,       prefix_+"MET_JEScorr_nocc[nUncorr"+prefix_+"MET]/double");
+  mMETData->Branch(prefix_+"METpt_JEScorr_nocc",    &m_METpt_JEScorr_nocc,     prefix_+"METpt_JEScorr_nocc/double");
+  mMETData->Branch(prefix_+"METphi_JEScorr_nocc",   &m_METphi_JEScorr_nocc,    prefix_+"METphi_JEScorr_nocc/double");
+  mMETData->Branch(prefix_+"METsumEt_JEScorr_nocc",  &m_METsumEt_JEScorr_nocc, prefix_+"METsumEt_JEScorr_nocc/double");
   
   mMETData->Branch(prefix_+"GenMET", &m_METGen, prefix_+"GenMET[3]/double",6400);
   

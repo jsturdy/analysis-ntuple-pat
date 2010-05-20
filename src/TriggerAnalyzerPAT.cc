@@ -13,7 +13,7 @@ Description: Collects the trigger results and performs a basic trigger selection
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: TriggerAnalyzerPAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
+// $Id: TriggerAnalyzerPAT.cc,v 1.3 2010/05/12 22:35:47 sturdy Exp $
 //
 //
 //#include "SusyAnalysis/EventSelector/interface/BJetEventSelector.h"
@@ -125,6 +125,7 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup&
   if (!hltHandle.isValid()) {
     // triggerExists = false;
     std::cout << "HLTriggerResult Not Valid!" << std::endl;
+    return false;
   }
   else {  
     if (hltHandle->wasrun()) nWasRun_++;

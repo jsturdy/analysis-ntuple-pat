@@ -122,8 +122,19 @@ private:
   JetAnalyzerPAT        * trackjetinfo;
 
   METAnalyzerPAT        * calometinfo;
+  METAnalyzerPAT        * calometoptinfo;
+  METAnalyzerPAT        * calomettypeiiinfo;
+  METAnalyzerPAT        * calometopttypeiiinfo;
+
+  METAnalyzerPAT        * calometcleaninfo;
+  METAnalyzerPAT        * calometcleanoptinfo;
+  METAnalyzerPAT        * calometcleantypeiiinfo;
+  METAnalyzerPAT        * calometcleanopttypeiiinfo;
+
   METAnalyzerPAT        * pfmetinfo;
+
   METAnalyzerPAT        * tcmetinfo;
+  METAnalyzerPAT        * tcmetcleaninfo;
 
   //HemisphereAnalyzerPAT * heminfo;
 

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #-- MET Cleaning ------------------------------------------------------------#
-cleanTCMET = cms.EDProducer('CleanedTCMETProducer',
+tcMetCleaned = cms.EDProducer('CleanedTCMETProducer',
     tcmetInputTag     = cms.InputTag("tcMet"),
     caloTowerInputTag = cms.InputTag("towerMaker"),
     ebRechitInputTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
@@ -14,43 +14,51 @@ cleanTCMET = cms.EDProducer('CleanedTCMETProducer',
     useHCALcorrection = cms.bool(True)
 )
 
-cleanCaloMET = cleanTCMET.clone(
-    tcmetInputTag     = cms.InputTag("met"),
-    alias             = cms.string("metCleaned")
+metCleaned = cms.EDProducer('CleanedCaloMETProducer',
+    calometInputTag   = cms.InputTag("met"),
+    caloTowerInputTag = cms.InputTag("towerMaker"),
+    ebRechitInputTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
+    eeRechitInputTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
+    jetInputTag       = cms.InputTag("ak5CaloJets"),
+    jetIDinputTag     = cms.InputTag("ak5JetID"),
+    alias             = cms.string("metCleaned"),
+    useHFcorrection   = cms.bool(True),
+    useECALcorrection = cms.bool(True),
+    useHCALcorrection = cms.bool(True)
 )
-cleanCaloMETNoHF = cleanTCMET.clone(
-    tcmetInputTag     = cms.InputTag("metNoHF"),
+metNoHFCleaned = metCleaned.clone(
+    calometInputTag   = cms.InputTag("metNoHF"),
     alias             = cms.string("metNoHFCleaned")
 )
-cleanCaloMETHO = cleanTCMET.clone(
-    tcmetInputTag     = cms.InputTag("metHO"),
+metHOCleaned = metCleaned.clone(
+    calometInputTag   = cms.InputTag("metHO"),
     alias             = cms.string("metHOCleaned")
 )
-cleanCaloMETNoHFHO = cleanTCMET.clone(
-    tcmetInputTag     = cms.InputTag("metNoHFHO"),
+metNoHFHOCleaned = metCleaned.clone(
+    calometInputTag   = cms.InputTag("metNoHFHO"),
     alias             = cms.string("metNoHFHOCleaned")
 )
-cleanCaloMETOpt = cleanTCMET.clone(
-    tcmetInputTag     = cms.InputTag("metOpt"),
+metOptCleaned = metCleaned.clone(
+    calometInputTag   = cms.InputTag("metOpt"),
     alias             = cms.string("metOptCleaned")
 )
-cleanCaloMETOptNoHF = cleanTCMET.clone(
-    tcmetInputTag     = cms.InputTag("metOptNoHF"),
+metOptNoHFCleaned = metCleaned.clone(
+    calometInputTag   = cms.InputTag("metOptNoHF"),
     alias             = cms.string("metOptNoHFCleaned")
 )
-cleanCaloMETOptHO = cleanTCMET.clone(
-    tcmetInputTag     = cms.InputTag("metOptHO"),
+metOptHOCleaned = metCleaned.clone(
+    calometInputTag   = cms.InputTag("metOptHO"),
     alias             = cms.string("metOptHOCleaned")
 )
-cleanCaloMETOptNoHFHO = cleanTCMET.clone(
-    tcmetInputTag     = cms.InputTag("metOptNoHFHO"),
+metOptNoHFHOCleaned = metCleaned.clone(
+    calometInputTag   = cms.InputTag("metOptNoHFHO"),
     alias             = cms.string("metOptNoHFHOCleaned")
 )
 
 #-- PKAM Filtering ----------------------------------------------------------#
 removePKAM = cms.EDFilter("FilterOutScraping",
     applyfilter = cms.untracked.bool(True),
-    debugOn = cms.untracked.bool(True),
+    debugOn = cms.untracked.bool(False),
     numtrack = cms.untracked.uint32(10),
     thresh = cms.untracked.double(0.25)
 )
@@ -88,6 +96,10 @@ physicsDeclared = hltPhysicsDeclared.clone(
     L1GtReadoutRecordTag = 'gtDigis'
 )
 
+#HBHE Noise
+from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import *
+hbheNoise = HBHENoiseFilter.clone()
+
 ##-- HLT Trigger Filter ------------------------------------------------------#
 
 #from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
@@ -113,20 +125,18 @@ physicsDeclared = hltPhysicsDeclared.clone(
 
 cleanupFilterMC = cms.Sequence(
     removePKAM          +
-    primaryVertexFilter #+
-    #(
-    #    cleanTCMET      +
-    #    cleanCaloMET
-    #)
+    primaryVertexFilter +
+    hbheNoise           +
+    (
+        tcMetCleaned    +
+        metCleaned      +
+        metOptCleaned 
+    )
 )
 
 cleanupFilterData = cms.Sequence(
-    cleanupFilterMC     +
     l1TechFilter        +
-    physicsDeclared     #+
-    #(
-    #    cleanTCMET          +
-    #    cleanCaloMET
-    #)
+    physicsDeclared     +
+    cleanupFilterMC
 )
     

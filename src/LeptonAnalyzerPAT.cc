@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: LeptonAnalyzerPAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
+// $Id: LeptonAnalyzerPAT.cc,v 1.3 2010/05/12 22:35:47 sturdy Exp $
 //
 //
 
@@ -99,7 +99,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
     int lcount=0;
     //int tcount=0;
 
-    sprintf(logmessage,"Status   genpart/%d   PdgId   genE   genPx   genPy   genPz   genMother",genParticles->size());
+    if (debug_) sprintf(logmessage,"Status   genpart/%d   PdgId   genE   genPx   genPy   genPz   genMother",genParticles->size());
     if (debug_>1) edm::LogVerbatim("LeptonEvent") << logmessage<< std::endl;
 
     for( size_t i = 0; i < genParticles->size(); ++ i ) {
@@ -127,7 +127,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
 	  }  
 	} else { genRefs[count]=-999;}
 
-	sprintf(logmessage,"%2d       %4d       %4d       %4.2f     %4.2f    %4.2f    %4.2f     %4d", \
+	if (debug_) sprintf(logmessage,"%2d       %4d       %4d       %4.2f     %4.2f    %4.2f    %4.2f     %4d", \
 	       genStatus[count],count,genIds[count],genE[count],genPx[count],genPy[count],genPz[count],genRefs[count]);
 	if (debug_>1)  edm::LogVerbatim("LeptonEvent") << logmessage<<std::endl;
 	++count;
@@ -153,7 +153,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
 	    }  
 	  } else { genLepRefs[lcount]=-999;}
 
-	  sprintf(logmessage,"%2d         %4d         %4d         %4.2f       %4.2f    %4.2f    %4.2f     %4d", \
+	  if (debug_) sprintf(logmessage,"%2d         %4d         %4d         %4.2f       %4.2f    %4.2f    %4.2f     %4d", \
 		 genLepStatus[lcount],lcount,genLepIds[lcount],genLepE[lcount],genLepPx[lcount],genLepPy[lcount],genLepPz[lcount],genLepRefs[lcount]);
 	  if (debug_>1)  edm::LogVerbatim("LeptonEvent")<<logmessage<<std::endl;
 	  ++lcount;
@@ -174,6 +174,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByLabel(elecTag_, elecHandle);
   if ( !elecHandle.isValid() ) {
     edm::LogWarning("LeptonEvent") << "No Electron results for InputTag " << elecTag_;
+    if (debug_) std::cout<<" Electron results for InputTag " << elecTag_<<std::endl;
     return false;
   }
 
@@ -181,13 +182,15 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   edm::LogVerbatim("LeptonEvent") << " start reading in electrons " << std::endl;
   // Add the electrons
   m_ElecN = elecHandle->size();
+  if (debug_) std::cout<<m_ElecN<<" Electron results for InputTag " << elecTag_<<std::endl;
+  
   if ( m_ElecN > 50 ) m_ElecN = 50;
   int el = 0;
-  sprintf(logmessage,"Elec/%d      E     Et    Pt    Px    Py    Pz    Eta    Phi",m_ElecN);
+  if (debug_) sprintf(logmessage,"Elec/%d      E     Et    Pt    Px    Py    Pz    Eta    Phi",m_ElecN);
   if (debug_) edm::LogVerbatim("LeptonEvent")<<logmessage<<std::endl;
   for (int i=0;i<m_ElecN;i++){
-    if ( ((*elecHandle)[i].pt()>elecMinEt_) && !((*elecHandle)[i].eta()>elecMaxEta_) ) {
-      edm::LogVerbatim("LeptonEvent") << " looping over good electrons " << std::endl;
+    if ( ((*elecHandle)[i].pt() > elecMinEt_) && !((*elecHandle)[i].eta() < elecMaxEta_) ) {
+      if (debug_) edm::LogVerbatim("LeptonEvent") << " looping over good electrons " << std::endl;
       m_ElecE[i]      = (*elecHandle)[i].energy();
       m_ElecEt[i]     = (*elecHandle)[i].et();
       m_ElecPt[i]     = (*elecHandle)[i].pt();
@@ -198,7 +201,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
       m_ElecPhi[i]    = (*elecHandle)[i].phi();
       m_ElecCharge[i] = (*elecHandle)[i].charge();
 
-      sprintf(logmessage,"%6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f", \
+      if (debug_) sprintf(logmessage,"%6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f", \
 	     i,m_ElecE[i],m_ElecEt[i],m_ElecPt[i],m_ElecPx[i],m_ElecPy[i],m_ElecPz[i],m_ElecEta[i],m_ElecPhi[i]);
       if (debug_) edm::LogVerbatim("LeptonEvent")<<logmessage<<std::endl;
       
@@ -237,24 +240,24 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
       m_ElecEtaTrk[i] = (*elecHandle)[i].trackMomentumAtVtx().Eta();
       m_ElecPhiTrk[i] = (*elecHandle)[i].trackMomentumAtVtx().Phi();
       
-      // Added protection statement, against missing SuperCluster collection in 2_1_X PatLayer1 samples
-      try { 
+      //// Added protection statement, against missing SuperCluster collection in 2_1_X PatLayer1 samples
+      //try { 
 	m_ElecWidthClusterEta[i] = (*elecHandle)[i].superCluster()->etaWidth();
 	m_ElecWidthClusterPhi[i] = (*elecHandle)[i].superCluster()->phiWidth();
-      } catch ( const cms::Exception& e ) {
-	m_ElecWidthClusterEta[i]=-999.;
-	m_ElecWidthClusterPhi[i]=-999.;
-	std::stringstream ss;
-	ss << " cms::Exception caught!"
-	   << " Invalid edm::Ref<reco::SuperCluster> returned from pat::Electron!" 
-	   << std::endl 
-	   << " Setting ClusterEta and ClusterPhi to -999.!" 
-	   << std::endl 
-	   << " Output from cms::Exception::what():"
-	   << std::endl 
-	   << e.what();
-	edm::LogWarning("LeptonEvent") << ss.str();
-      }
+      //} catch ( const cms::Exception& e ) {
+      //	m_ElecWidthClusterEta[i]=-999.;
+      //	m_ElecWidthClusterPhi[i]=-999.;
+      //	std::stringstream ss;
+      //	ss << " cms::Exception caught!"
+      //	   << " Invalid edm::Ref<reco::SuperCluster> returned from pat::Electron!" 
+      //	   << std::endl 
+      //	   << " Setting ClusterEta and ClusterPhi to -999.!" 
+      //	   << std::endl 
+      //	   << " Output from cms::Exception::what():"
+      //	   << std::endl 
+      //	   << e.what();
+      //	edm::LogWarning("LeptonEvent") << ss.str();
+      //}
       
       m_ElecPinTrk[i] = sqrt((*elecHandle)[i].trackMomentumAtVtx().Mag2());
       m_ElecPoutTrk[i] = sqrt((*elecHandle)[i].trackMomentumOut().Mag2());
@@ -311,6 +314,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByLabel(muonTag_, muonHandle);
   if ( !muonHandle.isValid() ) {
     edm::LogWarning("LeptonEvent") << "No Muon results for InputTag " << muonTag_;
+    if (debug_) std::cout<<" Muon results for InputTag " << muonTag_<<std::endl;
     return false;
   }
   
@@ -318,15 +322,17 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
 
   // Add the muons
   m_MuonN= muonHandle->size();
+  if (debug_) std::cout<<m_MuonN<<" Muon results for InputTag " << muonTag_<<std::endl;
+
   if ( m_MuonN > 50 ) m_MuonN = 50;
   int mu = 0;
 
-  sprintf(logmessage,"Muon/%d      E     Et    Pt    Px    Py    Pz    Eta    Phi",m_MuonN);
+  if (debug_) sprintf(logmessage,"Muon/%d      E     Et    Pt    Px    Py    Pz    Eta    Phi",m_MuonN);
   if (debug_) edm::LogVerbatim("LeptonEvent")<<logmessage<<std::endl;
 
   for (int i=0;i<m_MuonN;i++){
-    if ( ((*muonHandle)[i].pt()>muonMinEt_) && !((*muonHandle)[i].eta()>muonMaxEta_) ) {
-      edm::LogVerbatim("LeptonEvent") << " looping over good muons " << std::endl;      
+    if ( ((*muonHandle)[i].pt() > muonMinEt_) && !((*muonHandle)[i].eta() < muonMaxEta_) ) {
+      if (debug_) edm::LogVerbatim("LeptonEvent") << " looping over good muons " << std::endl;      
       m_MuonPt[i]  = (*muonHandle)[i].pt();
       m_MuonE[i]   = (*muonHandle)[i].energy();
       m_MuonEt[i]  = (*muonHandle)[i].et();
@@ -335,7 +341,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
       m_MuonPz[i]  = (*muonHandle)[i].momentum().Z();
       m_MuonEta[i] = (*muonHandle)[i].eta();
       m_MuonPhi[i] = (*muonHandle)[i].phi();
-      sprintf(logmessage,"%6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f\n", \
+      if (debug_) sprintf(logmessage,"%6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f\n", \
 	     i,m_MuonE[i],m_MuonEt[i],m_MuonPt[i],m_MuonPx[i],m_MuonPy[i],m_MuonPz[i],m_MuonEta[i],m_MuonPhi[i]);
       if (debug_) edm::LogVerbatim("LeptonEvent")<<logmessage<<std::endl;
 
