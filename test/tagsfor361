@@ -1,0 +1,52 @@
+#!/usr/bin/bash
+
+##HBHE noise filter
+addpkg CommonTools/RecoAlgos
+cvs update -r V00-02-12 CommonTools/RecoAlgos/src/HBHENoiseFilter.cc
+cvs update -r V00-02-12 CommonTools/RecoAlgos/interface/HBHENoiseFilter.h
+cvs update -r V00-02-12 CommonTools/RecoAlgos/python/HBHENoiseFilter_cfi.py
+cvs update -r V00-02-12 CommonTools/RecoAlgos/BuildFile
+
+##HCAL RecHitReflagger
+cvs co -r V00-00-08 JetMETAnalysis/HcalReflagging
+
+##tcMET cleaning
+cvs co -r V00-00-02 -d TCMETcleaned357 UserCode/FGolf/TCMETcleaned357
+
+##Spring10 JEC corrections 
+cvs co -rV01-09-01-06 CondFormats/JetMETObjects
+cvs co -rV02-00-04-02 JetMETCorrections/Configuration
+cvs co -rV03-00-10-01 JetMETCorrections/Modules
+ 
+##Type I MET corrections
+cvs co -r V04-02-02  JetMETCorrections/Type1MET
+
+###Type II MET corrections (not tested)
+#cvs co -rV04-03-00 JetMETCorrections/Type1MET/interface/Type1MET.h
+#cvs co -rV04-03-00 JetMETCorrections/Type1MET/interface/Type1METAlgo.h
+#cvs co -rV04-03-00 JetMETCorrections/Type1MET/src/Type1METAlgo.cc
+#cvs co -rV04-03-00 JetMETCorrections/Type1MET/src/Type1MET.cc
+#cvs co -rV04-03-00 JetMETCorrections/Type1MET/python/MetType1Corrections_cff.py
+
+
+##PAT
+###Default PAT 361
+#addpkg DataFormats/PatCandidates    V05-09-14-00  
+#addpkg PhysicsTools/PatAlgos        V07-13-15-01
+#addpkg PhysicsTools/SelectorUtils   V00-01-07
+#addpkg PhysicsTools/PatExamples     V00-03-09
+###JPT jets in PAT
+addpkg DataFormats/PatCandidates    V05-09-15
+addpkg PhysicsTools/PatAlgos        V07-13-17
+addpkg RecoMET/METAlgorithms        V03-01-12
+addpkg DataFormats/JetReco          V03-28-04 
+
+#addpkg RecoMET/METAlgorithms        V03-01-12
+#addpkg RecoMET/METProducers         V03-01-25
+#addpkg DataFormats/JetReco          V03-28-04     
+
+
+
+
+##AnalysisNtuplePAT
+cvs co -rHEAD -d JSturdy/AnalysisNtuplePAT UserCode/JSturdy/SUSY/AnalysisNtuplePAT
