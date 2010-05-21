@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: PhotonAnalyzerPAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
+// $Id: PhotonAnalyzerPAT.cc,v 1.3 2010/05/20 19:40:14 sturdy Exp $
 //
 //
 
@@ -140,27 +140,27 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   for (int i=0;i<m_PhotN;i++) {
     if ( ((*photHandle)[i].pt() > photMinEt_) && !((*photHandle)[i].eta() > photMaxEta_) ) {
       if (debug_) edm::LogVerbatim("PhotonEvent") << " looping over good photons " << std::endl;      
-      m_PhotE[i]   = (*photHandle)[i].energy();
-      m_PhotEt[i]  = (*photHandle)[i].et();
-      m_PhotPt[i]  = (*photHandle)[i].pt();
-      m_PhotPx[i]  = (*photHandle)[i].momentum().X();
-      m_PhotPy[i]  = (*photHandle)[i].momentum().Y();
-      m_PhotPz[i]  = (*photHandle)[i].momentum().Z();
-      m_PhotEta[i] = (*photHandle)[i].eta();
-      m_PhotPhi[i] = (*photHandle)[i].phi();
+      m_PhotE[ph]   = (*photHandle)[i].energy();
+      m_PhotEt[ph]  = (*photHandle)[i].et();
+      m_PhotPt[ph]  = (*photHandle)[i].pt();
+      m_PhotPx[ph]  = (*photHandle)[i].momentum().X();
+      m_PhotPy[ph]  = (*photHandle)[i].momentum().Y();
+      m_PhotPz[ph]  = (*photHandle)[i].momentum().Z();
+      m_PhotEta[ph] = (*photHandle)[i].eta();
+      m_PhotPhi[ph] = (*photHandle)[i].phi();
 
       if (debug_) sprintf(logmessage,"%6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f", \
-	     i,m_PhotE[i],m_PhotEt[i],m_PhotPt[i],m_PhotPx[i],m_PhotPy[i],m_PhotPz[i],m_PhotEta[i],m_PhotPhi[i]);
+			  ph,m_PhotE[ph],m_PhotEt[ph],m_PhotPt[ph],m_PhotPx[ph],m_PhotPy[ph],m_PhotPz[ph],m_PhotEta[ph],m_PhotPhi[ph]);
       if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
     
-      m_PhotTrkIso[i]  = (*photHandle)[i].trackIso();
-      m_PhotECalIso[i] = (*photHandle)[i].ecalIso();
-      m_PhotHCalIso[i] = (*photHandle)[i].hcalIso();
-      m_PhotAllIso[i]  = (*photHandle)[i].caloIso();
+      m_PhotTrkIso[ph]  = (*photHandle)[i].trackIso();
+      m_PhotECalIso[ph] = (*photHandle)[i].ecalIso();
+      m_PhotHCalIso[ph] = (*photHandle)[i].hcalIso();
+      m_PhotAllIso[ph]  = (*photHandle)[i].caloIso();
 
-      //m_PhotLooseEM[i] = (*photHandle)[i].photonID("PhotonCutBasedIDLooseEM");
-      m_PhotLoosePhoton[i] = (*photHandle)[i].photonID("PhotonCutBasedIDLoose");
-      m_PhotTightPhoton[i] = (*photHandle)[i].photonID("PhotonCutBasedIDTight");
+      //m_PhotLooseEM[ph] = (*photHandle)[i].photonID("PhotonCutBasedIDLooseEM");
+      m_PhotLoosePhoton[ph] = (*photHandle)[i].photonID("PhotonCutBasedIDLoose");
+      m_PhotTightPhoton[ph] = (*photHandle)[i].photonID("PhotonCutBasedIDTight");
       
       // PhotGenon info
       if (doMCData_) {
@@ -171,38 +171,38 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
 	if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
 
       	if ( candPhot ) {
-      	  m_PhotGenPdgId[i] = candPhot->pdgId();
-      	  m_PhotGenPx[i]    = candPhot->px();
-      	  m_PhotGenPy[i]    = candPhot->py();
-      	  m_PhotGenPz[i]    = candPhot->pz();
-      	  m_PhotGenPt[i]    = candPhot->pt();
-      	  m_PhotGenEt[i]    = candPhot->et();
-      	  m_PhotGenE[i]     = candPhot->energy();
+      	  m_PhotGenPdgId[ph] = candPhot->pdgId();
+      	  m_PhotGenPx[ph]    = candPhot->px();
+      	  m_PhotGenPy[ph]    = candPhot->py();
+      	  m_PhotGenPz[ph]    = candPhot->pz();
+      	  m_PhotGenPt[ph]    = candPhot->pt();
+      	  m_PhotGenEt[ph]    = candPhot->et();
+      	  m_PhotGenE[ph]     = candPhot->energy();
       	  const reco::Candidate* photMother = candPhot->mother();
       	  if ( photMother ) {
       	    while (photMother->pdgId() == candPhot->pdgId()) photMother = photMother->mother();
       	    if ( photMother ) {
-      	      m_PhotGenMother[i] = photMother->pdgId();
+      	      m_PhotGenMother[ph] = photMother->pdgId();
       	      //if ( cand->mother()->pdgId() ==  cand->pdgId()) 
       	      //  {
-      	      //	m_PhotGenMother[i] = cand->mother()->mother()->pdgId();
+      	      //	m_PhotGenMother[ph] = cand->mother()->mother()->pdgId();
       	      //  }
       	    }
       	  }
       	}
       	else {
-      	  m_PhotGenPdgId[i]  = -999;
-      	  m_PhotGenMother[i] = -999;
-      	  m_PhotGenPx[i]     = -999;
-      	  m_PhotGenPy[i]     = -999;
-      	  m_PhotGenPz[i]     = -999;
-      	  m_PhotGenPt[i]     = -999;
-      	  m_PhotGenEt[i]     = -999;
-      	  m_PhotGenE[i]      = -999;
+      	  m_PhotGenPdgId[ph]  = -999;
+      	  m_PhotGenMother[ph] = -999;
+      	  m_PhotGenPx[ph]     = -999;
+      	  m_PhotGenPy[ph]     = -999;
+      	  m_PhotGenPz[ph]     = -999;
+      	  m_PhotGenPt[ph]     = -999;
+      	  m_PhotGenEt[ph]     = -999;
+      	  m_PhotGenE[ph]      = -999;
       	}
 
       	if (debug_) sprintf(logmessage,"      %6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f\n", \
-      	       i,m_PhotGenE[i],m_PhotGenEt[i],m_PhotGenPt[i],m_PhotGenPx[i],m_PhotGenPy[i],m_PhotGenPz[i],m_PhotGenPdgId[i],m_PhotGenMother[i]);
+      	       ph,m_PhotGenE[ph],m_PhotGenEt[ph],m_PhotGenPt[ph],m_PhotGenPx[ph],m_PhotGenPy[ph],m_PhotGenPz[ph],m_PhotGenPdgId[ph],m_PhotGenMother[ph]);
 	if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
 
       }

@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: LeptonAnalyzerPAT.cc,v 1.3 2010/05/12 22:35:47 sturdy Exp $
+// $Id: LeptonAnalyzerPAT.cc,v 1.4 2010/05/20 19:39:56 sturdy Exp $
 //
 //
 
@@ -191,59 +191,59 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   for (int i=0;i<m_ElecN;i++){
     if ( ((*elecHandle)[i].pt() > elecMinEt_) && !((*elecHandle)[i].eta() < elecMaxEta_) ) {
       if (debug_) edm::LogVerbatim("LeptonEvent") << " looping over good electrons " << std::endl;
-      m_ElecE[i]      = (*elecHandle)[i].energy();
-      m_ElecEt[i]     = (*elecHandle)[i].et();
-      m_ElecPt[i]     = (*elecHandle)[i].pt();
-      m_ElecPx[i]     = (*elecHandle)[i].momentum().X();
-      m_ElecPy[i]     = (*elecHandle)[i].momentum().Y();
-      m_ElecPz[i]     = (*elecHandle)[i].momentum().Z();
-      m_ElecEta[i]    = (*elecHandle)[i].eta();
-      m_ElecPhi[i]    = (*elecHandle)[i].phi();
-      m_ElecCharge[i] = (*elecHandle)[i].charge();
+      m_ElecE[el]      = (*elecHandle)[i].energy();
+      m_ElecEt[el]     = (*elecHandle)[i].et();
+      m_ElecPt[el]     = (*elecHandle)[i].pt();
+      m_ElecPx[el]     = (*elecHandle)[i].momentum().X();
+      m_ElecPy[el]     = (*elecHandle)[i].momentum().Y();
+      m_ElecPz[el]     = (*elecHandle)[i].momentum().Z();
+      m_ElecEta[el]    = (*elecHandle)[i].eta();
+      m_ElecPhi[el]    = (*elecHandle)[i].phi();
+      m_ElecCharge[el] = (*elecHandle)[i].charge();
 
       if (debug_) sprintf(logmessage,"%6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f", \
-	     i,m_ElecE[i],m_ElecEt[i],m_ElecPt[i],m_ElecPx[i],m_ElecPy[i],m_ElecPz[i],m_ElecEta[i],m_ElecPhi[i]);
+			  el,m_ElecE[el],m_ElecEt[el],m_ElecPt[el],m_ElecPx[el],m_ElecPy[el],m_ElecPz[el],m_ElecEta[el],m_ElecPhi[el]);
       if (debug_) edm::LogVerbatim("LeptonEvent")<<logmessage<<std::endl;
       
-      m_ElecTrkIso[i]  = (*elecHandle)[i].trackIso();
-      m_ElecECalIso[i] = (*elecHandle)[i].ecalIso();
-      m_ElecHCalIso[i] = (*elecHandle)[i].hcalIso() ;
-      m_ElecAllIso[i]  = (*elecHandle)[i].caloIso() ;
+      m_ElecTrkIso[el]  = (*elecHandle)[i].trackIso();
+      m_ElecECalIso[el] = (*elecHandle)[i].ecalIso();
+      m_ElecHCalIso[el] = (*elecHandle)[i].hcalIso() ;
+      m_ElecAllIso[el]  = (*elecHandle)[i].caloIso() ;
       
-      m_ElecECalIsoDeposit[i]  = (*elecHandle)[i].ecalIsoDeposit()->candEnergy() ;
-      m_ElecHCalIsoDeposit[i]  = (*elecHandle)[i].hcalIsoDeposit()->candEnergy() ;
+      m_ElecECalIsoDeposit[el]  = (*elecHandle)[i].ecalIsoDeposit()->candEnergy() ;
+      m_ElecHCalIsoDeposit[el]  = (*elecHandle)[i].hcalIsoDeposit()->candEnergy() ;
       
-      m_ElecIdLoose[i]    = (*elecHandle)[i].electronID("eidLoose");
-      m_ElecIdTight[i]    = (*elecHandle)[i].electronID("eidTight");
-      m_ElecIdRobLoose[i] = (*elecHandle)[i].electronID("eidRobustLoose");
-      m_ElecIdRobTight[i] = (*elecHandle)[i].electronID("eidRobustTight"); 
-      m_ElecIdRobHighE[i] = (*elecHandle)[i].electronID("eidRobustHighEnergy"); 
+      m_ElecIdLoose[el]    = (*elecHandle)[i].electronID("eidLoose");
+      m_ElecIdTight[el]    = (*elecHandle)[i].electronID("eidTight");
+      m_ElecIdRobLoose[el] = (*elecHandle)[i].electronID("eidRobustLoose");
+      m_ElecIdRobTight[el] = (*elecHandle)[i].electronID("eidRobustTight"); 
+      m_ElecIdRobHighE[el] = (*elecHandle)[i].electronID("eidRobustHighEnergy"); 
       
-      m_ElecCaloEnergy[i] = (*elecHandle)[i].caloEnergy();
-      m_ElecHOverE[i]     = (*elecHandle)[i].hadronicOverEm();
-      m_ElecVx[i]         = (*elecHandle)[i].vx();
-      m_ElecVy[i]         = (*elecHandle)[i].vy();
-      m_ElecVz[i]         = (*elecHandle)[i].vz();
+      m_ElecCaloEnergy[el] = (*elecHandle)[i].caloEnergy();
+      m_ElecHOverE[el]     = (*elecHandle)[i].hadronicOverEm();
+      m_ElecVx[el]         = (*elecHandle)[i].vx();
+      m_ElecVy[el]         = (*elecHandle)[i].vy();
+      m_ElecVz[el]         = (*elecHandle)[i].vz();
       
-      m_ElecD0[i]               = (*elecHandle)[i].gsfTrack()->d0();
-      m_ElecDz[i]               = (*elecHandle)[i].gsfTrack()->dz();
-      m_ElecChargeMode[i]       = (*elecHandle)[i].gsfTrack()->chargeMode();	
-      m_ElecPtTrkMode[i]        = (*elecHandle)[i].gsfTrack()->ptMode();
-      m_ElecQOverPErrTrkMode[i] = (*elecHandle)[i].gsfTrack()->qoverpModeError();
-      m_ElecCharge[i]           = (*elecHandle)[i].gsfTrack()->charge();
-      m_ElecPtTrk[i]            = (*elecHandle)[i].gsfTrack()->pt();
-      m_ElecQOverPErrTrk[i]     = (*elecHandle)[i].gsfTrack()->qoverpError();
-      m_ElecNormChi2[i]         = (*elecHandle)[i].gsfTrack()->normalizedChi2();
-      m_ElecLostHits[i]         = (*elecHandle)[i].gsfTrack()->lost();
-      m_ElecValidHits[i]        = (*elecHandle)[i].gsfTrack()->found();
+      m_ElecD0[el]               = (*elecHandle)[i].gsfTrack()->d0();
+      m_ElecDz[el]               = (*elecHandle)[i].gsfTrack()->dz();
+      m_ElecChargeMode[el]       = (*elecHandle)[i].gsfTrack()->chargeMode();	
+      m_ElecPtTrkMode[el]        = (*elecHandle)[i].gsfTrack()->ptMode();
+      m_ElecQOverPErrTrkMode[el] = (*elecHandle)[i].gsfTrack()->qoverpModeError();
+      m_ElecCharge[el]           = (*elecHandle)[i].gsfTrack()->charge();
+      m_ElecPtTrk[el]            = (*elecHandle)[i].gsfTrack()->pt();
+      m_ElecQOverPErrTrk[el]     = (*elecHandle)[i].gsfTrack()->qoverpError();
+      m_ElecNormChi2[el]         = (*elecHandle)[i].gsfTrack()->normalizedChi2();
+      m_ElecLostHits[el]         = (*elecHandle)[i].gsfTrack()->lost();
+      m_ElecValidHits[el]        = (*elecHandle)[i].gsfTrack()->found();
     
-      m_ElecEtaTrk[i] = (*elecHandle)[i].trackMomentumAtVtx().Eta();
-      m_ElecPhiTrk[i] = (*elecHandle)[i].trackMomentumAtVtx().Phi();
+      m_ElecEtaTrk[el] = (*elecHandle)[i].trackMomentumAtVtx().Eta();
+      m_ElecPhiTrk[el] = (*elecHandle)[i].trackMomentumAtVtx().Phi();
       
       //// Added protection statement, against missing SuperCluster collection in 2_1_X PatLayer1 samples
       //try { 
-	m_ElecWidthClusterEta[i] = (*elecHandle)[i].superCluster()->etaWidth();
-	m_ElecWidthClusterPhi[i] = (*elecHandle)[i].superCluster()->phiWidth();
+	m_ElecWidthClusterEta[el] = (*elecHandle)[i].superCluster()->etaWidth();
+	m_ElecWidthClusterPhi[el] = (*elecHandle)[i].superCluster()->phiWidth();
       //} catch ( const cms::Exception& e ) {
       //	m_ElecWidthClusterEta[i]=-999.;
       //	m_ElecWidthClusterPhi[i]=-999.;
@@ -259,47 +259,47 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
       //	edm::LogWarning("LeptonEvent") << ss.str();
       //}
       
-      m_ElecPinTrk[i] = sqrt((*elecHandle)[i].trackMomentumAtVtx().Mag2());
-      m_ElecPoutTrk[i] = sqrt((*elecHandle)[i].trackMomentumOut().Mag2());
+      m_ElecPinTrk[el] = sqrt((*elecHandle)[i].trackMomentumAtVtx().Mag2());
+      m_ElecPoutTrk[el] = sqrt((*elecHandle)[i].trackMomentumOut().Mag2());
       
       //get associated gen particle information
       if (doMCData_) {
       	const reco::Candidate* candElec = (*elecHandle)[i].genLepton();
       	if ( candElec ) {
-      	  m_ElecGenPdgId[i] = candElec->pdgId();
-      	  m_ElecGenPx[i]    = candElec->px();
-      	  m_ElecGenPy[i]    = candElec->py();
-      	  m_ElecGenPz[i]    = candElec->pz();
-      	  m_ElecGenPt[i]    = candElec->pt();
-      	  m_ElecGenEt[i]    = candElec->et();
-      	  m_ElecGenE[i]     = candElec->energy();
+      	  m_ElecGenPdgId[el] = candElec->pdgId();
+      	  m_ElecGenPx[el]    = candElec->px();
+      	  m_ElecGenPy[el]    = candElec->py();
+      	  m_ElecGenPz[el]    = candElec->pz();
+      	  m_ElecGenPt[el]    = candElec->pt();
+      	  m_ElecGenEt[el]    = candElec->et();
+      	  m_ElecGenE[el]     = candElec->energy();
         
       	  const reco::Candidate* elecMother = candElec->mother();
       	  if( elecMother ) {
       	    while (elecMother->pdgId() == candElec->pdgId()) elecMother = elecMother->mother();
       	    if ( elecMother ) {
-      	      m_ElecGenMother[i] = (*elecHandle)[i].genLepton()->mother()->pdgId();
+      	      m_ElecGenMother[el] = (*elecHandle)[i].genLepton()->mother()->pdgId();
       	      //if ( (*elecHandle)[i].genLepton()->mother()->pdgId() ==  (*elecHandle)[i].genLepton()->pdgId()) 
       	      //  {
-      	      //	m_ElecGenMother[i] = (*elecHandle)[i].genLepton()->mother()->mother()->pdgId();
+      	      //	m_ElecGenMother[el] = (*elecHandle)[i].genLepton()->mother()->mother()->pdgId();
       	      //  }
       	    }
       	  }
       	}
       	else {
-      	  m_ElecGenPdgId[i]  = -999.;
-      	  m_ElecGenMother[i] = -999.;
-      	  m_ElecGenPx[i]     = -999.;
-      	  m_ElecGenPy[i]     = -999.;
-      	  m_ElecGenPz[i]     = -999.;
-      	  m_ElecGenPt[i]     = -999.;
-      	  m_ElecGenEt[i]     = -999.;
-      	  m_ElecGenE[i]      = -999.;
+      	  m_ElecGenPdgId[el]  = -999.;
+      	  m_ElecGenMother[el] = -999.;
+      	  m_ElecGenPx[el]     = -999.;
+      	  m_ElecGenPy[el]     = -999.;
+      	  m_ElecGenPz[el]     = -999.;
+      	  m_ElecGenPt[el]     = -999.;
+      	  m_ElecGenEt[el]     = -999.;
+      	  m_ElecGenE[el]      = -999.;
       	}
       }
-      double elecIsoReq = (m_ElecTrkIso[i]+m_ElecECalIso[i]+m_ElecHCalIso[i])/m_ElecPt[i];
+      double elecIsoReq = (m_ElecTrkIso[el]+m_ElecECalIso[el]+m_ElecHCalIso[el])/m_ElecPt[el];
       if ( elecIsoReq  > elecRelIso_) m_ElecVeto = m_ElecVeto || true;
-      if ( m_ElecPt[i] > elecMaxEt_ ) m_ElecVeto = m_ElecVeto || true;
+      if ( m_ElecPt[el] > elecMaxEt_ ) m_ElecVeto = m_ElecVeto || true;
       ++el;
     }
   }//end loop over Electrons
@@ -333,179 +333,179 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   for (int i=0;i<m_MuonN;i++){
     if ( ((*muonHandle)[i].pt() > muonMinEt_) && !((*muonHandle)[i].eta() < muonMaxEta_) ) {
       if (debug_) edm::LogVerbatim("LeptonEvent") << " looping over good muons " << std::endl;      
-      m_MuonPt[i]  = (*muonHandle)[i].pt();
-      m_MuonE[i]   = (*muonHandle)[i].energy();
-      m_MuonEt[i]  = (*muonHandle)[i].et();
-      m_MuonPx[i]  = (*muonHandle)[i].momentum().X();
-      m_MuonPy[i]  = (*muonHandle)[i].momentum().Y();
-      m_MuonPz[i]  = (*muonHandle)[i].momentum().Z();
-      m_MuonEta[i] = (*muonHandle)[i].eta();
-      m_MuonPhi[i] = (*muonHandle)[i].phi();
+      m_MuonPt[mu]  = (*muonHandle)[i].pt();
+      m_MuonE[mu]   = (*muonHandle)[i].energy();
+      m_MuonEt[mu]  = (*muonHandle)[i].et();
+      m_MuonPx[mu]  = (*muonHandle)[i].momentum().X();
+      m_MuonPy[mu]  = (*muonHandle)[i].momentum().Y();
+      m_MuonPz[mu]  = (*muonHandle)[i].momentum().Z();
+      m_MuonEta[mu] = (*muonHandle)[i].eta();
+      m_MuonPhi[mu] = (*muonHandle)[i].phi();
       if (debug_) sprintf(logmessage,"%6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f\n", \
-	     i,m_MuonE[i],m_MuonEt[i],m_MuonPt[i],m_MuonPx[i],m_MuonPy[i],m_MuonPz[i],m_MuonEta[i],m_MuonPhi[i]);
+			  mu,m_MuonE[mu],m_MuonEt[mu],m_MuonPt[mu],m_MuonPx[mu],m_MuonPy[mu],m_MuonPz[mu],m_MuonEta[mu],m_MuonPhi[mu]);
       if (debug_) edm::LogVerbatim("LeptonEvent")<<logmessage<<std::endl;
 
       //Muon isolation variables
-      m_MuonTrkIso[i]   = (*muonHandle)[i].trackIso();
-      m_MuonCharge[i]   = (*muonHandle)[i].charge();
-      m_MuonECalIso[i]  = (*muonHandle)[i].ecalIso();
-      m_MuonHCalIso[i]  = (*muonHandle)[i].hcalIso() ;
-      m_MuonAllIso[i]   = (*muonHandle)[i].caloIso() ;
+      m_MuonTrkIso[mu]   = (*muonHandle)[i].trackIso();
+      m_MuonCharge[mu]   = (*muonHandle)[i].charge();
+      m_MuonECalIso[mu]  = (*muonHandle)[i].ecalIso();
+      m_MuonHCalIso[mu]  = (*muonHandle)[i].hcalIso() ;
+      m_MuonAllIso[mu]   = (*muonHandle)[i].caloIso() ;
 
-      //m_MuonECalIsoDeposit[i]  = (*muonHandle)[i].ecalIsoDeposit()->candEnergy() ;
-      //m_MuonHCalIsoDeposit[i]  = (*muonHandle)[i].hcalIsoDeposit()->candEnergy() ;
+      //m_MuonECalIsoDeposit[mu]  = (*muonHandle)[i].ecalIsoDeposit()->candEnergy() ;
+      //m_MuonHCalIsoDeposit[mu]  = (*muonHandle)[i].hcalIsoDeposit()->candEnergy() ;
 
-      m_MuonECalIsoDeposit[i]  = (*muonHandle)[i].isolationR03().emVetoEt ;
-      m_MuonHCalIsoDeposit[i]  = (*muonHandle)[i].isolationR03().hadVetoEt ;
+      m_MuonECalIsoDeposit[mu]  = (*muonHandle)[i].isolationR03().emVetoEt ;
+      m_MuonHCalIsoDeposit[mu]  = (*muonHandle)[i].isolationR03().hadVetoEt ;
 
       //Muon classification variables
-      m_MuonIsGlobal[i]     = (*muonHandle)[i].isGlobalMuon();
-      m_MuonIsStandAlone[i] = (*muonHandle)[i].isStandAloneMuon();
-      m_MuonIsTracker[i]    = (*muonHandle)[i].isTrackerMuon();
+      m_MuonIsGlobal[mu]     = (*muonHandle)[i].isGlobalMuon();
+      m_MuonIsStandAlone[mu] = (*muonHandle)[i].isStandAloneMuon();
+      m_MuonIsTracker[mu]    = (*muonHandle)[i].isTrackerMuon();
       
-      m_MuonGlobalMuonPromptTight[i]          = (*muonHandle)[i].muonID("GlobalMuonPromptTight");
+      m_MuonGlobalMuonPromptTight[mu]          = (*muonHandle)[i].muonID("GlobalMuonPromptTight");
       
-      m_MuonAllArbitrated[i]                  = (*muonHandle)[i].muonID("AllArbitrated");
-      m_MuonTrackerMuonArbitrated[i]          = (*muonHandle)[i].muonID("TrackerMuonArbitrated");
-      m_MuonTMLastStationLoose[i]             = (*muonHandle)[i].muonID("TMLastStationLoose");
-      m_MuonTMLastStationTight[i]             = (*muonHandle)[i].muonID("TMLastStationTight");
-      m_MuonTM2DCompatibilityLoose[i]         = (*muonHandle)[i].muonID("TM2DCompatibilityLoose");
-      m_MuonTM2DCompatibilityTight[i]         = (*muonHandle)[i].muonID("TM2DCompatibilityTight");
-      m_MuonTMOneStationLoose[i]              = (*muonHandle)[i].muonID("TMOneStationLoose");
-      m_MuonTMOneStationTight[i]              = (*muonHandle)[i].muonID("TMOneStationTight");
-      m_MuonTMLastStationOptimizedLowPtLoose[i] = (*muonHandle)[i].muonID("TMLastStationOptimizedLowPtLoose");
-      m_MuonTMLastStationOptimizedLowPtTight[i] = (*muonHandle)[i].muonID("TMLastStationOptimizedLowPtTight");
-      m_MuonGMTkChiCompatibility[i]           = (*muonHandle)[i].muonID("GMTkChiCompatibility");
-      m_MuonGMStaChiCompatibility[i]          = (*muonHandle)[i].muonID("GMStaChiCompatibility");
-      m_MuonGMTkKinkTight[i]                  = (*muonHandle)[i].muonID("GMTkKinkTight");
-      m_MuonTMLastStationAngLoose[i]          = (*muonHandle)[i].muonID("TMLastStationAngLoose");
-      m_MuonTMLastStationAngTight[i]          = (*muonHandle)[i].muonID("TMLastStationAngTight");
-      m_MuonTMOneStationLoose[i]              = (*muonHandle)[i].muonID("TMOneStationLoose");
-      m_MuonTMOneStationTight[i]              = (*muonHandle)[i].muonID("TMOneStationTight");
-      m_MuonTMLastStationOptimizedBarrelLowPtLoose[i] = (*muonHandle)[i].muonID("TMLastStationOptimizedBarrelLowPtLoose");
-      m_MuonTMLastStationOptimizedBarrelLowPtTight[i] = (*muonHandle)[i].muonID("TMLastStationOptimizedBarrelLowPtTight");
+      m_MuonAllArbitrated[mu]                  = (*muonHandle)[i].muonID("AllArbitrated");
+      m_MuonTrackerMuonArbitrated[mu]          = (*muonHandle)[i].muonID("TrackerMuonArbitrated");
+      m_MuonTMLastStationLoose[mu]             = (*muonHandle)[i].muonID("TMLastStationLoose");
+      m_MuonTMLastStationTight[mu]             = (*muonHandle)[i].muonID("TMLastStationTight");
+      m_MuonTM2DCompatibilityLoose[mu]         = (*muonHandle)[i].muonID("TM2DCompatibilityLoose");
+      m_MuonTM2DCompatibilityTight[mu]         = (*muonHandle)[i].muonID("TM2DCompatibilityTight");
+      m_MuonTMOneStationLoose[mu]              = (*muonHandle)[i].muonID("TMOneStationLoose");
+      m_MuonTMOneStationTight[mu]              = (*muonHandle)[i].muonID("TMOneStationTight");
+      m_MuonTMLastStationOptimizedLowPtLoose[mu] = (*muonHandle)[i].muonID("TMLastStationOptimizedLowPtLoose");
+      m_MuonTMLastStationOptimizedLowPtTight[mu] = (*muonHandle)[i].muonID("TMLastStationOptimizedLowPtTight");
+      m_MuonGMTkChiCompatibility[mu]           = (*muonHandle)[i].muonID("GMTkChiCompatibility");
+      m_MuonGMStaChiCompatibility[mu]          = (*muonHandle)[i].muonID("GMStaChiCompatibility");
+      m_MuonGMTkKinkTight[mu]                  = (*muonHandle)[i].muonID("GMTkKinkTight");
+      m_MuonTMLastStationAngLoose[mu]          = (*muonHandle)[i].muonID("TMLastStationAngLoose");
+      m_MuonTMLastStationAngTight[mu]          = (*muonHandle)[i].muonID("TMLastStationAngTight");
+      m_MuonTMOneStationLoose[mu]              = (*muonHandle)[i].muonID("TMOneStationLoose");
+      m_MuonTMOneStationTight[mu]              = (*muonHandle)[i].muonID("TMOneStationTight");
+      m_MuonTMLastStationOptimizedBarrelLowPtLoose[mu] = (*muonHandle)[i].muonID("TMLastStationOptimizedBarrelLowPtLoose");
+      m_MuonTMLastStationOptimizedBarrelLowPtTight[mu] = (*muonHandle)[i].muonID("TMLastStationOptimizedBarrelLowPtTight");
       
     
       //Muon Vertex information
       // Vertex info is stored only for GlobalMuons (combined muons)
       if((*muonHandle)[i].isGlobalMuon() && (*muonHandle)[i].combinedMuon().isNonnull()){ 
 
-	m_MuonCombChi2[i] = (*muonHandle)[i].combinedMuon()->chi2();
-	m_MuonCombNdof[i] = (*muonHandle)[i].combinedMuon()->ndof();
+	m_MuonCombChi2[mu] = (*muonHandle)[i].combinedMuon()->chi2();
+	m_MuonCombNdof[mu] = (*muonHandle)[i].combinedMuon()->ndof();
 
-	m_MuonCombVx[i] = (*muonHandle)[i].combinedMuon()->vx();
-	m_MuonCombVy[i] = (*muonHandle)[i].combinedMuon()->vy();
-	m_MuonCombVz[i] = (*muonHandle)[i].combinedMuon()->vz();
-	m_MuonCombD0[i] = (*muonHandle)[i].combinedMuon()->d0();
-	m_MuonCombDz[i] = (*muonHandle)[i].combinedMuon()->dz();
+	m_MuonCombVx[mu] = (*muonHandle)[i].combinedMuon()->vx();
+	m_MuonCombVy[mu] = (*muonHandle)[i].combinedMuon()->vy();
+	m_MuonCombVz[mu] = (*muonHandle)[i].combinedMuon()->vz();
+	m_MuonCombD0[mu] = (*muonHandle)[i].combinedMuon()->d0();
+	m_MuonCombDz[mu] = (*muonHandle)[i].combinedMuon()->dz();
 
       } else {
-	m_MuonCombVx[i] = 999.;
-	m_MuonCombVy[i] = 999.;
-	m_MuonCombVz[i] = 999.;
-	m_MuonCombD0[i] = 999.;
-	m_MuonCombDz[i] = 999.;
+	m_MuonCombVx[mu] = 999.;
+	m_MuonCombVy[mu] = 999.;
+	m_MuonCombVz[mu] = 999.;
+	m_MuonCombD0[mu] = 999.;
+	m_MuonCombDz[mu] = 999.;
       }
 
       //Standalone muon information
       if((*muonHandle)[i].isStandAloneMuon() && (*muonHandle)[i].standAloneMuon().isNonnull()){
-	m_MuonStandValidHits[i]   = (*muonHandle)[i].standAloneMuon()->found();
-	m_MuonStandLostHits[i]    = (*muonHandle)[i].standAloneMuon()->lost();
-	m_MuonStandPt[i]          = (*muonHandle)[i].standAloneMuon()->pt();
-	m_MuonStandPz[i]          = (*muonHandle)[i].standAloneMuon()->pz();
-	m_MuonStandP[i]           = (*muonHandle)[i].standAloneMuon()->p();
-	m_MuonStandEta[i]         = (*muonHandle)[i].standAloneMuon()->eta();
-	m_MuonStandPhi[i]         = (*muonHandle)[i].standAloneMuon()->phi();
-	m_MuonStandChi[i]         = (*muonHandle)[i].standAloneMuon()->chi2();
-	m_MuonStandCharge[i]      = (*muonHandle)[i].standAloneMuon()->charge();
-	m_MuonStandQOverPError[i] = (*muonHandle)[i].standAloneMuon()->qoverpError();
+	m_MuonStandValidHits[mu]   = (*muonHandle)[i].standAloneMuon()->found();
+	m_MuonStandLostHits[mu]    = (*muonHandle)[i].standAloneMuon()->lost();
+	m_MuonStandPt[mu]          = (*muonHandle)[i].standAloneMuon()->pt();
+	m_MuonStandPz[mu]          = (*muonHandle)[i].standAloneMuon()->pz();
+	m_MuonStandP[mu]           = (*muonHandle)[i].standAloneMuon()->p();
+	m_MuonStandEta[mu]         = (*muonHandle)[i].standAloneMuon()->eta();
+	m_MuonStandPhi[mu]         = (*muonHandle)[i].standAloneMuon()->phi();
+	m_MuonStandChi[mu]         = (*muonHandle)[i].standAloneMuon()->chi2();
+	m_MuonStandCharge[mu]      = (*muonHandle)[i].standAloneMuon()->charge();
+	m_MuonStandQOverPError[mu] = (*muonHandle)[i].standAloneMuon()->qoverpError();
       } 
       else{
-	m_MuonStandValidHits[i]   = 999.;
-	m_MuonStandLostHits[i]    = 999.;
-	m_MuonStandPt[i]          = 999.;
-	m_MuonStandPz[i]          = 999.;
-	m_MuonStandP[i]           = 999.;
-	m_MuonStandEta[i]         = 999.;
-	m_MuonStandPhi[i]         = 999.;
-	m_MuonStandChi[i]         = 999.;
-	m_MuonStandCharge[i]      = 999.;
-	m_MuonStandQOverPError[i] = 999.;
+	m_MuonStandValidHits[mu]   = 999.;
+	m_MuonStandLostHits[mu]    = 999.;
+	m_MuonStandPt[mu]          = 999.;
+	m_MuonStandPz[mu]          = 999.;
+	m_MuonStandP[mu]           = 999.;
+	m_MuonStandEta[mu]         = 999.;
+	m_MuonStandPhi[mu]         = 999.;
+	m_MuonStandChi[mu]         = 999.;
+	m_MuonStandCharge[mu]      = 999.;
+	m_MuonStandQOverPError[mu] = 999.;
       }
 
       //Muon tracking information
       if((*muonHandle)[i].isTrackerMuon() && (*muonHandle)[i].track().isNonnull()){
-	m_MuonTrkChiNorm[i]     = (*muonHandle)[i].track()->normalizedChi2();
-	m_MuonTrkValidHits[i]   = (*muonHandle)[i].track()->found();
-	m_MuonTrkLostHits[i]    = (*muonHandle)[i].track()->lost();
-	m_MuonTrkD0[i]          = (*muonHandle)[i].track()->d0();
-	m_MuonTrkPt[i]          = (*muonHandle)[i].track()->pt();
-	m_MuonTrkPz[i]          = (*muonHandle)[i].track()->pz();
-	m_MuonTrkP[i]           = (*muonHandle)[i].track()->p();
-	m_MuonTrkEta[i]         = (*muonHandle)[i].track()->eta();
-	m_MuonTrkPhi[i]         = (*muonHandle)[i].track()->phi();
-	m_MuonTrkChi[i]         = (*muonHandle)[i].track()->chi2();
-	m_MuonTrkCharge[i]      = (*muonHandle)[i].track()->charge();
-	m_MuonTrkQOverPError[i] = (*muonHandle)[i].track()->qoverpError();
-	//  m_MuonTrkOuterZ[i]=(*muonHandle)[i].track()->outerZ();
-	//  m_MuonTrkOuterR[i]=(*muonHandle)[i].track()->outerRadius();
+	m_MuonTrkChiNorm[mu]     = (*muonHandle)[i].track()->normalizedChi2();
+	m_MuonTrkValidHits[mu]   = (*muonHandle)[i].track()->found();
+	m_MuonTrkLostHits[mu]    = (*muonHandle)[i].track()->lost();
+	m_MuonTrkD0[mu]          = (*muonHandle)[i].track()->d0();
+	m_MuonTrkPt[mu]          = (*muonHandle)[i].track()->pt();
+	m_MuonTrkPz[mu]          = (*muonHandle)[i].track()->pz();
+	m_MuonTrkP[mu]           = (*muonHandle)[i].track()->p();
+	m_MuonTrkEta[mu]         = (*muonHandle)[i].track()->eta();
+	m_MuonTrkPhi[mu]         = (*muonHandle)[i].track()->phi();
+	m_MuonTrkChi[mu]         = (*muonHandle)[i].track()->chi2();
+	m_MuonTrkCharge[mu]      = (*muonHandle)[i].track()->charge();
+	m_MuonTrkQOverPError[mu] = (*muonHandle)[i].track()->qoverpError();
+	//  m_MuonTrkOuterZ[mu]=(*muonHandle)[i].track()->outerZ();
+	//  m_MuonTrkOuterR[mu]=(*muonHandle)[i].track()->outerRadius();
 
       }
       else{
-	m_MuonTrkChiNorm[i]    = 999.;
-	m_MuonTrkValidHits[i]  = 999.;
-	m_MuonTrkLostHits[i]   = 999.;
-	m_MuonTrkPt[i]         = 999.;
-	m_MuonTrkPz[i]         = 999.;
-	m_MuonTrkP[i]          = 999.;
-	m_MuonTrkEta[i]        = 999.;
-	m_MuonTrkPhi[i]        = 999.;
-	m_MuonTrkChi[i]        = 999.;
-	m_MuonTrkCharge[i]     = 999.;
-	m_MuonTrkQOverPError[i]= 999.;
-	m_MuonTrkOuterZ[i]     = 999.;
-	m_MuonTrkOuterR[i]     = 999.;
+	m_MuonTrkChiNorm[mu]    = 999.;
+	m_MuonTrkValidHits[mu]  = 999.;
+	m_MuonTrkLostHits[mu]   = 999.;
+	m_MuonTrkPt[mu]         = 999.;
+	m_MuonTrkPz[mu]         = 999.;
+	m_MuonTrkP[mu]          = 999.;
+	m_MuonTrkEta[mu]        = 999.;
+	m_MuonTrkPhi[mu]        = 999.;
+	m_MuonTrkChi[mu]        = 999.;
+	m_MuonTrkCharge[mu]     = 999.;
+	m_MuonTrkQOverPError[mu]= 999.;
+	m_MuonTrkOuterZ[mu]     = 999.;
+	m_MuonTrkOuterR[mu]     = 999.;
       }
 
       //Muon gen particle association variables
       if (doMCData_) {
       	const reco::Candidate* candMuon = (*muonHandle)[i].genLepton();
       	if ( candMuon ) {
-      	  m_MuonGenPdgId[i] = candMuon->pdgId();
-      	  m_MuonGenPx[i]    = candMuon->px();
-      	  m_MuonGenPy[i]    = candMuon->py();
-      	  m_MuonGenPz[i]    = candMuon->pz();
-      	  m_MuonGenPt[i]    = candMuon->pt();
-      	  m_MuonGenEt[i]    = candMuon->et();
-      	  m_MuonGenE[i]     = candMuon->energy();
+      	  m_MuonGenPdgId[mu] = candMuon->pdgId();
+      	  m_MuonGenPx[mu]    = candMuon->px();
+      	  m_MuonGenPy[mu]    = candMuon->py();
+      	  m_MuonGenPz[mu]    = candMuon->pz();
+      	  m_MuonGenPt[mu]    = candMuon->pt();
+      	  m_MuonGenEt[mu]    = candMuon->et();
+      	  m_MuonGenE[mu]     = candMuon->energy();
       	  
       	  const reco::Candidate* muonMother = candMuon->mother();
       	  if( muonMother ) {
       	    while (muonMother->pdgId() == candMuon->pdgId()) muonMother = muonMother->mother();
       	    if ( muonMother ) {
-      	      m_MuonGenMother[i] = (*muonHandle)[i].genLepton()->mother()->pdgId();
+      	      m_MuonGenMother[mu] = (*muonHandle)[i].genLepton()->mother()->pdgId();
       	      //if ( (*muonHandle)[i].genLepton()->mother()->pdgId() ==  (*muonHandle)[i].genLepton()->pdgId()) 
       	      //  {
-      	      //	m_MuonGenMother[i] = (*muonHandle)[i].genLepton()->mother()->mother()->pdgId();
+      	      //	m_MuonGenMother[mu] = (*muonHandle)[i].genLepton()->mother()->mother()->pdgId();
       	      //  }
       	    }
       	  }
       	}
       	
       	else{
-      	  m_MuonGenPdgId[i]  = -999.;
-      	  m_MuonGenMother[i] = -999.;
-      	  m_MuonGenPx[i]     = -999.;
-      	  m_MuonGenPy[i]     = -999.;
-      	  m_MuonGenPz[i]     = -999.;
-      	  m_MuonGenPt[i]     = -999.;
-      	  m_MuonGenEt[i]     = -999.;
-      	  m_MuonGenE[i]      = -999.;
+      	  m_MuonGenPdgId[mu]  = -999.;
+      	  m_MuonGenMother[mu] = -999.;
+      	  m_MuonGenPx[mu]     = -999.;
+      	  m_MuonGenPy[mu]     = -999.;
+      	  m_MuonGenPz[mu]     = -999.;
+      	  m_MuonGenPt[mu]     = -999.;
+      	  m_MuonGenEt[mu]     = -999.;
+      	  m_MuonGenE[mu]      = -999.;
       	}
       }
-      double muonIsoReq = (m_MuonTrkIso[i]+m_MuonECalIso[i]+m_MuonHCalIso[i])/m_MuonPt[i];
+      double muonIsoReq = (m_MuonTrkIso[mu]+m_MuonECalIso[mu]+m_MuonHCalIso[mu])/m_MuonPt[mu];
       if ( muonIsoReq  > muonRelIso_) m_MuonVeto = m_MuonVeto || true;
-      if ( m_MuonPt[i] > muonMaxEt_)  m_MuonVeto = m_MuonVeto || true;
+      if ( m_MuonPt[mu] > muonMaxEt_)  m_MuonVeto = m_MuonVeto || true;
       ++mu;
     }
   }// end loop over muons
