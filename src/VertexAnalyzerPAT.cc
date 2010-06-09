@@ -13,7 +13,7 @@ Description: Collects variables related to vertices, performs a primary vertex c
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: VertexAnalyzerPAT.cc,v 1.3 2010/05/20 19:40:29 sturdy Exp $
+// $Id: VertexAnalyzerPAT.cc,v 1.4 2010/05/21 10:13:49 sturdy Exp $
 //
 //
 
@@ -108,30 +108,30 @@ bool VertexAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   int tmpNtrks = 0;
   if (tmpnVtx > 10) tmpnVtx = 10;
   for (int i=0; i< tmpnVtx; i++){  
-    const reco::Vertex* pVertex = &(*vertices)[i];
+    const reco::Vertex& pVertex = (*vertices)[i];
 
-    if(pVertex->isValid()) {
-      m_VtxNormalizedChi2[numVtx] = pVertex->normalizedChi2();
-      m_VtxIsValid[numVtx]        = pVertex->isValid();
-      m_VtxNRawTrks[numVtx]       = pVertex->tracksSize();
-      m_VtxChi2[numVtx]           = pVertex->chi2();
-      m_VtxNdof[numVtx]           = pVertex->ndof();
-      m_VtxX[numVtx]              = pVertex->x();
-      m_VtxY[numVtx]              = pVertex->y();
-      m_VtxZ[numVtx]              = pVertex->z();
-      m_VtxdX[numVtx]             = pVertex->xError();
-      m_VtxdY[numVtx]             = pVertex->yError();
-      m_VtxdZ[numVtx]             = pVertex->zError();
-      m_Vtxd0[numVtx]             = pVertex->position().rho();
+    if(pVertex.isValid()) {
+      m_VtxNormalizedChi2[numVtx] = pVertex.normalizedChi2();
+      m_VtxIsValid[numVtx]        = pVertex.isValid();
+      m_VtxNRawTrks[numVtx]       = pVertex.tracksSize();
+      m_VtxChi2[numVtx]           = pVertex.chi2();
+      m_VtxNdof[numVtx]           = pVertex.ndof();
+      m_VtxX[numVtx]              = pVertex.x();
+      m_VtxY[numVtx]              = pVertex.y();
+      m_VtxZ[numVtx]              = pVertex.z();
+      m_VtxdX[numVtx]             = pVertex.xError();
+      m_VtxdY[numVtx]             = pVertex.yError();
+      m_VtxdZ[numVtx]             = pVertex.zError();
+      m_Vtxd0[numVtx]             = pVertex.position().rho();
             
       int cur_index = 0;
-      for (Vertex::trackRef_iterator vertex_curTrack = pVertex->tracks_begin(); 
-	   vertex_curTrack!=pVertex->tracks_end(); 
+      for (Vertex::trackRef_iterator vertex_curTrack = pVertex.tracks_begin(); 
+	   vertex_curTrack!=pVertex.tracks_end(); 
 	   vertex_curTrack++) {
 
 	m_VtxSumTrkPt[numVtx] += (*vertex_curTrack)->pt();
 
-	if (pVertex->trackWeight(*vertex_curTrack) > 0.5) 
+	if (pVertex.trackWeight(*vertex_curTrack) > 0.5) 
 	  ++tmpNtrks;
 
 	++cur_index;

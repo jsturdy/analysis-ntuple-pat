@@ -30,6 +30,8 @@
 //#include "PhysicsTools/Utilities/interface/deltaPhi.h"
 //#include "PhysicsTools/Utilities/interface/deltaR.h"
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
+#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 
 
 //
@@ -103,7 +105,6 @@ class JetAnalyzerPAT {
 
   // Data tags
   edm::InputTag jetTag_;
-  edm::InputTag jptJetTag_;
   edm::InputTag genJetTag_;
 
   char logmessage[128];
@@ -134,33 +135,43 @@ class JetAnalyzerPAT {
   double m_JetFhad[50];
   int    m_JetHemi[50];
   double m_JetCharge[50];
+  int    m_JetNConst[50];
   bool   m_JetPreselection;
+  bool   m_JetIDMinimal[50];
+  bool   m_JetIDLoose[50];
+  bool   m_JetIDTight[50];
 
-  //calo jet specific
+  //calo/jpt jet specific
   double m_JetfHPD[50];
   double m_JetfRBX[50];
   double m_JetN90[50];
 
   //jpt jet specific
-  double m_JetElecMult[50];
 
-  //pf jet specific
+  //jpt/pf jet specific
   double m_JetChargedFem[50];
   double m_JetNeutralFem[50];
   double m_JetChargedFhad[50];
   double m_JetNeutralFhad[50];
-  double m_JetChargedFmu[50];
-  double m_JetChargedFele[50];
-  double m_JetChargedFHFHad[50];
-  double m_JetChargedFHFEM[50];
-  
+
   double m_JetChargedMult[50];
   double m_JetNeutralMult[50];
+  double m_JetElecMult[50];
   double m_JetMuonMult[50];
-  double m_JetPhotMult[50];
+
+  //pf jet specific
+  double m_JetChargedFmu[50];
+  double m_JetChargedFele[50];
+  double m_JetChargedFpho[50];
+  double m_JetHFFem[50];
+  double m_JetHFFhad[50];
+  
+  double m_JetChargedHadMult[50];
+  double m_JetNeutralHadMult[50];
   double m_JetHFHadMult[50];
   double m_JetHFEMMult[50];
   double m_JetHFMult[50];
+  double m_JetPhotonMult[50];
 
   // track info:
   int    m_JetTrackNo[50];

@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: PhotonAnalyzerPAT.cc,v 1.3 2010/05/20 19:40:14 sturdy Exp $
+// $Id: PhotonAnalyzerPAT.cc,v 1.4 2010/05/21 10:13:44 sturdy Exp $
 //
 //
 
@@ -138,34 +138,35 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
     if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
   }
   for (int i=0;i<m_PhotN;i++) {
-    if ( ((*photHandle)[i].pt() > photMinEt_) && !((*photHandle)[i].eta() > photMaxEta_) ) {
+    const pat::Photon thePhoton = (*photHandle)[i];
+    if ( (thePhoton.pt() > photMinEt_) && !(thePhoton.eta() > photMaxEta_) ) {
       if (debug_) edm::LogVerbatim("PhotonEvent") << " looping over good photons " << std::endl;      
-      m_PhotE[ph]   = (*photHandle)[i].energy();
-      m_PhotEt[ph]  = (*photHandle)[i].et();
-      m_PhotPt[ph]  = (*photHandle)[i].pt();
-      m_PhotPx[ph]  = (*photHandle)[i].momentum().X();
-      m_PhotPy[ph]  = (*photHandle)[i].momentum().Y();
-      m_PhotPz[ph]  = (*photHandle)[i].momentum().Z();
-      m_PhotEta[ph] = (*photHandle)[i].eta();
-      m_PhotPhi[ph] = (*photHandle)[i].phi();
+      m_PhotE[ph]   = thePhoton.energy();
+      m_PhotEt[ph]  = thePhoton.et();
+      m_PhotPt[ph]  = thePhoton.pt();
+      m_PhotPx[ph]  = thePhoton.momentum().X();
+      m_PhotPy[ph]  = thePhoton.momentum().Y();
+      m_PhotPz[ph]  = thePhoton.momentum().Z();
+      m_PhotEta[ph] = thePhoton.eta();
+      m_PhotPhi[ph] = thePhoton.phi();
 
       if (debug_) sprintf(logmessage,"%6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f", \
 			  ph,m_PhotE[ph],m_PhotEt[ph],m_PhotPt[ph],m_PhotPx[ph],m_PhotPy[ph],m_PhotPz[ph],m_PhotEta[ph],m_PhotPhi[ph]);
       if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
     
-      m_PhotTrkIso[ph]  = (*photHandle)[i].trackIso();
-      m_PhotECalIso[ph] = (*photHandle)[i].ecalIso();
-      m_PhotHCalIso[ph] = (*photHandle)[i].hcalIso();
-      m_PhotAllIso[ph]  = (*photHandle)[i].caloIso();
+      m_PhotTrkIso[ph]  = thePhoton.trackIso();
+      m_PhotECalIso[ph] = thePhoton.ecalIso();
+      m_PhotHCalIso[ph] = thePhoton.hcalIso();
+      m_PhotAllIso[ph]  = thePhoton.caloIso();
 
-      //m_PhotLooseEM[ph] = (*photHandle)[i].photonID("PhotonCutBasedIDLooseEM");
-      m_PhotLoosePhoton[ph] = (*photHandle)[i].photonID("PhotonCutBasedIDLoose");
-      m_PhotTightPhoton[ph] = (*photHandle)[i].photonID("PhotonCutBasedIDTight");
+      //m_PhotLooseEM[ph] = thePhoton.photonID("PhotonCutBasedIDLooseEM");
+      m_PhotLoosePhoton[ph] = thePhoton.photonID("PhotonCutBasedIDLoose");
+      m_PhotTightPhoton[ph] = thePhoton.photonID("PhotonCutBasedIDTight");
       
       // PhotGenon info
       if (doMCData_) {
-      	//reco::Particle* part = const_cast<reco::Particle*>( (*photHandle)[i].genPhoton() );
-      	const reco::Candidate* candPhot = (*photHandle)[i].genPhoton();
+      	//reco::Particle* part = const_cast<reco::Particle*>( thePhoton.genPhoton() );
+      	const reco::Candidate* candPhot = thePhoton.genPhoton();
 
       	if (debug_) sprintf(logmessage,"      PhotGenon      E     Et    Pt    Px    Py    Pz    PdgId    Mother\n");
 	if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
