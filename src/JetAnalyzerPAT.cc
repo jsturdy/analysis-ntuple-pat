@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.5 2010/06/09 18:02:26 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.6 2010/06/17 16:19:09 sturdy Exp $
 //
 //
 
@@ -136,7 +136,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (debug_) {
     if (m_NJets) {
       std::cout<< "isCalo " <<(*jetHandle)[0].isCaloJet()  <<" Jets for InputTag " << jetTag_<<std::endl;
-      //std::cout<< "isJPT "  <<(*jetHandle)[0]..isJPTJet()   <<" Jets for InputTag " << jetTag_<<std::endl;
+      std::cout<< "isJPT "  <<(*jetHandle)[0].isJPTJet()   <<" Jets for InputTag " << jetTag_<<std::endl;
       std::cout<< "isPF "   <<(*jetHandle)[0].isPFJet()    <<" Jets for InputTag " << jetTag_<<std::endl;
       //std::cout<< "isTrack "<<(*jetHandle)[0].isTrackJet() <<" Jets for InputTag " << jetTag_<<std::endl;
       std::cout<< "isBasic "<<(*jetHandle)[0].isBasicJet() <<" Jets for InputTag " << jetTag_<<std::endl;
@@ -274,7 +274,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 	  m_JetChargedMult[i] = theJet.chargedMultiplicity();
 	  m_JetNeutralMult[i] = theJet.neutralMultiplicity();
-	  //m_JetElecMult[i]    = theJet.elecMultiplicity();
+	  m_JetElecMult[i]    = theJet.elecMultiplicity();
 	  m_JetMuonMult[i]    = theJet.muonMultiplicity();
 
 	  m_JetFem[i]  = theJet.neutralEmEnergyFraction()+
