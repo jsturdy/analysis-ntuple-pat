@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 isData = True
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-        version = cms.untracked.string('$Revision: 1.3 $'),
+        version = cms.untracked.string('$Revision: 1.4 $'),
             name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/UserCode/JSturdy/SUSY/AnalysisNtuplePAT/python/SUSY_V8_7TeV_PATtuple.py,v $'),
             annotation = cms.untracked.string('SUSY pattuple definition')
         )
@@ -81,13 +81,6 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 process.load("JSturdy.AnalysisNtuplePAT.analysisNtuplePAT_cff")
 process.theNtupler = cms.Path(process.doAnalysisNtuplePAT)
 
-#from JSturdy.AnalysisNtuplePAT.rerecoCleanedCollections_cfi import *
-#process.redojetmet = cms.Path(process.rerecoData)
-process.load("JSturdy.AnalysisNtuplePAT.rerecoCleanedCollections_cfi")
-process.reflagstep       = cms.Path(process.reflagging_step)
-process.redorecostep     = cms.Path(process.rereco_step)
-process.redoassociations = cms.Path(process.highlevelreco_step)
-#process.redojetmet       = cms.Path(process.reflagstuff*process.redorecostep*process.redoassociations)
 #from JSturdy.AnalysisNtuplePAT.eventCleanupPAT_cfi import *
 process.load("JSturdy.AnalysisNtuplePAT.eventCleanupPAT_cfi")
 if isData :
@@ -97,34 +90,17 @@ else :
 
 process.selectClean = cms.Path(process.cleanEvents)
 
-process.load("JSturdy.AnalysisNtuplePAT.MetTypeICorrections_cff")
-process.load("JSturdy.AnalysisNtuplePAT.jetMETCorrections_cff")
-
-process.makethemets = cms.Path(
-    process.myMetJESCorrections   *
-    process.myMetMuonCorrections
-    )
-    
 process.susyStep = cms.Path(process.susyPatDefaultSequence)
 
 
 #process.p = cms.Path(
-#    process.reflagging_step         *
-#    process.rereco_step             *
-#    process.highlevelreco_step      *
 #    process.cleanEvents             *
-#    process.myMetJESCorrections     *
-#    process.myMetMuonCorrections    *
 #    process.susyPatDefaultSequence  *
 #    process.doAnalysisNtuplePAT
 #)
 
 process.schedule = cms.Schedule(
-    process.reflagstep,
-    process.redorecostep,
-    process.redoassociations,
     process.selectClean,
-    process.makethemets,
     #process.seqSUSYDefaultSequence,
     process.susyStep#,
 #    process.theNtupler

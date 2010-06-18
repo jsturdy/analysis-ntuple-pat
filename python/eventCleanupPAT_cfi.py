@@ -1,59 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#-- MET Cleaning ------------------------------------------------------------#
-tcMetCleaned = cms.EDProducer('CleanedTCMETProducer',
-    tcmetInputTag     = cms.InputTag("tcMet"),
-    caloTowerInputTag = cms.InputTag("towerMaker"),
-    ebRechitInputTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
-    eeRechitInputTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
-    jetInputTag       = cms.InputTag("ak5CaloJets"),
-    jetIDinputTag     = cms.InputTag("ak5JetID"),
-    alias             = cms.string("tcMetCleaned"),
-    useHFcorrection   = cms.bool(True),
-    useECALcorrection = cms.bool(True),
-    useHCALcorrection = cms.bool(True)
-)
-
-metCleaned = cms.EDProducer('CleanedCaloMETProducer',
-    calometInputTag   = cms.InputTag("met"),
-    caloTowerInputTag = cms.InputTag("towerMaker"),
-    ebRechitInputTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
-    eeRechitInputTag  = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
-    jetInputTag       = cms.InputTag("ak5CaloJets"),
-    jetIDinputTag     = cms.InputTag("ak5JetID"),
-    alias             = cms.string("metCleaned"),
-    useHFcorrection   = cms.bool(True),
-    useECALcorrection = cms.bool(True),
-    useHCALcorrection = cms.bool(True)
-)
-metNoHFCleaned = metCleaned.clone(
-    calometInputTag   = cms.InputTag("metNoHF"),
-    alias             = cms.string("metNoHFCleaned")
-)
-metHOCleaned = metCleaned.clone(
-    calometInputTag   = cms.InputTag("metHO"),
-    alias             = cms.string("metHOCleaned")
-)
-metNoHFHOCleaned = metCleaned.clone(
-    calometInputTag   = cms.InputTag("metNoHFHO"),
-    alias             = cms.string("metNoHFHOCleaned")
-)
-metOptCleaned = metCleaned.clone(
-    calometInputTag   = cms.InputTag("metOpt"),
-    alias             = cms.string("metOptCleaned")
-)
-metOptNoHFCleaned = metCleaned.clone(
-    calometInputTag   = cms.InputTag("metOptNoHF"),
-    alias             = cms.string("metOptNoHFCleaned")
-)
-metOptHOCleaned = metCleaned.clone(
-    calometInputTag   = cms.InputTag("metOptHO"),
-    alias             = cms.string("metOptHOCleaned")
-)
-metOptNoHFHOCleaned = metCleaned.clone(
-    calometInputTag   = cms.InputTag("metOptNoHFHO"),
-    alias             = cms.string("metOptNoHFHOCleaned")
-)
 
 #-- PKAM Filtering ----------------------------------------------------------#
 removePKAM = cms.EDFilter("FilterOutScraping",
@@ -97,8 +43,18 @@ physicsDeclared = hltPhysicsDeclared.clone(
 )
 
 #HBHE Noise
-from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import *
-hbheNoise = HBHENoiseFilter.clone()
+useHBHEfilter = False
+
+#Reject events with HBHE noise
+if useHBHEfilter == True:
+    from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import *
+    hbheNoise = HBHENoiseFilter.clone()
+    
+# Instead of rejecting the event, add a flag indicating the HBHE noise
+
+from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
+hbheNoiseFlag = HBHENoiseFilterResultProducer.clone()
+
 
 ##-- HLT Trigger Filter ------------------------------------------------------#
 
@@ -126,12 +82,8 @@ hbheNoise = HBHENoiseFilter.clone()
 cleanupFilterMC = cms.Sequence(
     removePKAM          +
     primaryVertexFilter +
-    hbheNoise           +
-    (
-        tcMetCleaned    +
-        metCleaned      +
-        metOptCleaned 
-    )
+#    hbheNoise           +
+    hbheNoiseFlag
 )
 
 cleanupFilterData = cms.Sequence(
