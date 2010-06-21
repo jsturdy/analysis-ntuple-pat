@@ -13,7 +13,7 @@ Description: Collects the trigger results and performs a basic trigger selection
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: TriggerAnalyzerPAT.cc,v 1.3 2010/05/12 22:35:47 sturdy Exp $
+// $Id: TriggerAnalyzerPAT.cc,v 1.4 2010/05/20 19:40:29 sturdy Exp $
 //
 //
 //#include "SusyAnalysis/EventSelector/interface/BJetEventSelector.h"
@@ -78,32 +78,79 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup&
   m_HLT1HT     = false;
   m_HLT1HT1MHT = false;
   m_HLT1Muon   = false;
+  m_HLTMinBias = false;
 
   m_L1Muon1 = false;
   m_L1Muon2 = false;
   m_L1Muon3 = false;
   m_L1Muon4 = false;
 
+
+
+  /******************************************************************
+   * Here we do all the L1 related trigger stuff
+   *
+   *
+   ******************************************************************/
   //L1 trigger results
   edm::Handle<L1GlobalTriggerReadoutRecord> l1GtHandle;
   iEvent.getByLabel(l1TriggerResults_, l1GtHandle);
-  if ( !l1GtHandle.isValid() ) {
+
+  edm::ESHandle<L1GtTriggerMenu> L1menu;
+  iSetup.get<L1GtTriggerMenuRcd>().get(L1menu) ;
+  
+  edm::ESHandle<L1GtPrescaleFactors> psAlgo;
+  iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(psAlgo);
+  
+  edm::ESHandle<L1GtPrescaleFactors> psTech;
+  iSetup.get<L1GtPrescaleFactorsTechTrigRcd>().get(psTech);
+
+  const AlgorithmMap& algoMap = L1menu->gtAlgorithmMap();
+  const AlgorithmMap& techMap = L1menu->gtTechnicalTriggerMap();
+
+  if ( !l1GtHandle.isValid() || !L1menu.isValid() ) {
     edm::LogWarning("L1TriggerSelector") << "No trigger results for InputTag " << l1TriggerResults_;
     return false;
   }
+
+  int nBx = 0; //what does this do ???
+  const std::vector<bool>& vAlgoBool = l1GtHandle->decisionWord(nBx);
+  const std::vector<int>&  vAlgoInt  = psAlgo->gtPrescaleFactors().at(l1GtHandle->gtFdlWord(nBx).gtPrescaleFactorIndexAlgo());
+
+  const std::vector<bool>& vTechBool = l1GtHandle->technicalTriggerWord(nBx);
+  const std::vector<int>&  vTechInt  = psTech->gtPrescaleFactors().at(l1GtHandle->gtFdlWord(nBx).gtPrescaleFactorIndexTech());
+
+  for( AlgorithmMap::const_iterator it = algoMap.begin(); it != algoMap.end(); ++it) {
+    l1triggered[it->first] = vAlgoBool.at(it->second.algoBitNumber());
+    l1prescaled[it->first] = vAlgoInt.at(it->second.algoBitNumber());
+  }
+
+  for( AlgorithmMap::const_iterator it = techMap.begin(); it != techMap.end(); ++it) {
+    l1triggered[it->first] = vTechBool.at(it->second.algoBitNumber());
+    l1prescaled[it->first] = vTechInt.at(it->second.algoBitNumber());
+  }
   
+  //L1 Technical algorithm bits
   m_nL1Technical = nMaxL1Tech;
   for ( int l1tech = 0; l1tech < nMaxL1Tech; ++l1tech) {    
     m_L1TechnicalArray[l1tech] = l1GtHandle->technicalTriggerWord()[l1tech] ? 1:0;
   }  
   
-  
+  //L1 Physics algorithm bits
   m_nL1Physics = nMaxL1Algo;
   for ( int l1phys = 0; l1phys < nMaxL1Algo; ++l1phys) {    
     m_L1PhysicsArray[l1phys] = l1GtHandle->decisionWord()[l1phys] ? 1:0;
   }
 
+
+
+  /******************************************************************
+   * Here we do all the HLT related trigger stuff
+   *
+   *
+   ******************************************************************/
   // Get the HLT results and check validity
+
   edm::Handle<edm::TriggerResults> hltHandle;
   iEvent.getByLabel(hlTriggerResults_, hltHandle);
   if ( !hltHandle.isValid() ) {
@@ -111,15 +158,10 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup&
     return false;
   }
 
-  //  std::cout << " get results " << std::endl;
-
-  // Get results
-  const edm::TriggerNames & trgNames = iEvent.triggerNames(*hltHandle);
+  const edm::TriggerNames& trgNames = iEvent.triggerNames(*hltHandle);
     
   unsigned int trgSize = trgNames.size();
   
-  // Example for OR of all specified triggers
-
   edm::LogWarning("HLTEventSelector") << " triggers " << trgNames.size() << std::endl;
 
   if (!hltHandle.isValid()) {
@@ -170,6 +212,7 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup&
       if (trigName == "HLT_HT200")        m_HLT1HT     = true;
       if (trigName == "HLT_HT300_MHT100") m_HLT1HT1MHT = true;
       if (trigName == "HLT_Mu9")          m_HLT1Muon   = true; 
+      if (trigName == "HLT_L1_BscMinBiasOR_BptxPlusORMinus")          m_HLTMinBias = true; 
       
     } 
   }
@@ -249,6 +292,10 @@ void TriggerAnalyzerPAT::bookTTree() {
   mTriggerData->Branch("L1PhysicsArray", m_L1PhysicsArray, "L1PhysicsArray[nL1Physics]/I");
   mTriggerData->Branch("L1PhysicsNames", m_L1PhysicsNames, "L1PhysicsNames[nL1Physics]/string");
 
+  //std::map access to L1 trigger information
+  mTriggerData->Branch("L1Triggered", &l1triggered, "L1Triggered/bool");
+  mTriggerData->Branch("L1Prescaled", &l1prescaled, "L1Prescaled/I");
+
   //Trigger information
   mTriggerData->Branch("HLT1JET",    &m_HLT1JET,    "HLT1JET/bool");
   mTriggerData->Branch("HLT2JET",    &m_HLT2JET,    "HLT2JET/bool");
@@ -256,6 +303,7 @@ void TriggerAnalyzerPAT::bookTTree() {
   mTriggerData->Branch("HLT11HT",    &m_HLT1HT,     "HLT1HT/bool");
   mTriggerData->Branch("HLT1HT1MHT", &m_HLT1HT1MHT, "HLT1HT1MHT/bool");
   mTriggerData->Branch("HLT1MUON",   &m_HLT1Muon,   "HLT1MUON/bool");
+  mTriggerData->Branch("HLTMINBIAS", &m_HLTMinBias, "HLTMINBIAS/bool");
 
   mTriggerData->Branch("L1MUON1",   &m_L1Muon1,   "L1MUON1/bool");
   mTriggerData->Branch("L1MUON2",   &m_L1Muon2,   "L1MUON2/bool");

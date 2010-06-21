@@ -13,7 +13,7 @@ Description: Collects variables related to vertices, performs a primary vertex c
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: VertexAnalyzerPAT.cc,v 1.4 2010/05/21 10:13:49 sturdy Exp $
+// $Id: VertexAnalyzerPAT.cc,v 1.5 2010/06/09 18:02:30 sturdy Exp $
 //
 //
 
@@ -68,24 +68,24 @@ bool VertexAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByLabel(_beamspotTag,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;   
 
-  m_Beamspot_x0 = bs.x0();
+  m_Beamspot_x0      = bs.x0();
   m_Beamspot_x0Error = bs.x0Error();
-  m_Beamspot_y0 = bs.y0();
+  m_Beamspot_y0      = bs.y0();
   m_Beamspot_y0Error = bs.y0Error();
-  m_Beamspot_z0 = bs.z0();
+  m_Beamspot_z0      = bs.z0();
   m_Beamspot_z0Error = bs.z0Error();
 
-  m_Beamspot_WidthX     = bs.BeamWidthX();
+  m_Beamspot_WidthX      = bs.BeamWidthX();
   m_Beamspot_WidthXError = bs.BeamWidthXError();
-  m_Beamspot_WidthY     = bs.BeamWidthY();
+  m_Beamspot_WidthY      = bs.BeamWidthY();
   m_Beamspot_WidthYError = bs.BeamWidthYError();
 
-  m_Beamspot_SigmaZ0 = bs.sigmaZ();
+  m_Beamspot_SigmaZ0      = bs.sigmaZ();
   m_Beamspot_SigmaZ0Error = bs.sigmaZ0Error();
 
-  m_Beamspot_dxdz = bs.dxdz();
+  m_Beamspot_dxdz      = bs.dxdz();
   m_Beamspot_dxdzError = bs.dxdzError();
-  m_Beamspot_dydz = bs.dydz();
+  m_Beamspot_dydz      = bs.dydz();
   m_Beamspot_dydzError = bs.dydzError();
 
   m_Beamspot_EmittanceX = bs.emittanceX();
@@ -139,7 +139,7 @@ bool VertexAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
       m_VtxNTrks[numVtx] = tmpNtrks;
       ++numVtx;
     }
-  } 
+  }
 
   m_nVtx = numVtx;
   if (m_nVtx>=_minNVtx)
