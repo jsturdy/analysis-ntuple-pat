@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 htmhtAnalyzerPAT = cms.untracked.PSet(
-    doMCHTMHT  = cms.untracked.bool(True),
+    doMCHTMHT  = cms.untracked.bool(False),
     
     genJetTag = cms.untracked.InputTag("ak5GenJets"),
     jetTag    = cms.untracked.InputTag("cleanPatJetsAK5Calo"),

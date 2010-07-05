@@ -8,6 +8,9 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <map>
+#include <set>
+#include <utility>
 
 // ROOT includes
 #include <TNtuple.h>
@@ -112,115 +115,139 @@ class JetAnalyzerPAT {
   // Plots
   TTree * mJetData;      /// Will contain the data passing the jet selection
 
-  int    m_NJets;
-  double m_Ht;
-  double m_MHx;
-  double m_MHy;
-  double m_MHt;
-  double m_JetEt[50];
-  double m_JetPt[50];
-  double m_JetPx[50];
-  double m_JetPy[50];
-  double m_JetPz[50];
-  double m_JetE[50];
-  double m_JetRawEt[50];
-  double m_JetRawPt[50];
-  double m_JetRawPx[50];
-  double m_JetRawPy[50];
-  double m_JetRawPz[50];
-  double m_JetRawE[50];
-  double m_JetEta[50];
-  double m_JetPhi[50];
-  double m_JetFem[50];
-  double m_JetFhad[50];
-  int    m_JetHemi[50];
-  double m_JetCharge[50];
-  int    m_JetNConst[50];
-  bool   m_JetPreselection;
-  bool   m_JetIDMinimal[50];
-  bool   m_JetIDLoose[50];
-  bool   m_JetIDTight[50];
+  //maps the correction level to a vector corresponding to the correction
+  //applied to each jet
+  //boost::shared_ptr<std::map<std::string, std::vector<float> > > map_s_vd_correctionFactor ( new std::map<std::string,std::vector<float> >() );
+  //boost::shared_ptr<std::vector<reco::Candidate::LorentzVector > > v_JetP4    ( new std::vector<reco::Candidate::LorentzVector >() );
+  //boost::shared_ptr<std::vector<reco::Candidate::LorentzVector > > v_JetRawP4 ( new std::vector<reco::Candidate::LorentzVector >() );
+  ////boost::shared_ptr<std::vector<reco::Candidate::LorentzVector > > v_JetPhysicsP4  ( new std::vector<reco::Candidate::LorentzVector >() );
+  ////boost::shared_ptr<std::vector<reco::Candidate::LorentzVector > > v_JetDetectorP4 ( new std::vector<reco::Candidate::LorentzVector >() );
 
+  std::map<std::string, std::vector<float> > map_s_vd_correctionFactor;
+  std::vector<reco::Candidate::LorentzVector > v_JetP4;
+  std::vector<reco::Candidate::LorentzVector > v_JetRawP4;
+  //std::vector<reco::Candidate::LorentzVector > v_JetPhysicsP4;
+  //std::vector<reco::Candidate::LorentzVector > v_JetDetectorP4;
+  
+  int    i_NJets;
+  double d_Ht;
+  double d_MHx;
+  double d_MHy;
+  double d_MHt;
+  //What of this is necessary if I save a PxPyPzE4D vector of the jet?
+  //What of this is necessary if I save a PtEtaPhiE4D vector of the jet?
+  double mat_d_JetEt[50];
+  double mat_d_JetPt[50];
+  double mat_d_JetPx[50];
+  double mat_d_JetPy[50];
+  double mat_d_JetPz[50];
+  double mat_d_JetE[50];
+  double mat_d_JetEta[50];
+  double mat_d_JetPhi[50];
+  //What of this is necessary if I save a PxPyPzE4D vector of the jet?
+  double mat_d_JetRawEt[50];
+  double mat_d_JetRawPt[50];
+  double mat_d_JetRawPx[50];
+  double mat_d_JetRawPy[50];
+  double mat_d_JetRawPz[50];
+  double mat_d_JetRawE[50];
+  
+  double mat_d_JetEtaEtaMoment[50];
+  double mat_d_JetEtaPhiMoment[50];
+  double mat_d_JetPhiPhiMoment[50];
+
+  
+  //JetID variables
+  double mat_d_JetFem[50];
+  double mat_d_JetFhad[50];
+  double mat_d_JetCharge[50];
+  int    mat_i_JetHemi[50];
+  int    mat_i_JetNConst[50];
+  bool   mat_b_JetIDMinimal[50];
+  bool   mat_b_JetIDLoose[50];
+  bool   mat_b_JetIDTight[50];
   //calo/jpt jet specific
-  double m_JetfHPD[50];
-  double m_JetfRBX[50];
-  double m_JetN90[50];
+  double mat_d_JetfHPD[50];
+  double mat_d_JetfRBX[50];
+  double mat_d_JetN90[50];
 
   //jpt jet specific
 
   //jpt/pf jet specific
-  double m_JetChargedFem[50];
-  double m_JetNeutralFem[50];
-  double m_JetChargedFhad[50];
-  double m_JetNeutralFhad[50];
-
-  double m_JetChargedMult[50];
-  double m_JetNeutralMult[50];
-  double m_JetElecMult[50];
-  double m_JetMuonMult[50];
+  double mat_d_JetChargedFem[50];
+  double mat_d_JetNeutralFem[50];
+  double mat_d_JetChargedFhad[50];
+  double mat_d_JetNeutralFhad[50];
+  double mat_d_JetChargedMult[50];
+  double mat_d_JetNeutralMult[50];
+  double mat_d_JetElecMult[50];
+  double mat_d_JetMuonMult[50];
 
   //pf jet specific
-  double m_JetChargedFmu[50];
-  double m_JetChargedFele[50];
-  double m_JetChargedFpho[50];
-  double m_JetHFFem[50];
-  double m_JetHFFhad[50];
-  
-  double m_JetChargedHadMult[50];
-  double m_JetNeutralHadMult[50];
-  double m_JetHFHadMult[50];
-  double m_JetHFEMMult[50];
-  double m_JetHFMult[50];
-  double m_JetPhotonMult[50];
+  double mat_d_JetChargedFmu[50];
+  double mat_d_JetChargedFele[50];
+  double mat_d_JetChargedFpho[50];
+  double mat_d_JetHFFem[50];
+  double mat_d_JetHFFhad[50];
+  double mat_d_JetChargedHadMult[50];
+  double mat_d_JetNeutralHadMult[50];
+  double mat_d_JetHFHadMult[50];
+  double mat_d_JetHFEMMult[50];
+  double mat_d_JetHFMult[50];
+  double mat_d_JetPhotonMult[50];
 
   // track info:
-  int    m_JetTrackNo[50];
-  double m_JetTrackPhi[50];
-  double m_JetTrackPhiWeighted[50];
-  double m_JetTrackPt[50];
+  int    mat_i_JetTrackNo[50];
+  double mat_d_JetTrackPhi[50];
+  double mat_d_JetTrackPhiWeighted[50];
+  double mat_d_JetTrackPt[50];
 
   //calo jet corrections
-  double m_JetMCCorrFactor[50];
-  double m_JetJPTCorrFactor[50];
+  double mat_d_JetMCCorrFactor[50];
+  double mat_d_JetJPTCorrFactor[50];
 
   //b-tagging
-  double m_JetBTag_TCHE[50];
-  double m_JetBTag_TCHP[50];
-  double m_JetBTag_jetProb[50];
-  double m_JetBTag_jetBProb[50];
-  double m_JetBTag_SSVHE[50];
-  double m_JetBTag_SSVHP[50];
-  double m_JetBTag_CSV[50];
-  double m_JetBTag_CSVMVA[50];
-  double m_JetBTag_SoftLepton[50];
-  double m_JetBTag_SoftLeptonByIP[50];
-  double m_JetBTag_SoftLeptonByPt[50];
+  double mat_d_JetBTag_TCHE[50];
+  double mat_d_JetBTag_TCHP[50];
+  double mat_d_JetBTag_jetProb[50];
+  double mat_d_JetBTag_jetBProb[50];
+  double mat_d_JetBTag_SSVHE[50];
+  double mat_d_JetBTag_SSVHP[50];
+  double mat_d_JetBTag_CSV[50];
+  double mat_d_JetBTag_CSVMVA[50];
+  double mat_d_JetBTag_SoftLepton[50];
+  double mat_d_JetBTag_SoftLeptonByIP[50];
+  double mat_d_JetBTag_SoftLeptonByPt[50];
   
 
-  int    m_JetPartonId[50];
-  int    m_JetPartonMother[50];
-  int    m_JetPartonFlavour[50];
-  double m_JetPartonPx[50];
-  double m_JetPartonPy[50];
-  double m_JetPartonPz[50];
-  double m_JetPartonEt[50];
-  double m_JetPartonEnergy[50];
-  double m_JetPartonPhi[50];
-  double m_JetPartonEta[50];
-
   //Generator level information
-  double m_GenHt;
-  double m_GenMHx;
-  double m_GenMHy;
-  double m_GenMHt;
-  double m_JetGenEt[50];
-  double m_JetGenPt[50];
-  double m_JetGenE[50];
-  double m_JetGenPx[50];
-  double m_JetGenPy[50];
-  double m_JetGenPz[50];
-  double m_JetGenEta[50];
-  double m_JetGenPhi[50];
+  double d_GenHt;
+  double d_GenMHx;
+  double d_GenMHy;
+  double d_GenMHt;
+  double mat_d_JetGenEt[50];
+  double mat_d_JetGenPt[50];
+  double mat_d_JetGenE[50];
+  double mat_d_JetGenPx[50];
+  double mat_d_JetGenPy[50];
+  double mat_d_JetGenPz[50];
+  double mat_d_JetGenEta[50];
+  double mat_d_JetGenPhi[50];
+
+  //Parton level id for gen jets?
+  int    mat_i_JetPartonId[50];
+  int    mat_i_JetPartonMother[50];
+  int    mat_i_JetPartonFlavour[50];
+  double mat_d_JetPartonPx[50];
+  double mat_d_JetPartonPy[50];
+  double mat_d_JetPartonPz[50];
+  double mat_d_JetPartonEt[50];
+  double mat_d_JetPartonEnergy[50];
+  double mat_d_JetPartonPhi[50];
+  double mat_d_JetPartonEta[50];
+
+  //Result of some predefined preselection
+  bool   bool_JetPreselection;
 
   std::string outputFileName_;
 

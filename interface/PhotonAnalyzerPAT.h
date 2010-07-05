@@ -8,6 +8,9 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <map>
+#include <set>
+#include <utility>
 
 // ROOT includes
 #include <TNtuple.h>
@@ -65,44 +68,48 @@ private:
   TTree * mPhotonData;      /// Will contain the additional di-jet specific data
 
   // Variables
-  int    m_PhotN;
-  double m_PhotE[50];
-  double m_PhotEt[50];
-  double m_PhotPt[50];
-  double m_PhotPx[50];
-  double m_PhotPy[50];
-  double m_PhotPz[50];
-  double m_PhotEta[50];
-  double m_PhotPhi[50];
+  //boost::shared_ptr<std::vector<reco::Candidate::LorentzVector> > v_photP4 (new std::vector<reco::Candidate::LorentzVector>() );
+  std::vector<reco::Candidate::LorentzVector> v_photP4;
+  int    i_PhotN;
+  double mat_d_PhotE[50];
+  double mat_d_PhotEt[50];
+  double mat_d_PhotPt[50];
+  double mat_d_PhotPx[50];
+  double mat_d_PhotPy[50];
+  double mat_d_PhotPz[50];
+  double mat_d_PhotEta[50];
+  double mat_d_PhotPhi[50];
 
-  double m_PhotTrkIso[50];
-  double m_PhotECalIso[50];
-  double m_PhotHCalIso[50];
-  double m_PhotAllIso[50];
+  double mat_d_PhotTrkIso[50];
+  double mat_d_PhotECalIso[50];
+  double mat_d_PhotHCalIso[50];
+  double mat_d_PhotAllIso[50];
 
   //bool m_ccPhotAssoc[50];
-  bool m_PhotLooseEM[50];
-  bool m_PhotLoosePhoton[50];
-  bool m_PhotTightPhoton[50];
+  bool mat_b_PhotLooseEM[50];
+  bool mat_b_PhotLoosePhoton[50];
+  bool mat_b_PhotTightPhoton[50];
 
-  double m_PhotGenPdgId[50];
-  double m_PhotGenMother[50];
-  double m_PhotGenPx[50];
-  double m_PhotGenPy[50];
-  double m_PhotGenPz[50];
-  double m_PhotGenPt[50];
-  double m_PhotGenEt[50];
-  double m_PhotGenE[50];
+  double mat_d_PhotGenPdgId[50];
+  double mat_d_PhotGenMother[50];
+  double mat_d_PhotGenPx[50];
+  double mat_d_PhotGenPy[50];
+  double mat_d_PhotGenPz[50];
+  double mat_d_PhotGenPt[50];
+  double mat_d_PhotGenEt[50];
+  double mat_d_PhotGenE[50];
   //
 
-  int   genPhotLength;
-  int   genPhotIds[500];
-  int   genPhotRefs[500];
-  int   genPhotStatus[500];
-  float genPhotE[500];
-  float genPhotPx[500];
-  float genPhotPy[500];
-  float genPhotPz[500];
+  //boost::shared_ptr<std::vector<reco::Candidate::LorentzVector> > v_genPhotP4 (new std::vector<reco::Candidate::LorentzVector>() );
+  std::vector<reco::Candidate::LorentzVector> v_genPhotP4;
+  int   i_genPhotLength;
+  int   mat_i_genPhotIds[500];
+  int   mat_i_genPhotRefs[500];
+  int   mat_i_genPhotStatus[500];
+  float mat_f_genPhotE[500];
+  float mat_f_genPhotPx[500];
+  float mat_f_genPhotPy[500];
+  float mat_f_genPhotPz[500];
 
 
   bool init_;                          // vectors initialised or not

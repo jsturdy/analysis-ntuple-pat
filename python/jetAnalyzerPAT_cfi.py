@@ -8,8 +8,8 @@ jetAnalyzerPAT = cms.untracked.PSet(
     jetMaxEMF = cms.untracked.double(0.99),
     jetMinEMF = cms.untracked.double(0.01),
 
-    htMaxEta = cms.untracked.double(3.0),
-    htMinPt  = cms.untracked.double(20.),
+    #htMaxEta = cms.untracked.double(3.0),
+    #htMinPt  = cms.untracked.double(20.),
 
     doMCJets     = cms.untracked.bool(False),
     genJetTag    = cms.untracked.InputTag("ak5GenJets"),

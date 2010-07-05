@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: PhotonAnalyzerPAT.cc,v 1.4 2010/05/21 10:13:44 sturdy Exp $
+// $Id: PhotonAnalyzerPAT.cc,v 1.5 2010/06/09 18:02:30 sturdy Exp $
 //
 //
 
@@ -23,6 +23,10 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //#include <math.h>
 #include <TMath.h>
 #include <sstream>
+
+#ifdef __CINT__ 
+#pragma link C++ class std::vector<<reco::Candidate::LorentzVector> >+; 
+#endif
 
 //________________________________________________________________________________________
 PhotonAnalyzerPAT::PhotonAnalyzerPAT(const edm::ParameterSet& photonParams, TTree* tmpAllData)
@@ -78,6 +82,7 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<reco::GenParticleCollection>  genParticles;
     iEvent.getByLabel(genTag_, genParticles);   
     
+    //v_genPhotP4.resize(genParticles->size());
     int pcount=0;
     for( size_t i = 0; i < genParticles->size(); ++ i ) {
       const reco::Candidate& pCand = (*genParticles)[ i ];
@@ -89,12 +94,14 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
       } else { // store photons of status 1 
   	if ( (abs(pCand.pdgId()) == 22) ) {
   	  
-  	  genPhotIds[pcount]    = pCand.pdgId();
-  	  genPhotStatus[pcount] = pCand.status();
-  	  genPhotE[pcount]      = pCand.energy();
-  	  genPhotPx[pcount]     = pCand.px();
-  	  genPhotPy[pcount]     = pCand.py();
-  	  genPhotPz[pcount]     = pCand.pz();
+	  //v_genPhotP4.at(pcount)  = pCand.p4();
+	  v_genPhotP4.push_back(pCand.p4());
+  	  mat_i_genPhotIds[pcount]    = pCand.pdgId();
+  	  mat_i_genPhotStatus[pcount] = pCand.status();
+  	  mat_f_genPhotE[pcount]      = pCand.energy();
+  	  mat_f_genPhotPx[pcount]     = pCand.px();
+  	  mat_f_genPhotPy[pcount]     = pCand.py();
+  	  mat_f_genPhotPz[pcount]     = pCand.pz();
   	  
   	  if (pCand.numberOfMothers() > 0 ) { 
   	    const reco::Candidate * mom = pCand.mother();
@@ -102,15 +109,15 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   	    
   	    for( size_t j = 0; j < i; ++ j ) {
   	      const Candidate * ref = &((*genParticles)[j]);
-  	      if (ref == mom) { genPhotRefs[pcount] = ref->pdgId(); }
+  	      if (ref == mom) { mat_i_genPhotRefs[pcount] = ref->pdgId(); }
   	      //if (ref == mom) { genPhotRefs[pcount] = j; }
   	    }  
-  	  } else { genPhotRefs[pcount]=-999;}
+  	  } else { mat_i_genPhotRefs[pcount]=-999;}
   	  pcount++;
   	}
       }
     }
-    genPhotLength = pcount;
+    i_genPhotLength = pcount;
   }
   
 
@@ -130,38 +137,41 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   
   edm::LogVerbatim("PhotonEvent") << " start reading in photons " << std::endl;
   // Add the photons
-  m_PhotN = photHandle->size();
+  i_PhotN = photHandle->size();
   int ph = 0;
-  if ( m_PhotN > 50 ) {
-    m_PhotN = 50;
-    if (debug_) sprintf(logmessage,"Photon/%d      E     Et    Pt    Px    Py    Pz    Eta    Phi",m_PhotN);
-    if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
-  }
-  for (int i=0;i<m_PhotN;i++) {
+  if ( i_PhotN > 50 )
+    i_PhotN = 50;
+  //v_photP4.resize(i_PhotN);
+  if (debug_) sprintf(logmessage,"Photon/%d      E     Et    Pt    Px    Py    Pz    Eta    Phi",i_PhotN);
+  if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
+
+  for (int i=0;i<i_PhotN;i++) {
     const pat::Photon thePhoton = (*photHandle)[i];
     if ( (thePhoton.pt() > photMinEt_) && !(thePhoton.eta() > photMaxEta_) ) {
       if (debug_) edm::LogVerbatim("PhotonEvent") << " looping over good photons " << std::endl;      
-      m_PhotE[ph]   = thePhoton.energy();
-      m_PhotEt[ph]  = thePhoton.et();
-      m_PhotPt[ph]  = thePhoton.pt();
-      m_PhotPx[ph]  = thePhoton.momentum().X();
-      m_PhotPy[ph]  = thePhoton.momentum().Y();
-      m_PhotPz[ph]  = thePhoton.momentum().Z();
-      m_PhotEta[ph] = thePhoton.eta();
-      m_PhotPhi[ph] = thePhoton.phi();
+      //v_photP4.at(ph) = thePhoton.p4();
+      v_photP4.push_back(thePhoton.p4());
+      mat_d_PhotE[ph]   = thePhoton.energy();
+      mat_d_PhotEt[ph]  = thePhoton.et();
+      mat_d_PhotPt[ph]  = thePhoton.pt();
+      mat_d_PhotPx[ph]  = thePhoton.momentum().X();
+      mat_d_PhotPy[ph]  = thePhoton.momentum().Y();
+      mat_d_PhotPz[ph]  = thePhoton.momentum().Z();
+      mat_d_PhotEta[ph] = thePhoton.eta();
+      mat_d_PhotPhi[ph] = thePhoton.phi();
 
       if (debug_) sprintf(logmessage,"%6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f", \
-			  ph,m_PhotE[ph],m_PhotEt[ph],m_PhotPt[ph],m_PhotPx[ph],m_PhotPy[ph],m_PhotPz[ph],m_PhotEta[ph],m_PhotPhi[ph]);
+			  ph,mat_d_PhotE[ph],mat_d_PhotEt[ph],mat_d_PhotPt[ph],mat_d_PhotPx[ph],mat_d_PhotPy[ph],mat_d_PhotPz[ph],mat_d_PhotEta[ph],mat_d_PhotPhi[ph]);
       if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
     
-      m_PhotTrkIso[ph]  = thePhoton.trackIso();
-      m_PhotECalIso[ph] = thePhoton.ecalIso();
-      m_PhotHCalIso[ph] = thePhoton.hcalIso();
-      m_PhotAllIso[ph]  = thePhoton.caloIso();
+      mat_d_PhotTrkIso[ph]  = thePhoton.trackIso();
+      mat_d_PhotECalIso[ph] = thePhoton.ecalIso();
+      mat_d_PhotHCalIso[ph] = thePhoton.hcalIso();
+      mat_d_PhotAllIso[ph]  = thePhoton.caloIso();
 
-      //m_PhotLooseEM[ph] = thePhoton.photonID("PhotonCutBasedIDLooseEM");
-      m_PhotLoosePhoton[ph] = thePhoton.photonID("PhotonCutBasedIDLoose");
-      m_PhotTightPhoton[ph] = thePhoton.photonID("PhotonCutBasedIDTight");
+      //mat_b_PhotLooseEM[ph] = thePhoton.photonID("PhotonCutBasedIDLooseEM");
+      mat_b_PhotLoosePhoton[ph] = thePhoton.photonID("PhotonCutBasedIDLoose");
+      mat_b_PhotTightPhoton[ph] = thePhoton.photonID("PhotonCutBasedIDTight");
       
       // PhotGenon info
       if (doMCData_) {
@@ -172,48 +182,50 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
 	if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
 
       	if ( candPhot ) {
-      	  m_PhotGenPdgId[ph] = candPhot->pdgId();
-      	  m_PhotGenPx[ph]    = candPhot->px();
-      	  m_PhotGenPy[ph]    = candPhot->py();
-      	  m_PhotGenPz[ph]    = candPhot->pz();
-      	  m_PhotGenPt[ph]    = candPhot->pt();
-      	  m_PhotGenEt[ph]    = candPhot->et();
-      	  m_PhotGenE[ph]     = candPhot->energy();
+      	  mat_d_PhotGenPdgId[ph] = candPhot->pdgId();
+      	  mat_d_PhotGenPx[ph]    = candPhot->px();
+      	  mat_d_PhotGenPy[ph]    = candPhot->py();
+      	  mat_d_PhotGenPz[ph]    = candPhot->pz();
+      	  mat_d_PhotGenPt[ph]    = candPhot->pt();
+      	  mat_d_PhotGenEt[ph]    = candPhot->et();
+      	  mat_d_PhotGenE[ph]     = candPhot->energy();
       	  const reco::Candidate* photMother = candPhot->mother();
       	  if ( photMother ) {
       	    while (photMother->pdgId() == candPhot->pdgId()) photMother = photMother->mother();
       	    if ( photMother ) {
-      	      m_PhotGenMother[ph] = photMother->pdgId();
+      	      mat_d_PhotGenMother[ph] = photMother->pdgId();
       	      //if ( cand->mother()->pdgId() ==  cand->pdgId()) 
       	      //  {
-      	      //	m_PhotGenMother[ph] = cand->mother()->mother()->pdgId();
+      	      //	mat_d_PhotGenMother[ph] = cand->mother()->mother()->pdgId();
       	      //  }
       	    }
       	  }
       	}
       	else {
-      	  m_PhotGenPdgId[ph]  = -999;
-      	  m_PhotGenMother[ph] = -999;
-      	  m_PhotGenPx[ph]     = -999;
-      	  m_PhotGenPy[ph]     = -999;
-      	  m_PhotGenPz[ph]     = -999;
-      	  m_PhotGenPt[ph]     = -999;
-      	  m_PhotGenEt[ph]     = -999;
-      	  m_PhotGenE[ph]      = -999;
+      	  mat_d_PhotGenPdgId[ph]  = -999;
+      	  mat_d_PhotGenMother[ph] = -999;
+      	  mat_d_PhotGenPx[ph]     = -999;
+      	  mat_d_PhotGenPy[ph]     = -999;
+      	  mat_d_PhotGenPz[ph]     = -999;
+      	  mat_d_PhotGenPt[ph]     = -999;
+      	  mat_d_PhotGenEt[ph]     = -999;
+      	  mat_d_PhotGenE[ph]      = -999;
       	}
 
       	if (debug_) sprintf(logmessage,"      %6d   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f   %2.2f\n", \
-      	       ph,m_PhotGenE[ph],m_PhotGenEt[ph],m_PhotGenPt[ph],m_PhotGenPx[ph],m_PhotGenPy[ph],m_PhotGenPz[ph],m_PhotGenPdgId[ph],m_PhotGenMother[ph]);
+      	       ph,mat_d_PhotGenE[ph],mat_d_PhotGenEt[ph],mat_d_PhotGenPt[ph],mat_d_PhotGenPx[ph],mat_d_PhotGenPy[ph],mat_d_PhotGenPz[ph],mat_d_PhotGenPdgId[ph],mat_d_PhotGenMother[ph]);
 	if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
 
       }
       ++ph;
     }
   } // loop over pat::Photons
-  m_PhotN = ph;
+  i_PhotN = ph;
   
   
   // Fill the tree only if all preselection conditions are met
+  if (debug_)
+    std::cout<<"Done analyzing photons"<<std::endl;
   return photon_result;
 }
 
@@ -228,45 +240,47 @@ void PhotonAnalyzerPAT::bookTTree() {
   // Add the branches
 
   //add photons
-  mPhotonData->Branch(prefix_+"PhotN",   &m_PhotN,   prefix_+"PhotN/int");  
-  mPhotonData->Branch(prefix_+"PhotE",    m_PhotE,   prefix_+"PhotE["+prefix_+"PhotN]/double");
-  mPhotonData->Branch(prefix_+"PhotEt",   m_PhotEt,  prefix_+"PhotEt["+prefix_+"PhotN]/double");
-  mPhotonData->Branch(prefix_+"PhotPt",   m_PhotPt,  prefix_+"PhotPt["+prefix_+"PhotN]/double");
-  mPhotonData->Branch(prefix_+"PhotPx",   m_PhotPx,  prefix_+"PhotPx["+prefix_+"PhotN]/double");
-  mPhotonData->Branch(prefix_+"PhotPy",   m_PhotPy,  prefix_+"PhotPy["+prefix_+"PhotN]/double");
-  mPhotonData->Branch(prefix_+"PhotPz",   m_PhotPz,  prefix_+"PhotPz["+prefix_+"PhotN]/double");
-  mPhotonData->Branch(prefix_+"PhotEta",  m_PhotEta, prefix_+"PhotEta["+prefix_+"PhotN]/double");
-  mPhotonData->Branch(prefix_+"PhotPhi",  m_PhotPhi, prefix_+"PhotPhi["+prefix_+"PhotN]/double");
+  mPhotonData->Branch(prefix_+"PhotonP4",&v_photP4,  prefix_+"PhotonP4");
+  mPhotonData->Branch(prefix_+"PhotN",   &i_PhotN,   prefix_+"PhotN/I");  
+  mPhotonData->Branch(prefix_+"PhotE",    mat_d_PhotE,   prefix_+"PhotE["+prefix_+"PhotN]/D");
+  mPhotonData->Branch(prefix_+"PhotEt",   mat_d_PhotEt,  prefix_+"PhotEt["+prefix_+"PhotN]/D");
+  mPhotonData->Branch(prefix_+"PhotPt",   mat_d_PhotPt,  prefix_+"PhotPt["+prefix_+"PhotN]/D");
+  mPhotonData->Branch(prefix_+"PhotPx",   mat_d_PhotPx,  prefix_+"PhotPx["+prefix_+"PhotN]/D");
+  mPhotonData->Branch(prefix_+"PhotPy",   mat_d_PhotPy,  prefix_+"PhotPy["+prefix_+"PhotN]/D");
+  mPhotonData->Branch(prefix_+"PhotPz",   mat_d_PhotPz,  prefix_+"PhotPz["+prefix_+"PhotN]/D");
+  mPhotonData->Branch(prefix_+"PhotEta",  mat_d_PhotEta, prefix_+"PhotEta["+prefix_+"PhotN]/D");
+  mPhotonData->Branch(prefix_+"PhotPhi",  mat_d_PhotPhi, prefix_+"PhotPhi["+prefix_+"PhotN]/D");
 
-  mPhotonData->Branch(prefix_+"PhotTrkIso",  m_PhotTrkIso,  prefix_+"PhotTrkIso["+prefix_+"PhotN]/double");
-  mPhotonData->Branch(prefix_+"PhotECalIso", m_PhotECalIso, prefix_+"PhotECalIso["+prefix_+"PhotN]/double");
-  mPhotonData->Branch(prefix_+"PhotHCalIso", m_PhotHCalIso, prefix_+"PhotHCalIso["+prefix_+"PhotN]/double");
-  mPhotonData->Branch(prefix_+"PhotAllIso",  m_PhotAllIso,  prefix_+"PhotAllIso["+prefix_+"PhotN]/double");
+  mPhotonData->Branch(prefix_+"PhotTrkIso",  mat_d_PhotTrkIso,  prefix_+"PhotTrkIso["+prefix_+"PhotN]/D");
+  mPhotonData->Branch(prefix_+"PhotECalIso", mat_d_PhotECalIso, prefix_+"PhotECalIso["+prefix_+"PhotN]/D");
+  mPhotonData->Branch(prefix_+"PhotHCalIso", mat_d_PhotHCalIso, prefix_+"PhotHCalIso["+prefix_+"PhotN]/D");
+  mPhotonData->Branch(prefix_+"PhotAllIso",  mat_d_PhotAllIso,  prefix_+"PhotAllIso["+prefix_+"PhotN]/D");
 
-  //mPhotonData->Branch(prefix_+"Phot_isccPhotAssoc", m_ccPhotAssoc,     prefix_+"ccPhotAssoc["+prefix_+"PhotN]/bool");
-  //mPhotonData->Branch(prefix_+"PhotLooseEM",        m_PhotLooseEM,     prefix_+"PhotLooseEM["+prefix_+"PhotN]/bool");
-  mPhotonData->Branch(prefix_+"PhotLoosePhoton",    m_PhotLoosePhoton, prefix_+"PhotLoosePhoton["+prefix_+"PhotN]/bool");
-  mPhotonData->Branch(prefix_+"PhotTightPhoton",    m_PhotTightPhoton, prefix_+"PhotTightPhoton["+prefix_+"PhotN]/bool");
+  //mPhotonData->Branch(prefix_+"Phot_isccPhotAssoc", m_ccPhotAssoc,     prefix_+"ccPhotAssoc["+prefix_+"PhotN]/O");
+  //mPhotonData->Branch(prefix_+"PhotLooseEM",        mat_b_PhotLooseEM,     prefix_+"PhotLooseEM["+prefix_+"PhotN]/O");
+  mPhotonData->Branch(prefix_+"PhotLoosePhoton",    mat_b_PhotLoosePhoton, prefix_+"PhotLoosePhoton["+prefix_+"PhotN]/O");
+  mPhotonData->Branch(prefix_+"PhotTightPhoton",    mat_b_PhotTightPhoton, prefix_+"PhotTightPhoton["+prefix_+"PhotN]/O");
 
   if (doMCData_) {
     //from reco::candidate
-    mPhotonData->Branch(prefix_+"PhotGenPdgId",  m_PhotGenPdgId,  prefix_+"PhotGenPdgId["+prefix_+"PhotN]/double");
-    mPhotonData->Branch(prefix_+"PhotGenMother", m_PhotGenMother, prefix_+"PhotGenMother["+prefix_+"PhotN]/double");
-    mPhotonData->Branch(prefix_+"PhotGenPx",     m_PhotGenPx,     prefix_+"PhotGenPx["+prefix_+"PhotN]/double");
-    mPhotonData->Branch(prefix_+"PhotGenPy",     m_PhotGenPy,     prefix_+"PhotGenPy["+prefix_+"PhotN]/double");
-    mPhotonData->Branch(prefix_+"PhotGenPz",     m_PhotGenPz,     prefix_+"PhotGenPz["+prefix_+"PhotN]/double");
-    mPhotonData->Branch(prefix_+"PhotGenPt",     m_PhotGenPt,     prefix_+"PhotGenPt["+prefix_+"PhotN]/double");
-    mPhotonData->Branch(prefix_+"PhotGenEt",     m_PhotGenEt,     prefix_+"PhotGenEt["+prefix_+"PhotN]/double");
-    mPhotonData->Branch(prefix_+"PhotGenE",      m_PhotGenE,      prefix_+"PhotGenE["+prefix_+"PhotN]/double");
+    mPhotonData->Branch(prefix_+"PhotGen",      &v_genPhotP4,         prefix_+"PhotGenP4");
+    mPhotonData->Branch(prefix_+"PhotGenPdgId",  mat_d_PhotGenPdgId,  prefix_+"PhotGenPdgId["+prefix_+"PhotN]/D");
+    mPhotonData->Branch(prefix_+"PhotGenMother", mat_d_PhotGenMother, prefix_+"PhotGenMother["+prefix_+"PhotN]/D");
+    mPhotonData->Branch(prefix_+"PhotGenPx",     mat_d_PhotGenPx,     prefix_+"PhotGenPx["+prefix_+"PhotN]/D");
+    mPhotonData->Branch(prefix_+"PhotGenPy",     mat_d_PhotGenPy,     prefix_+"PhotGenPy["+prefix_+"PhotN]/D");
+    mPhotonData->Branch(prefix_+"PhotGenPz",     mat_d_PhotGenPz,     prefix_+"PhotGenPz["+prefix_+"PhotN]/D");
+    mPhotonData->Branch(prefix_+"PhotGenPt",     mat_d_PhotGenPt,     prefix_+"PhotGenPt["+prefix_+"PhotN]/D");
+    mPhotonData->Branch(prefix_+"PhotGenEt",     mat_d_PhotGenEt,     prefix_+"PhotGenEt["+prefix_+"PhotN]/D");
+    mPhotonData->Branch(prefix_+"PhotGenE",      mat_d_PhotGenE,      prefix_+"PhotGenE["+prefix_+"PhotN]/D");
     //from genParticles
-    mPhotonData->Branch(prefix_+"genPhotN",     &genPhotLength, prefix_+"genPhotN/int");
-    mPhotonData->Branch(prefix_+"genPhotId",     genPhotIds,    prefix_+"genPhotIds["+prefix_+"genPhotN]/int");
-    mPhotonData->Branch(prefix_+"genPhotMother", genPhotRefs,   prefix_+"genPhotRefs["+prefix_+"genPhotN]/int");
-    mPhotonData->Branch(prefix_+"genPhotStatus", genPhotStatus, prefix_+"genPhotStatus["+prefix_+"genPhotN]/int");
-    mPhotonData->Branch(prefix_+"genPhotE",      genPhotE,      prefix_+"genPhotE["+prefix_+"genPhotN]/float");
-    mPhotonData->Branch(prefix_+"genPhotPx",     genPhotPx,     prefix_+"genPhotPx["+prefix_+"genPhotN]/float");
-    mPhotonData->Branch(prefix_+"genPhotPy",     genPhotPy,     prefix_+"genPhotPy["+prefix_+"genPhotN]/float");
-    mPhotonData->Branch(prefix_+"genPhotPz",     genPhotPz,     prefix_+"genPhotPz["+prefix_+"genPhotN]/float");
+    mPhotonData->Branch(prefix_+"genPhotN",     &i_genPhotLength, prefix_+"genPhotN/I");
+    mPhotonData->Branch(prefix_+"genPhotId",     mat_i_genPhotIds,    prefix_+"genPhotIds["+prefix_+"genPhotN]/I");
+    mPhotonData->Branch(prefix_+"genPhotMother", mat_i_genPhotRefs,   prefix_+"genPhotRefs["+prefix_+"genPhotN]/I");
+    mPhotonData->Branch(prefix_+"genPhotStatus", mat_i_genPhotStatus, prefix_+"genPhotStatus["+prefix_+"genPhotN]/I");
+    mPhotonData->Branch(prefix_+"genPhotE",      mat_f_genPhotE,      prefix_+"genPhotE["+prefix_+"genPhotN]/F");
+    mPhotonData->Branch(prefix_+"genPhotPx",     mat_f_genPhotPx,     prefix_+"genPhotPx["+prefix_+"genPhotN]/F");
+    mPhotonData->Branch(prefix_+"genPhotPy",     mat_f_genPhotPy,     prefix_+"genPhotPy["+prefix_+"genPhotN]/F");
+    mPhotonData->Branch(prefix_+"genPhotPz",     mat_f_genPhotPz,     prefix_+"genPhotPz["+prefix_+"genPhotN]/F");
 
   }
 

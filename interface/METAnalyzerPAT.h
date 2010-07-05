@@ -8,9 +8,14 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <map>
+#include <set>
+#include <utility>
 
 // ROOT includes
 #include <TNtuple.h>
+#include <TLorentzVector.h>
+#include <TMath.h>
 
 // Framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -69,6 +74,16 @@ class METAnalyzerPAT {
   int nFullMET;
   int nUncorrMET;
  
+  //boost::shared_ptr<reco::Candidate::LorentzVector> mep4 ( new reco::Candidate::LorentzVector() );
+  //boost::shared_ptr<std::map<std::string, float> > corrX ( new std::map<std::string, float>() );
+  //boost::shared_ptr<std::map<std::string, float> > corrY ( new std::map<std::string, float>() );
+  //boost::shared_ptr<std::map<std::string, float> > corrSumET ( new std::map<std::string, float>() );
+
+  reco::Candidate::LorentzVector mep4;
+  std::map<std::string, float> corrX;
+  std::map<std::string, float> corrY;
+  std::map<std::string, float> corrSumET;
+  
   double m_MET_Fullcorr_nocc[3];
   double m_METphi_Fullcorr_nocc;
   double m_METsumEt_Fullcorr_nocc;

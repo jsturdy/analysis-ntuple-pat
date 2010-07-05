@@ -8,6 +8,9 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <map>
+#include <set>
+#include <utility>
 
 // ROOT includes
 #include <TNtuple.h>
@@ -71,178 +74,186 @@ private:
   TTree * mLeptonData;   /// Will contain the lepton data after cuts
 
   // Variables
-  int    m_ElecN;
-  int    m_ElecNIso;
-  bool   m_ElecVeto;
-  double m_ElecEt[50];
-  double m_ElecPt[50];
-  double m_ElecPx[50];
-  double m_ElecPy[50];
-  double m_ElecPz[50];
-  double m_ElecE[50];
-  double m_ElecEta[50];
-  double m_ElecPhi[50];
-  double m_ElecTrkIso[50];
-  double m_ElecECalIso[50];
-  double m_ElecHCalIso[50];
-  double m_ElecAllIso[50];
-  double m_ElecTrkChiNorm[50];
-  double m_ElecCharge[50];
+  //boost::shared_ptr<std::vector<reco::Candidate::LorentzVector> > v_elecP4 ( new std::vector<reco::Candidate::LorentzVector>() );
+  std::vector<reco::Candidate::LorentzVector> v_elecP4;
+  int    i_ElecN;
+  int    i_ElecNIso;
+  bool   bool_ElecVeto;
+  double mat_d_ElecEt[50];
+  double mat_d_ElecPt[50];
+  double mat_d_ElecPx[50];
+  double mat_d_ElecPy[50];
+  double mat_d_ElecPz[50];
+  double mat_d_ElecE[50];
+  double mat_d_ElecEta[50];
+  double mat_d_ElecPhi[50];
+  double mat_d_ElecTrkIso[50];
+  double mat_d_ElecECalIso[50];
+  double mat_d_ElecHCalIso[50];
+  double mat_d_ElecAllIso[50];
+  double mat_d_ElecTrkChiNorm[50];
+  double mat_d_ElecCharge[50];
 
-  double m_ElecIdLoose[50];
-  double m_ElecIdTight[50];
-  double m_ElecIdRobLoose[50];
-  double m_ElecIdRobTight[50];
-  double m_ElecIdRobHighE[50];
-  double m_ElecChargeMode[50];
-  double m_ElecPtTrkMode[50];
-  double m_ElecQOverPErrTrkMode[50];
+  double mat_d_ElecIdLoose[50];
+  double mat_d_ElecIdTight[50];
+  double mat_d_ElecIdRobLoose[50];
+  double mat_d_ElecIdRobTight[50];
+  double mat_d_ElecIdRobHighE[50];
+  double mat_d_ElecChargeMode[50];
+  double mat_d_ElecPtTrkMode[50];
+  double mat_d_ElecQOverPErrTrkMode[50];
 
-  double m_ElecGenPdgId[50];
-  double m_ElecGenMother[50];
-  double m_ElecGenPx[50];
-  double m_ElecGenPy[50];
-  double m_ElecGenPz[50];
-  double m_ElecGenPt[50];
-  double m_ElecGenEt[50];
-  double m_ElecGenE[50];
+  double mat_d_ElecGenPdgId[50];
+  double mat_d_ElecGenMother[50];
+  double mat_d_ElecGenPx[50];
+  double mat_d_ElecGenPy[50];
+  double mat_d_ElecGenPz[50];
+  double mat_d_ElecGenPt[50];
+  double mat_d_ElecGenEt[50];
+  double mat_d_ElecGenE[50];
 
-  double m_ElecCaloEnergy[50];
-  double m_ElecHOverE[50];
-  double m_ElecVx[50];
-  double m_ElecVy[50];
-  double m_ElecVz[50];
-  double m_ElecD0[50];
-  double m_ElecDz[50];
-  double m_ElecPtTrk[50];
-  double m_ElecQOverPErrTrk[50];
-  double m_ElecLostHits[50];
-  double m_ElecValidHits[50];
-  double m_ElecNCluster[50];
-  double m_ElecEtaTrk[50];
-  double m_ElecPhiTrk[50];
-  double m_ElecWidthClusterEta[50];
-  double m_ElecWidthClusterPhi[50];
-  double m_ElecPinTrk[50];
-  double m_ElecPoutTrk[50];
-  double m_ElecNormChi2[50];
-  bool m_ccElecAssoc[50];
+  double mat_d_ElecCaloEnergy[50];
+  double mat_d_ElecHOverE[50];
+  double mat_d_ElecVx[50];
+  double mat_d_ElecVy[50];
+  double mat_d_ElecVz[50];
+  double mat_d_ElecD0[50];
+  double mat_d_ElecDz[50];
+  double mat_d_ElecPtTrk[50];
+  double mat_d_ElecQOverPErrTrk[50];
+  double mat_d_ElecLostHits[50];
+  double mat_d_ElecValidHits[50];
+  //double mat_d_ElecNCluster[50];
+  double mat_d_ElecEtaTrk[50];
+  double mat_d_ElecPhiTrk[50];
+  double mat_d_ElecWidthClusterEta[50];
+  double mat_d_ElecWidthClusterPhi[50];
+  double mat_d_ElecPinTrk[50];
+  double mat_d_ElecPoutTrk[50];
+  double mat_d_ElecNormChi2[50];
+  //bool mat_b_ccElecAssoc[50];
 
-  double m_ElecECalIsoDeposit[50];
-  double m_ElecHCalIsoDeposit[50];
+  double mat_d_ElecECalIsoDeposit[50];
+  double mat_d_ElecHCalIsoDeposit[50];
 
-  int    m_MuonN;
-  bool   m_MuonVeto;
-  double m_MuonEt[50];
-  double m_MuonPt[50];
-  double m_MuonPx[50];
-  double m_MuonPy[50];
-  double m_MuonPz[50];
-  double m_MuonE[50];
-  double m_MuonEta[50];
-  double m_MuonPhi[50];
-  double m_MuonTrkIso[50];
-  double m_MuonECalIso[50];
-  double m_MuonHCalIso[50];
-  double m_MuonAllIso[50];
-  double m_MuonTrkChiNorm[50];
-  double m_MuonCharge[50];
+  //boost::shared_ptr<std::vector<reco::Candidate::LorentzVector> > v_muonP4 ( new std::vector<reco::Candidate::LorentzVector>() );
+  std::vector<reco::Candidate::LorentzVector> v_muonP4;
+  int    i_MuonN;
+  bool   bool_MuonVeto;
+  double mat_d_MuonEt[50];
+  double mat_d_MuonPt[50];
+  double mat_d_MuonPx[50];
+  double mat_d_MuonPy[50];
+  double mat_d_MuonPz[50];
+  double mat_d_MuonE[50];
+  double mat_d_MuonEta[50];
+  double mat_d_MuonPhi[50];
+  double mat_d_MuonTrkIso[50];
+  double mat_d_MuonECalIso[50];
+  double mat_d_MuonHCalIso[50];
+  double mat_d_MuonAllIso[50];
+  double mat_d_MuonTrkChiNorm[50];
+  double mat_d_MuonCharge[50];
 
-  double m_MuonIsGlobal[50];
-  double m_MuonIsStandAlone[50];
-  double m_MuonIsTracker[50];
+  double mat_d_MuonIsGlobal[50];
+  double mat_d_MuonIsStandAlone[50];
+  double mat_d_MuonIsTracker[50];
 
-  double m_MuonGlobalMuonPromptTight[50];
+  double mat_d_MuonGlobalMuonPromptTight[50];
 
-  double m_MuonAllArbitrated[50];
-  double m_MuonTrackerMuonArbitrated[50];
-  double m_MuonGMTkKinkTight[50];
-  double m_MuonGMTkChiCompatibility[50];
-  double m_MuonGMStaChiCompatibility[50];
-  double m_MuonTM2DCompatibilityLoose[50];
-  double m_MuonTM2DCompatibilityTight[50];
-  double m_MuonTMOneStationLoose[50];
-  double m_MuonTMOneStationTight[50];
-  double m_MuonTMLastStationLoose[50];
-  double m_MuonTMLastStationTight[50];
-  double m_MuonTMLastStationAngLoose[50];
-  double m_MuonTMLastStationAngTight[50];
-  double m_MuonTMLastStationOptimizedLowPtLoose[50];
-  double m_MuonTMLastStationOptimizedLowPtTight[50];
-  double m_MuonTMLastStationOptimizedBarrelLowPtLoose[50];
-  double m_MuonTMLastStationOptimizedBarrelLowPtTight[50];
+  double mat_d_MuonAllArbitrated[50];
+  double mat_d_MuonTrackerMuonArbitrated[50];
+  double mat_d_MuonGMTkKinkTight[50];
+  double mat_d_MuonGMTkChiCompatibility[50];
+  double mat_d_MuonGMStaChiCompatibility[50];
+  double mat_d_MuonTM2DCompatibilityLoose[50];
+  double mat_d_MuonTM2DCompatibilityTight[50];
+  double mat_d_MuonTMOneStationLoose[50];
+  double mat_d_MuonTMOneStationTight[50];
+  double mat_d_MuonTMLastStationLoose[50];
+  double mat_d_MuonTMLastStationTight[50];
+  double mat_d_MuonTMLastStationAngLoose[50];
+  double mat_d_MuonTMLastStationAngTight[50];
+  double mat_d_MuonTMLastStationOptimizedLowPtLoose[50];
+  double mat_d_MuonTMLastStationOptimizedLowPtTight[50];
+  double mat_d_MuonTMLastStationOptimizedBarrelLowPtLoose[50];
+  double mat_d_MuonTMLastStationOptimizedBarrelLowPtTight[50];
 
-  double m_MuonECalIsoDeposit[50];
-  double m_MuonHCalIsoDeposit[50];
+  double mat_d_MuonECalIsoDeposit[50];
+  double mat_d_MuonHCalIsoDeposit[50];
   
-  double m_MuonCombChi2[50];
-  double m_MuonCombNdof[50];
-  double m_MuonTrkD0[50];
+  double mat_d_MuonCombChi2[50];
+  double mat_d_MuonCombNdof[50];
+  double mat_d_MuonTrkD0[50];
   
-  double m_MuonId[50];
-  double m_MuonCombVx[50];
-  double m_MuonCombVy[50];
-  double m_MuonCombVz[50];
-  double m_MuonCombD0[50];
-  double m_MuonCombDz[50];
+  double mat_d_MuonId[50];
+  double mat_d_MuonCombVx[50];
+  double mat_d_MuonCombVy[50];
+  double mat_d_MuonCombVz[50];
+  double mat_d_MuonCombD0[50];
+  double mat_d_MuonCombDz[50];
 
-  double m_MuonStandValidHits[50];
-  double m_MuonStandLostHits[50];
-  double m_MuonStandPt[50];
-  double m_MuonStandPz[50];
-  double m_MuonStandP[50];
-  double m_MuonStandEta[50];
-  double m_MuonStandPhi[50];
-  double m_MuonStandChi[50];
-  double m_MuonStandCharge[50];
-  double m_MuonStandQOverPError[50];
+  double mat_d_MuonStandValidHits[50];
+  double mat_d_MuonStandLostHits[50];
+  double mat_d_MuonStandPt[50];
+  double mat_d_MuonStandPz[50];
+  double mat_d_MuonStandP[50];
+  double mat_d_MuonStandEta[50];
+  double mat_d_MuonStandPhi[50];
+  double mat_d_MuonStandChi[50];
+  double mat_d_MuonStandCharge[50];
+  double mat_d_MuonStandQOverPError[50];
 
-  double m_MuonTrkValidHits[50];
-  double m_MuonTrkLostHits[50];
-  double m_MuonTrkPt[50];
-  double m_MuonTrkPz[50];
-  double m_MuonTrkP[50];
-  double m_MuonTrkEta[50];
-  double m_MuonTrkPhi[50];
-  double m_MuonTrkChi[50];
-  double m_MuonTrkCharge[50];
-  double m_MuonTrkQOverPError[50];
-  double m_MuonTrkOuterZ[50];
-  double m_MuonTrkOuterR[50];
+  double mat_d_MuonTrkValidHits[50];
+  double mat_d_MuonTrkLostHits[50];
+  double mat_d_MuonTrkPt[50];
+  double mat_d_MuonTrkPz[50];
+  double mat_d_MuonTrkP[50];
+  double mat_d_MuonTrkEta[50];
+  double mat_d_MuonTrkPhi[50];
+  double mat_d_MuonTrkChi[50];
+  double mat_d_MuonTrkCharge[50];
+  double mat_d_MuonTrkQOverPError[50];
+  double mat_d_MuonTrkOuterZ[50];
+  double mat_d_MuonTrkOuterR[50];
 
-  double m_MuonGenPdgId[50];
-  double m_MuonGenMother[50];
-  double m_MuonGenPx[50];
-  double m_MuonGenPy[50];
-  double m_MuonGenPz[50];
-  double m_MuonGenPt[50];
-  double m_MuonGenEt[50];
-  double m_MuonGenE[50];
+  double mat_d_MuonGenPdgId[50];
+  double mat_d_MuonGenMother[50];
+  double mat_d_MuonGenPx[50];
+  double mat_d_MuonGenPy[50];
+  double mat_d_MuonGenPz[50];
+  double mat_d_MuonGenPt[50];
+  double mat_d_MuonGenEt[50];
+  double mat_d_MuonGenE[50];
 
-  int    m_AlpIdTest;
-  double m_AlpPtScale;
-  double m_Pthat;
+  //int    m_AlpIdTest;
+  //double mat_d_AlpPtScale;
+  double d_Pthat;
 
-  double m_MuonPairMass;
-  int    m_MuonPairIndex[2];
+  //double mat_d_MuonPairMass;
+  //int    m_MuonPairIndex[2];
 
-  int   length;
-  int   genIds[500];
-  int   genRefs[500];
-  int   genStatus[500];
-  float genE[500];
-  float genPx[500];
-  float genPy[500];
-  float genPz[500];
+  //boost::shared_ptr<std::vector<reco::Candidate::LorentzVector> > v_genP4    ( new std::vector<reco::Candidate::LorentzVector>() );
+  //boost::shared_ptr<std::vector<reco::Candidate::LorentzVector> > v_genLepP4 ( new std::vector<reco::Candidate::LorentzVector>() );
+  std::vector<reco::Candidate::LorentzVector> v_genP4;
+  std::vector<reco::Candidate::LorentzVector> v_genLepP4;
+  int   i_length;
+  int   mat_i_genIds[500];
+  int   mat_i_genRefs[500];
+  int   mat_i_genStatus[500];
+  float mat_f_genE[500];
+  float mat_f_genPx[500];
+  float mat_f_genPy[500];
+  float mat_f_genPz[500];
 
-  int   genLepLength;
-  int   genLepIds[500];
-  int   genLepRefs[500];
-  int   genLepStatus[500];
-  float genLepE[500];
-  float genLepPx[500];
-  float genLepPy[500];
-  float genLepPz[500];
+  int   mat_i_genLepLength;
+  int   mat_i_genLepIds[500];
+  int   mat_i_genLepRefs[500];
+  int   mat_i_genLepStatus[500];
+  float mat_f_genLepE[500];
+  float mat_f_genLepPx[500];
+  float mat_f_genLepPy[500];
+  float mat_f_genLepPz[500];
 
   bool init_;                          // vectors initialised or not
 

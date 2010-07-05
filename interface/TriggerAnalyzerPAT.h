@@ -94,11 +94,15 @@ private:
   std::string m_L1TechnicalNames[nMaxL1Tech];
   std::string m_L1PhysicsNames[nMaxL1Algo];
 
-  std::map<std::string, bool>  l1triggered;
-  std::map<std::string, int>   l1prescaled;
+  //boost::shared_ptr<std::map<std::string, bool> >  l1triggered (new std::map<std::string, bool>() );
+  //boost::shared_ptr<std::map<std::string, int> >   l1prescaled (new std::map<std::string, int>() );
+  //boost::shared_ptr<std::map<std::string, bool> >  hlttriggered (new std::map<std::string, bool>() );
+  //boost::shared_ptr<std::map<std::string, int> >   hltprescaled (new std::map<std::string, int>() );
 
-  std::map<std::string, bool>  hlttriggered;
-  std::map<std::string, int>   hltprescaled;
+  std::map<std::string, bool> l1triggered;
+  std::map<std::string, int>  l1prescaled;
+  std::map<std::string, bool> hlttriggered;
+  std::map<std::string, int>  hltprescaled;
 
   bool m_HLT1JET;
   bool m_HLT2JET;

@@ -8,6 +8,9 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <map>
+#include <set>
+#include <utility>
 
 // ROOT includes
 #include <TNtuple.h>

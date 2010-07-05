@@ -12,6 +12,7 @@ from JSturdy.AnalysisNtuplePAT.photonAnalyzerPAT_cfi import photonAnalyzerPAT
 
 #global switch for data/mc
 doMC = cms.untracked.bool(False)
+debugLevel = cms.untracked.int32(1)
 
 analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
 
@@ -20,7 +21,6 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
         jetAnalyzerPAT.clone(
             jetMinPt  = cms.untracked.double(10.),
             doMCJets  = doMC,
-            useJPTJets   = cms.untracked.bool(True),
             useCaloJets  = cms.untracked.bool(True),
             
             jetTag     = cms.untracked.InputTag("cleanPatJetsAK5"),
@@ -33,7 +33,6 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             jetMinPt  = cms.untracked.double(8.),
             doMCJets  = doMC,
             useJPTJets   = cms.untracked.bool(True),
-            useCaloJets  = cms.untracked.bool(True),
             
             jetTag     = cms.untracked.InputTag("cleanPatJetsAK5JPT"),
             prefixJets = cms.untracked.string("JPT")
@@ -116,6 +115,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             elecTag   = cms.untracked.InputTag("cleanPatElectrons"),
             muonTag   = cms.untracked.InputTag("cleanPatMuons"),
             #tauTag   = cms.untracked.InputTag("cleanPatTaus"),
+            prefixLeps = cms.untracked.string("")
         )
     ),
     pfleptonParameters     = cms.untracked.PSet(
@@ -124,19 +124,22 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             elecTag   = cms.untracked.InputTag("selectedPatElectronsPF"),
             muonTag   = cms.untracked.InputTag("selectedPatMuonsPF"),
             #tauTag   = cms.untracked.InputTag("selectedPatTausPF"),
+            prefixLeps = cms.untracked.string("PF")
         )
     ),
                                    ############Photon section############
     photonParameters     = cms.untracked.PSet(
         photonAnalyzerPAT.clone(
             doMCPhots = doMC,
-            photTag  = cms.untracked.InputTag("cleanPatPhotons")
+            photTag  = cms.untracked.InputTag("cleanPatPhotons"),
+            prefixPhots = cms.untracked.string("")
         )
     ),
     pfphotonParameters     = cms.untracked.PSet(
         photonAnalyzerPAT.clone(
             doMCPhots = doMC,
-            photTag  = cms.untracked.InputTag("selectedPatPhotonsPF")
+            photTag  = cms.untracked.InputTag("selectedPatPhotonsPF"),
+            prefixPhots = cms.untracked.string("PF")
         )
     ),
 
@@ -232,19 +235,21 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
                                        ############Other information section############
     vertexParameters     = cms.untracked.PSet(
         vertexAnalyzerPAT.clone(
-            
+#            debugTriggers = debugLevel
         )
     ),
     trackParameters      = cms.untracked.PSet(
         trackAnalyzerPAT.clone(
+#            debugTriggers = debugLevel
         )
     ),
     triggerParameters    = cms.untracked.PSet(
         triggerAnalyzerPAT.clone(
+            debugTriggers = debugLevel
         )
     ),
 
-    debugDiJets = cms.untracked.int32(0)
+    debugDiJets = cms.untracked.int32(10)
 )
 
 

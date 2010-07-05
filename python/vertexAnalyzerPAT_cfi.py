@@ -7,6 +7,7 @@ vertexAnalyzerPAT = cms.untracked.PSet(
     minVtxNdof = cms.untracked.int32(4),
     maxVtxChi2 = cms.untracked.double(999),
     maxVtxZ    = cms.untracked.double(15.),
+    maxVtxRho  = cms.untracked.double(2.),
 
     vtxTag      = cms.untracked.InputTag("offlinePrimaryVertices"),
     beamspotTag = cms.untracked.InputTag("offlineBeamSpot"),

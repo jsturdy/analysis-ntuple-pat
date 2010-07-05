@@ -17,12 +17,13 @@ leptonAnalyzerPAT = cms.untracked.PSet(
     #tauMinEt  = cms.untracked.double(5.),
     #tauRelIso = cms.untracked.double(0.1),
     
-    doMCLeps  = cms.untracked.bool(True),
+    doMCLeps  = cms.untracked.bool(False),
     debugLeps = cms.untracked.int32(0),
     genLepTag = cms.untracked.InputTag("genParticles"),
     
     elecTag   = cms.untracked.InputTag("cleanPatElectrons"),
     muonTag   = cms.untracked.InputTag("cleanPatMuons"),
     #tauTag   = cms.untracked.InputTag("cleanPatTaus"),
+    prefixLeps = cms.untracked.string("")
 )
                  

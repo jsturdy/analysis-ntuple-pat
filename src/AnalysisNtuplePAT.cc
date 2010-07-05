@@ -14,7 +14,7 @@ Implementation:Uses the EventSelector interface for event selection and TFileSer
 //
 // Original Author:  Markus Stoye, (modified by Jared Sturdy from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: AnalysisNtuplePAT.cc,v 1.2 2010/05/08 21:23:44 sturdy Exp $
+// $Id: AnalysisNtuplePAT.cc,v 1.3 2010/05/20 19:40:21 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/AnalysisNtuplePAT.h"
@@ -38,22 +38,22 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& iConfig)
   calojetinfo  = new JetAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("caloJetParameters"), mAllData);
   jptjetinfo   = new JetAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("jptJetParameters"), mAllData);
   pfjetinfo    = new JetAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("pfJetParameters"), mAllData);
-  trackjetinfo = new JetAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("trackJetParameters"), mAllData);
+  //trackjetinfo = new JetAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("trackJetParameters"), mAllData);
 
   calometinfo          = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometParameters"), mAllData);
-  calometoptinfo       = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometOptParameters"), mAllData);
-  calomettypeiiinfo    = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometTypeIIParameters"), mAllData);
-  calometopttypeiiinfo = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometOptTypeIIParameters"), mAllData);
+  //calometoptinfo       = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometOptParameters"), mAllData);
+  //calomettypeiiinfo    = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometTypeIIParameters"), mAllData);
+  //calometopttypeiiinfo = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometOptTypeIIParameters"), mAllData);
 
-  calometcleaninfo          = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometCleanParameters"), mAllData);
-  calometcleanoptinfo       = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometCleanOptParameters"), mAllData);
-  calometcleantypeiiinfo    = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometCleanTypeIIParameters"), mAllData);
-  calometcleanopttypeiiinfo = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometCleanOptTypeIIParameters"), mAllData);
+  //calometcleaninfo          = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometCleanParameters"), mAllData);
+  //calometcleanoptinfo       = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometCleanOptParameters"), mAllData);
+  //calometcleantypeiiinfo    = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometCleanTypeIIParameters"), mAllData);
+  //calometcleanopttypeiiinfo = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("calometCleanOptTypeIIParameters"), mAllData);
 
   pfmetinfo   = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("pfmetParameters"), mAllData);
 
   tcmetinfo      = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("tcmetParameters"), mAllData);
-  tcmetcleaninfo = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("tcmetCleanParameters"), mAllData);
+  //tcmetcleaninfo = new METAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("tcmetCleanParameters"), mAllData);
 
   photons   = new PhotonAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("photonParameters"), mAllData);
   pfphotons = new PhotonAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("pfphotonParameters"), mAllData);
@@ -63,14 +63,14 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& iConfig)
 
   vertex   = new VertexAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("vertexParameters"), mAllData);
   tracks   = new TrackAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("trackParameters"), mAllData);
-  //triggers = new TriggerAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("triggerParameters"), mAllData);
+  triggers = new TriggerAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("triggerParameters"), mAllData);
   //heminfo  = new HemisphereAnalyzerPAT(iConfig.getUntrackedParameter<edm::ParameterSet>("hemisphereParameters"), mAllData));
 
   //Setup counters for filters
   passCaloJets[0]    = 0;
   passJPTJets[0]     = 0;
   passPFJets[0]      = 0;
-  passTrackJets[0]   = 0;
+  //passTrackJets[0]   = 0;
   passCaloMET[0]     = 0;
   passPFMET[0]       = 0;
   passTCMET[0]       = 0;
@@ -85,7 +85,7 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& iConfig)
   passCaloJets[1]    = 0;
   passJPTJets[1]     = 0;
   passPFJets[1]      = 0;
-  passTrackJets[1]   = 0;
+  //passTrackJets[1]   = 0;
   passCaloMET[1]     = 0;
   passPFMET[1]       = 0;
   passTCMET[1]       = 0;
@@ -115,7 +115,6 @@ AnalysisNtuplePAT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   using namespace reco;
   using namespace edm;
 
-  bool preselection = false;
   edm::LogVerbatim("AnalysisNtuplePAT") << " Start  " << std::endl;
 
   std::ostringstream dbg;
@@ -133,41 +132,54 @@ AnalysisNtuplePAT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   //Run filters
 
+  std::cout<<"Getting the calo jet result"<<std::endl;
   bool mycalojetresult  = calojetinfo->filter(iEvent, iSetup);
+  std::cout<<"Getting the jpt jet result"<<std::endl;
   bool myjptjetresult   = jptjetinfo->filter(iEvent, iSetup);
+  std::cout<<"Getting the pf jet result"<<std::endl;
   bool mypfjetresult    = pfjetinfo->filter(iEvent, iSetup);
-  bool mytrackjetresult = trackjetinfo->filter(iEvent, iSetup);
+  //std::cout<<"Getting the calo jet result"<<std::endl;
+  //bool mytrackjetresult = trackjetinfo->filter(iEvent, iSetup);
 
+  std::cout<<"Getting the calo met result"<<std::endl;
   bool mycalometresult          = calometinfo->filter(iEvent, iSetup);
-  bool mycalometoptresult       = calometoptinfo->filter(iEvent, iSetup);
-  bool mycalomettypeiiresult    = calomettypeiiinfo->filter(iEvent, iSetup);
-  bool mycalometopttypeiiresult = calometopttypeiiinfo->filter(iEvent, iSetup);
+  //bool mycalometoptresult       = calometoptinfo->filter(iEvent, iSetup);
+  //bool mycalomettypeiiresult    = calomettypeiiinfo->filter(iEvent, iSetup);
+  //bool mycalometopttypeiiresult = calometopttypeiiinfo->filter(iEvent, iSetup);
 
-  bool mycalometcleanresult          = calometcleaninfo->filter(iEvent, iSetup);
-  bool mycalometcleanoptresult       = calometcleanoptinfo->filter(iEvent, iSetup);
-  bool mycalometcleantypeiiresult    = calometcleantypeiiinfo->filter(iEvent, iSetup);
-  bool mycalometcleanopttypeiiresult = calometcleanopttypeiiinfo->filter(iEvent, iSetup);
+  //bool mycalometcleanresult          = calometcleaninfo->filter(iEvent, iSetup);
+  //bool mycalometcleanoptresult       = calometcleanoptinfo->filter(iEvent, iSetup);
+  //bool mycalometcleantypeiiresult    = calometcleantypeiiinfo->filter(iEvent, iSetup);
+  //bool mycalometcleanopttypeiiresult = calometcleanopttypeiiinfo->filter(iEvent, iSetup);
 
+  std::cout<<"Getting the pf met result"<<std::endl;
   bool mypfmetresult   = pfmetinfo->filter(iEvent, iSetup);
 
+  std::cout<<"Getting the tc met result"<<std::endl;
   bool mytcmetresult      = tcmetinfo->filter(iEvent, iSetup);
-  bool mytcmetcleanresult = tcmetcleaninfo->filter(iEvent, iSetup);
+  //bool mytcmetcleanresult = tcmetcleaninfo->filter(iEvent, iSetup);
 
+  std::cout<<"Getting the reco photon result"<<std::endl;
   bool myphotonresult   = photons->filter(iEvent, iSetup);
+  std::cout<<"Getting the pf photon result"<<std::endl;
   bool mypfphotonresult = pfphotons->filter(iEvent, iSetup);
 
+  std::cout<<"Getting the reco lepton result"<<std::endl;
   bool myleptonresult   = leptons->filter(iEvent, iSetup);
+  std::cout<<"Getting the pf lepton result"<<std::endl;
   bool mypfleptonresult = pfleptons->filter(iEvent, iSetup);
 
+  std::cout<<"Getting the vertex result"<<std::endl;
   bool myvertexresult  = vertex->filter(iEvent, iSetup);
+  std::cout<<"Getting the track result"<<std::endl;
   bool mytrackresult   = tracks->filter(iEvent, iSetup);
-  //bool mytriggerresult = triggers->filter(iEvent, iSetup);
+  bool mytriggerresult = triggers->filter(iEvent, iSetup);
   //bool myhemresult     = heminfo->filter(iEvent, iSetup);
 
   if (mycalojetresult)  ++passCaloJets[0];
   if (myjptjetresult)   ++passJPTJets[0];
   if (mypfjetresult)    ++passPFJets[0];
-  if (mytrackjetresult) ++passTrackJets[0];
+  //  if (mytrackjetresult) ++passTrackJets[0];
 
   if (mycalometresult) ++passCaloMET[0];
   if (mypfmetresult)   ++passPFMET[0];
@@ -181,7 +193,7 @@ AnalysisNtuplePAT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   if (myvertexresult)  ++passVertex[0];
   if (mytrackresult)   ++passTracks[0];
-  //if (mytriggerresult) ++passTriggers[0];
+  if (mytriggerresult) ++passTriggers[0];
   //if (myhemresult)   ++passHemispheres[0];
 
   //if ( mymetresult && myleptonresult && myphotonresult
@@ -198,14 +210,12 @@ AnalysisNtuplePAT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   //  && myvertexresult && mytriggerresult )                  ++passTracks[1];
   //if ( myjetresult && mymetresult && myleptonresult && myphotonresult
   //  && myvertexresult && mytrackresult )                    ++passTriggers[1];
-  ////if ( myjetresult && mymetresult && myleptonresult && myphotonresult)\
+  ////if ( myjetresult && mymetresult && myleptonresult && myphotonresult) \
   ////&&(myvertexresult && mytrackresult && mytriggerresult ) ++passHemispheres[1];
   
   ++nEvents_;
 
-  //preselection = myjetresult;// && myleptonresult;// && mymetresult && myvertexresult && mytriggerresult;
   
-  //if (preselection) {
   mAllData->Fill();
   //}
 }
@@ -231,7 +241,7 @@ AnalysisNtuplePAT::printSummary( void ) {
   printf("= Events passing the calojet filter:        %2d                                =\n",passCaloJets[0]);
   printf("= Events passing the jptjet filter:         %2d                                =\n",passJPTJets[0]);
   printf("= Events passing the pfjet filter:          %2d                                =\n",passPFJets[0]);
-  printf("= Events passing the trackjet filter:       %2d                                =\n",passTrackJets[0]);
+  //printf("= Events passing the trackjet filter:       %2d                                =\n",passTrackJets[0]);
   printf("============================MET results============================================\n");
   printf("= Events passing the CaloMET filter:        %2d                                =\n",passCaloMET[0]);
   printf("= Events passing the PFMET filter:          %2d                                =\n",passPFMET[0]);
@@ -257,7 +267,7 @@ AnalysisNtuplePAT::printSummary( void ) {
   printf("= Events passing all but the calojet filter:        %2d                        =\n",passCaloJets[1]);
   printf("= Events passing all but the jptjet filter:         %2d                        =\n",passJPTJets[1]);
   printf("= Events passing all but the pfjet filter:          %2d                        =\n",passPFJets[1]);
-  printf("= Events passing all but the trackjet filter:       %2d                        =\n",passTrackJets[1]);
+  //printf("= Events passing all but the trackjet filter:       %2d                        =\n",passTrackJets[1]);
   printf("= Events passing all but the CaloMET filter:        %2d                        =\n",passCaloMET[1]);
   printf("= Events passing all but the PFMET filter:          %2d                        =\n",passPFMET[1]);
   printf("= Events passing all but the TCMET filter:          %2d                        =\n",passTCMET[1]);

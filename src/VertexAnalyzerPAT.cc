@@ -13,7 +13,7 @@ Description: Collects variables related to vertices, performs a primary vertex c
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: VertexAnalyzerPAT.cc,v 1.5 2010/06/09 18:02:30 sturdy Exp $
+// $Id: VertexAnalyzerPAT.cc,v 1.6 2010/06/21 22:45:38 sturdy Exp $
 //
 //
 
@@ -152,6 +152,8 @@ bool VertexAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
 	  vertexDecision = true;
   
   //mVertexData->Fill();
+  if (_debug)
+    std::cout<<"Done analyzing vertices"<<std::endl;
   return vertexDecision;
 }
 
@@ -165,45 +167,45 @@ void VertexAnalyzerPAT::bookTTree() {
   variables << "weight:process";
 
   //Beam spot parameters
-  mVertexData->Branch("beamspotX0",                &m_Beamspot_x0,            "beamspotX0/double");
-  mVertexData->Branch("beamspotY0",                &m_Beamspot_y0,            "beamspotY0/double");
-  mVertexData->Branch("beamspotZ0",                &m_Beamspot_z0,            "beamspotZ0/double");
-  mVertexData->Branch("beamspotWidthX",            &m_Beamspot_WidthX,        "beamspotWidthX/double");
-  mVertexData->Branch("beamspotWidthY",            &m_Beamspot_WidthY,        "beamspotWidthY/double");
-  mVertexData->Branch("beamspotX0Error",           &m_Beamspot_x0Error,       "beamspotX0Error/double");
-  mVertexData->Branch("beamspotY0Error",           &m_Beamspot_y0Error,       "beamspotY0Error/double");
-  mVertexData->Branch("beamspotZ0Error",           &m_Beamspot_z0Error,       "beamspotZ0Error/double");
-  mVertexData->Branch("beamspotWidthXError",       &m_Beamspot_WidthXError,   "beamspotWidthXError/double");
-  mVertexData->Branch("beamspotWidthYError",       &m_Beamspot_WidthYError,   "beamspotWidthYError/double");
+  mVertexData->Branch("beamspotX0",                &m_Beamspot_x0,            "beamspotX0/D");
+  mVertexData->Branch("beamspotY0",                &m_Beamspot_y0,            "beamspotY0/D");
+  mVertexData->Branch("beamspotZ0",                &m_Beamspot_z0,            "beamspotZ0/D");
+  mVertexData->Branch("beamspotWidthX",            &m_Beamspot_WidthX,        "beamspotWidthX/D");
+  mVertexData->Branch("beamspotWidthY",            &m_Beamspot_WidthY,        "beamspotWidthY/D");
+  mVertexData->Branch("beamspotX0Error",           &m_Beamspot_x0Error,       "beamspotX0Error/D");
+  mVertexData->Branch("beamspotY0Error",           &m_Beamspot_y0Error,       "beamspotY0Error/D");
+  mVertexData->Branch("beamspotZ0Error",           &m_Beamspot_z0Error,       "beamspotZ0Error/D");
+  mVertexData->Branch("beamspotWidthXError",       &m_Beamspot_WidthXError,   "beamspotWidthXError/D");
+  mVertexData->Branch("beamspotWidthYError",       &m_Beamspot_WidthYError,   "beamspotWidthYError/D");
 
-  mVertexData->Branch("beamspotSigmaZ0",      &m_Beamspot_SigmaZ0,      "beamspotSigmaZ0/double");
-  mVertexData->Branch("beamspotSigmaZ0Error", &m_Beamspot_SigmaZ0Error, "beamspotSigmaZ0Error/double");
-  mVertexData->Branch("beamspotdxdz",         &m_Beamspot_dxdz,         "beamspotdxdz/double");
-  mVertexData->Branch("beamspotdxdzError",    &m_Beamspot_dxdzError,    "beamspotdxdzError/double");
-  mVertexData->Branch("beamspotdydz",         &m_Beamspot_dydz,         "beamspotdydz/double");
-  mVertexData->Branch("beamspotdydzError",    &m_Beamspot_dydzError,    "beamspotdydzError/double");
+  mVertexData->Branch("beamspotSigmaZ0",      &m_Beamspot_SigmaZ0,      "beamspotSigmaZ0/D");
+  mVertexData->Branch("beamspotSigmaZ0Error", &m_Beamspot_SigmaZ0Error, "beamspotSigmaZ0Error/D");
+  mVertexData->Branch("beamspotdxdz",         &m_Beamspot_dxdz,         "beamspotdxdz/D");
+  mVertexData->Branch("beamspotdxdzError",    &m_Beamspot_dxdzError,    "beamspotdxdzError/D");
+  mVertexData->Branch("beamspotdydz",         &m_Beamspot_dydz,         "beamspotdydz/D");
+  mVertexData->Branch("beamspotdydzError",    &m_Beamspot_dydzError,    "beamspotdydzError/D");
 
-  mVertexData->Branch("beamspotEmittanceX",      &m_Beamspot_EmittanceX,  "beamspotEmittanceX/double");
-  mVertexData->Branch("beamspotEmittanceY",      &m_Beamspot_EmittanceY,  "beamspotEmittanceY/double");
-  mVertexData->Branch("beamspotBetaStar",        &m_Beamspot_BetaStar,    "beamspotBetaStar/double");
+  mVertexData->Branch("beamspotEmittanceX",      &m_Beamspot_EmittanceX,  "beamspotEmittanceX/D");
+  mVertexData->Branch("beamspotEmittanceY",      &m_Beamspot_EmittanceY,  "beamspotEmittanceY/D");
+  mVertexData->Branch("beamspotBetaStar",        &m_Beamspot_BetaStar,    "beamspotBetaStar/D");
 
 
   //Vertex parameters
-  mVertexData->Branch("nVtx",               &m_nVtx,             "nVtx/int");
-  mVertexData->Branch("VertexChi2",          m_VtxChi2,          "VertexChi2[nVtx]/double");
-  mVertexData->Branch("VertexNdof",          m_VtxNdof,          "VertexNdof[nVtx]/double");
-  mVertexData->Branch("VertexNTrks",         m_VtxNTrks,         "VertexNTrks[nVtx]/double");
-  mVertexData->Branch("VertexNRawTrks",      m_VtxNRawTrks,      "VertexNRawTrks[nVtx]/double");
-  mVertexData->Branch("VertexIsValid",       m_VtxIsValid,       "VertexIsValid[nVtx]/double");
-  mVertexData->Branch("VertexNormalizedChi2",m_VtxNormalizedChi2,"VertexNormalizedChi2[nVtx]/double");
+  mVertexData->Branch("nVtx",               &m_nVtx,             "nVtx/I");
+  mVertexData->Branch("VertexChi2",          m_VtxChi2,          "VertexChi2[nVtx]/D");
+  mVertexData->Branch("VertexNdof",          m_VtxNdof,          "VertexNdof[nVtx]/D");
+  mVertexData->Branch("VertexNTrks",         m_VtxNTrks,         "VertexNTrks[nVtx]/D");
+  mVertexData->Branch("VertexNRawTrks",      m_VtxNRawTrks,      "VertexNRawTrks[nVtx]/D");
+  mVertexData->Branch("VertexIsValid",       m_VtxIsValid,       "VertexIsValid[nVtx]/D");
+  mVertexData->Branch("VertexNormalizedChi2",m_VtxNormalizedChi2,"VertexNormalizedChi2[nVtx]/D");
 
-  mVertexData->Branch("VertexX", m_VtxX, "VertexX[nVtx]/double");
-  mVertexData->Branch("VertexY", m_VtxY, "VertexY[nVtx]/double");
-  mVertexData->Branch("VertexZ", m_VtxZ, "VertexZ[nVtx]/double");
-  mVertexData->Branch("Vertexd0",m_Vtxd0,"Vertexd0[nVtx]/double");
-  mVertexData->Branch("VertexdX",m_VtxdX,"VertexdX[nVtx]/double");
-  mVertexData->Branch("VertexdY",m_VtxdY,"VertexdY[nVtx]/double");
-  mVertexData->Branch("VertexdZ",m_VtxdZ,"VertexdZ[nVtx]/double");
+  mVertexData->Branch("VertexX", m_VtxX, "VertexX[nVtx]/D");
+  mVertexData->Branch("VertexY", m_VtxY, "VertexY[nVtx]/D");
+  mVertexData->Branch("VertexZ", m_VtxZ, "VertexZ[nVtx]/D");
+  mVertexData->Branch("Vertexd0",m_Vtxd0,"Vertexd0[nVtx]/D");
+  mVertexData->Branch("VertexdX",m_VtxdX,"VertexdX[nVtx]/D");
+  mVertexData->Branch("VertexdY",m_VtxdY,"VertexdY[nVtx]/D");
+  mVertexData->Branch("VertexdZ",m_VtxdZ,"VertexdZ[nVtx]/D");
   
   edm::LogInfo("VertexAnalyzerPAT") << "Ntuple variables " << variables.str();
   
