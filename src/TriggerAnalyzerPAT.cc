@@ -13,7 +13,7 @@ Description: Collects the trigger results and performs a basic trigger selection
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: TriggerAnalyzerPAT.cc,v 1.5 2010/06/21 22:45:38 sturdy Exp $
+// $Id: TriggerAnalyzerPAT.cc,v 1.6 2010/07/05 09:28:12 sturdy Exp $
 //
 //
 //#include "SusyAnalysis/EventSelector/interface/BJetEventSelector.h"
@@ -42,7 +42,9 @@ TriggerAnalyzerPAT::TriggerAnalyzerPAT(const edm::ParameterSet& triggerParams, T
  
   // trigger stuff
   l1TriggerResults_ = triggerParams.getUntrackedParameter<edm::InputTag>("l1TriggerResults");
-  hlTriggerResults_ = triggerParams.getUntrackedParameter<edm::InputTag>("hlTriggerResults");
+  getHLTfromConfig_ = triggerParams.getUntrackedParameter<bool>("getHLTfromConfig",false);
+  if (getHLTfromConfig_)
+    hlTriggerResults_ = triggerParams.getUntrackedParameter<edm::InputTag>("hlTriggerResults");
   // trigger path names
   pathNames_ = triggerParams.getUntrackedParameter< std::vector<std::string> >("pathNames");
 
@@ -137,6 +139,7 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup&
   const std::vector<int>&  vTechInt  = psTech->gtPrescaleFactors().at(l1GtHandle->gtFdlWord(nBx).gtPrescaleFactorIndexTech());
 
   int l1phys = 0;
+  m_nL1Physics = nMaxL1Algo;
   if (debug_)
     std::cout<<"Getting the L1 Physics trigger results"<<std::endl;
   for( AlgorithmMap::const_iterator it = algoMap.begin(); it != algoMap.end(); ++it) {
@@ -149,17 +152,19 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup&
     m_L1PhysicsArray[l1phys] = l1AlgBit;
     m_L1PhysicsNames[l1phys] = l1AlgName;
     if (debug_)
-    std::cout<<"L1AlgoBit named: "<<l1AlgName<<" with bit: "<<l1AlgBit<<" and prescale: "<<l1AlgPre<<std::endl;
+      std::cout<<"L1AlgoBit named: "<<l1AlgName<<" with bit: "<<l1AlgBit<<" and prescale: "<<l1AlgPre<<std::endl;
     //l1triggered[it->first] = vAlgoBool.at(it->second.algoBitNumber());
     //l1prescaled[it->first] = vAlgoInt.at(it->second.algoBitNumber());
     ++l1phys;
   }
   
   int l1tech  = 0;
+  m_nL1Technical = nMaxL1Tech;
   if (debug_)
     std::cout<<"Getting the L1 Technical trigger results"<<std::endl;
   for( AlgorithmMap::const_iterator it = techMap.begin(); it != techMap.end(); ++it) {
-    std::cout<<"Accessing L1 Technical trigger results"<<std::endl;
+    if (debug_)
+      std::cout<<"Accessing L1 Technical trigger results"<<std::endl;
     //std::string l1TechName = it->first;
     std::string l1TechName = (it->second).algoName();
     bool l1TechBit = vTechBool.at(it->second.algoBitNumber());
@@ -200,7 +205,17 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup&
   // Get the HLT results and check validity
 
   edm::Handle<edm::TriggerResults> hltHandle;
+  if (!getHLTfromConfig_) {
+    //iEvent.getByLabel(hlTriggerResults_, hltHandle);
+    Handle<trigger::TriggerEvent> hltEventHandle;
+    iEvent.getByLabel("hltTriggerSummaryAOD", hltEventHandle);
+    
+    hlTriggerResults_ = InputTag("TriggerResults","",hltEventHandle.provenance()->processName());
+    
+  }
+
   iEvent.getByLabel(hlTriggerResults_, hltHandle);
+  
   if ( !hltHandle.isValid() ) {
     edm::LogWarning("HLTEventSelector") << "No trigger results for InputTag " << hlTriggerResults_;
     if (debug_)
@@ -212,7 +227,8 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup&
 
   const edm::TriggerNames& trgNames = iEvent.triggerNames(*hltHandle);
   //trgNames.init(*hltHandle);
-  
+
+  m_nHLT = trgNames.size();
   for (unsigned int hltnum = 0; hltnum < trgNames.size(); ++hltnum) {
     std::string tmpName = trgNames.triggerName(hltnum);
     int trgIndex  = trgNames.triggerIndex(tmpName);
@@ -223,8 +239,15 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup&
     m_HLTNames[hltnum] = tmpName;
     m_HLTArray[hltnum] = trgResult;
 
-    if(debug_) 
-      std::cout<<"HLT trigger named: "<<tmpName<<" has result: "<<trgResult<<std::endl;
+    if (debug_) 
+      std::cout<<"HLT trigger named: "<<tmpName<<" has result "<<trgResult<<std::endl;
+    if (tmpName == "HLT_Jet180")       m_HLT1JET    = true;
+    if (tmpName == "HLT_DiJetAve130")  m_HLT2JET    = true;
+    if (tmpName == "HLT_MET60")        m_HLT1MET    = true;
+    if (tmpName == "HLT_HT200")        m_HLT1HT     = true;
+    if (tmpName == "HLT_HT300_MHT100") m_HLT1HT1MHT = true;
+    if (tmpName == "HLT_Mu9")          m_HLT1Muon   = true; 
+    if (tmpName == "HLT_L1_BscMinBiasOR_BptxPlusORMinus")          m_HLTMinBias = true; 
   }
  
   //Method 2

@@ -12,8 +12,8 @@ isData = False
 
 #-- Meta data to be logged in DBS ---------------------------------------------
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.30 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/UserCode/JSturdy/SUSY/AnalysisNtuplePAT/python/SUSY_V9_7TeV_PATtuple.py,v $'),
     annotation = cms.untracked.string('SUSY pattuple definition')
 )
 
@@ -27,11 +27,13 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 #-- Input Source --------------------------------------------------------------
 process.source.fileNames = [
-     '/store/relval/CMSSW_3_7_0_pre5/RelValProdTTbar/GEN-SIM-RECO/MC_37Y_V4-v1/0023/BA92C6D3-8863-DF11-B3AF-002618943939.root'
-     #'/store/relval/CMSSW_3_6_0_pre6/RelValProdTTbar/GEN-SIM-RECO/MC_36Y_V4-v1/0011/82DAA1BE-B344-DF11-A116-00304867C0C4.root'
-     #'/store/relval/CMSSW_3_7_0_pre5/MinimumBias/RECO/GR_R_37X_V4_RelVal_col_10-v1/0024/CAD8C3ED-8E63-DF11-B60D-00261894393B.root'
-     #'/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V25B_356ReReco-v1/0007/FE90A396-233C-DF11-8106-002618943898.root'
-     #'/store/data/Commissioning10/MinimumBias/RAW-RECO/Apr1Skim_GOODCOLL-v1/0140/E27B88D1-8040-DF11-B3FC-00261894391B.root'
+    #'file:/tmp/sturdy/Run2010A_Jun9th.root'
+    #'file:/tmp/sturdy/TTbarJets-madgraph.root'
+    'file:/tmp/sturdy/TTbar-mcatnlo.root'
+    #'file:/tmp/sturdy/SUSY-LM9.root'
+    #'file:/tmp/sturdy/ZInvisibleJets-madgraph.root'
+    #'file:/tmp/sturdy/ZJets-madgraph.root'
+    #'file:/tmp/sturdy/Zmumu-Spring10.root'
     ]
 process.maxEvents.input = 1000
 # Due to problem in production of LM samples: same event number appears multiple times
@@ -39,25 +41,33 @@ process.source.duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 
 #-- Calibration tag -----------------------------------------------------------
 # Should match input file's tag
-process.GlobalTag.globaltag = 'GR_R_37X_V4::All'
+#process.GlobalTag.globaltag = 'GR_R_37X_V6A::All'
+#process.GlobalTag.globaltag = 'START3X_V26::All'
+process.GlobalTag.globaltag = 'START3X_V26::All'
 
 ############################# START SUSYPAT specifics ####################################
 from PhysicsTools.Configuration.SUSY_pattuple_cff import addDefaultSUSYPAT, getSUSY_pattuple_outputCommands
 #Apply SUSYPAT, parameters are: mcInfo, HLT menu, Jet energy corrections, mcVersion ('35x' for 35x samples, empty string for 36X samples),JetCollections
-addDefaultSUSYPAT(process,True,'HLT','Spring10','',['AK5Track','AK5JPT']) 
+addDefaultSUSYPAT(process,True,'HLT','Spring10','35x',['AK5Track','AK5JPT','AK5PF']) 
 SUSY_pattuple_outputCommands = getSUSY_pattuple_outputCommands( process )
 ############################## END SUSYPAT specifics ####################################
 
 
 #-- Output module configuration -----------------------------------------------
-process.out.fileName = 'SUSYPAT.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
+#process.out.fileName = 'SUSYPAT_Run2010A_Data.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
+#process.out.fileName = 'SUSYPAT_TTbar.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
+process.out.fileName = 'SUSYPAT_TTbar-mcanlo.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
+#process.out.fileName = 'SUSYPAT_SUSY-LM9.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
+#process.out.fileName = 'SUSYPAT_ZInv.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
+#process.out.fileName = 'SUSYPAT_ZJets.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
+#process.out.fileName = 'SUSYPAT_Zmumu.root'       # <-- CHANGE THIS TO SUIT YOUR NEEDS
 
 # Custom settings
 process.out.splitLevel = cms.untracked.int32(99)  # Turn on split level (smaller files???)
 process.out.overrideInputFileSplitLevels = cms.untracked.bool(True)
 process.out.dropMetaData = cms.untracked.string('DROPPED')   # Get rid of metadata related to dropped collections
 process.out.outputCommands = cms.untracked.vstring('drop *', *SUSY_pattuple_outputCommands )
-
+process.out.selecteEvents = cms.untracked.PSet(SelectEvents = cms.vstring(''))
 #-- Execution path ------------------------------------------------------------
 #del process.outpath
 #del process.out
@@ -65,8 +75,13 @@ process.out.outputCommands = cms.untracked.vstring('drop *', *SUSY_pattuple_outp
 # Analyzer section
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string(
-        #"7TeV_MinBias_MC.root"
-        "37XTTBarRelVal.root"
+        #"Run2010A_PAT.root"
+        #"TTbar_PAT.root"
+        "TTbar-mcanlo_PAT.root"
+        #"SUSY-LM9_PAT.root"
+        #"ZInv_PAT.root"
+        #"ZJets_PAT.root"
+        #"Zmumu_PAT.root"
     )
 )
 
@@ -75,7 +90,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #from JSturdy.AnalysisNtuplePAT.analysisNtuplePAT_cff import *
 #theNtupler = doAnalysisNtuplePAT
 process.load("JSturdy.AnalysisNtuplePAT.analysisNtuplePAT_cff")
-process.theNtupler = cms.Path(process.doAnalysisNtuplePAT)
+process.theNtupler = cms.Sequence(process.doAnalysisNtuplePAT)
 
 #from JSturdy.AnalysisNtuplePAT.eventCleanupPAT_cfi import *
 process.load("JSturdy.AnalysisNtuplePAT.eventCleanupPAT_cfi")
@@ -84,23 +99,24 @@ if isData :
 else :
     process.cleanEvents = cms.Sequence(process.cleanupFilterMC)
 
-process.selectClean = cms.Path(process.cleanEvents)
+process.selectClean = cms.Sequence(process.cleanEvents)
 
-process.susyStep = cms.Path(process.susyPatDefaultSequence)
+process.susyStep = cms.Sequence(process.susyPatDefaultSequence)
 
 
-#process.p = cms.Path(
-#    process.cleanEvents             *
-#    process.susyPatDefaultSequence  *
-#    process.doAnalysisNtuplePAT
-#)
-
-process.schedule = cms.Schedule(
-    process.selectClean,
-    #process.seqSUSYDefaultSequence,
-    process.susyStep,
+process.p = cms.Path(
+    process.cleanEvents  *
+    process.susyStep     *
     process.theNtupler
 )
+#process.schedule = cms.Schedule(
+#process.p = cms.Schedule(
+#    process.selectClean,
+#    #process.seqSUSYDefaultSequence,
+#    process.susyStep,
+#    process.theNtupler#,
+#    #process.endpath
+#)
 
 #-- Dump config ------------------------------------------------------------
 file = open('SusyPAT_cfg.py','w')

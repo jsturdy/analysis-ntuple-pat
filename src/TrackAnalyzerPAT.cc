@@ -13,7 +13,7 @@ Description: Collects variables related to tracks
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: TrackAnalyzerPAT.cc,v 1.3 2010/05/20 19:40:29 sturdy Exp $
+// $Id: TrackAnalyzerPAT.cc,v 1.4 2010/07/05 09:28:12 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/TrackAnalyzerPAT.h"
@@ -63,7 +63,7 @@ bool TrackAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<View<reco::Track> >  myTracks;
   iEvent.getByLabel(trackTag_,myTracks);
   if (!myTracks.isValid()) {
-    edm::LogVerbatim("TrackEvent") << " Unable to finde reco::Tracks with label  "<<trackTag_ << std::endl;
+    edm::LogVerbatim("TrackEvent") << " Unable to find reco::Tracks with label  "<<trackTag_ << std::endl;
     if (debug_)
       std::cout<<"No valid tracks"<<std::endl;
     return false;

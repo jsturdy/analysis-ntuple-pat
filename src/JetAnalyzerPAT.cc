@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.7 2010/06/17 17:52:46 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.8 2010/07/05 09:28:12 sturdy Exp $
 //
 //
 
@@ -136,7 +136,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
   //get number of jets
   i_NJets = jetHandle->size();
   edm::LogInfo("DiJetEvent::JetAnalyzerPAT") << "Processing Jets for InputTag " << jetTag_;
-  if (debug_) std::cout<< "Processing "<<jetHandle->size() <<" Jets for InputTag " << jetTag_<<std::endl;
+  if (debug_ > 5) std::cout<< "Processing "<<jetHandle->size() <<" Jets for InputTag " << jetTag_<<std::endl;
   if (debug_) {
     if (i_NJets) {
       std::cout<< "isCalo " <<(*jetHandle)[0].isCaloJet()  <<" Jets for InputTag " << jetTag_<<std::endl;
@@ -368,7 +368,8 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	mat_d_JetPhiPhiMoment[mjet] = theJet.phiphiMoment();
 
 	//Calo jet type specific
-	if (debug_) std::cout<<"\n\nSetting up jetid\n\n"<<std::endl;
+	if (debug_) 
+	  std::cout<<"\n\nSetting up jetid\n\n"<<std::endl;
 	if (useCaloJets_ ) {
 	  JetIDSelectionFunctor jetIDMinimal( JetIDSelectionFunctor::PURE09,
 					      JetIDSelectionFunctor::MINIMAL );
@@ -394,39 +395,40 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  mat_d_JetFhad[mjet] = theJet.energyFractionHadronic();
 	}
 	
-	if (debug_) std::cout<<"\n\nDone with jetid for calo jets\n\n"<<std::endl;
+	if (debug_ > 5) 
+	  std::cout<<"\n\nDone with jetid for calo jets\n\n"<<std::endl;
 	if (useCaloJets_ || useJPTJets_) {
-	  if (debug_)
-	    if (debug_) std::cout<<"\n\naccessing jetid information for fhpd, frbx, and n90hits\n\n"<<std::endl;
+	  if (debug_ > 5)
+	    std::cout<<"\n\naccessing jetid information for fhpd, frbx, and n90hits\n\n"<<std::endl;
 	  mat_d_JetN90[mjet]  = theJet.jetID().n90Hits;
 	  mat_d_JetfHPD[mjet] = theJet.jetID().fHPD;
 	  mat_d_JetfRBX[mjet] = theJet.jetID().fRBX;
 	}
 
 	if (useJPTJets_) {
-	  if (debug_) std::cout<<"electron multiplicity"<<std::endl;
+	  if (debug_ > 5) std::cout<<"electron multiplicity"<<std::endl;
 	  mat_d_JetElecMult[mjet]    = theJet.elecMultiplicity();
 	}
 
 	if (useJPTJets_ || usePFJets_) {
-	  if (debug_) std::cout<<"charged em fraction"<<std::endl;
+	  if (debug_ > 5) std::cout<<"charged em fraction"<<std::endl;
 	  mat_d_JetChargedFem[mjet]  = theJet.chargedEmEnergyFraction();
-	  if (debug_) std::cout<<"neutral em fraction"<<std::endl;
+	  if (debug_ > 5) std::cout<<"neutral em fraction"<<std::endl;
 	  mat_d_JetNeutralFem[mjet]  = theJet.neutralEmEnergyFraction();
-	  if (debug_) std::cout<<"charged hadron fraction"<<std::endl;
+	  if (debug_ > 5) std::cout<<"charged hadron fraction"<<std::endl;
 	  mat_d_JetChargedFhad[mjet] = theJet.chargedHadronEnergyFraction();
-	  if (debug_) std::cout<<"neutral hadron fraction"<<std::endl;
+	  if (debug_ > 5) std::cout<<"neutral hadron fraction"<<std::endl;
 	  mat_d_JetNeutralFhad[mjet] = theJet.neutralHadronEnergyFraction();
 
-	  if (debug_) std::cout<<"chraged multiplicity"<<std::endl;
+	  if (debug_ > 5) std::cout<<"chraged multiplicity"<<std::endl;
 	  mat_d_JetChargedMult[mjet] = theJet.chargedMultiplicity();
-	  if (debug_) std::cout<<"muon multiplicity"<<std::endl;
+	  if (debug_ > 5) std::cout<<"muon multiplicity"<<std::endl;
 	  mat_d_JetMuonMult[mjet]    = theJet.muonMultiplicity();
 
-	  if (debug_) std::cout<<"em fraction"<<std::endl;
+	  if (debug_ > 5) std::cout<<"em fraction"<<std::endl;
 	  mat_d_JetFem[mjet]  = theJet.neutralEmEnergyFraction()+
 	    theJet.chargedEmEnergyFraction();
-	  if (debug_) std::cout<<"hadron fraction"<<std::endl;
+	  if (debug_ > 5) std::cout<<"hadron fraction"<<std::endl;
 	  mat_d_JetFhad[mjet] = theJet.neutralHadronEnergyFraction()+
 	    theJet.chargedHadronEnergyFraction();
 	}
@@ -453,7 +455,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  mat_d_JetHFFem[mjet]  = theJet.HFEMEnergyFraction();
 	  mat_d_JetHFFhad[mjet] = theJet.HFHadronEnergyFraction();
 	  
-	  if (debug_) std::cout<<"neutral multiplicity"<<std::endl;
+	  if (debug_ > 5) std::cout<<"neutral multiplicity"<<std::endl;
 	  mat_d_JetNeutralMult[mjet] = theJet.neutralMultiplicity();
 
 	  mat_d_JetChargedHadMult[mjet] = theJet.chargedHadronMultiplicity();
@@ -540,7 +542,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
   d_GenMHt = -sqrt(gensumpx*gensumpx+gensumpy*gensumpy);
   
   jet_result = bool_JetPreselection;
-  if (debug_)
+  if (debug_ > 5)
     std::cout<<"Done analyzing all the jets"<<std::endl;
   return jet_result;
 }
@@ -624,11 +626,11 @@ void JetAnalyzerPAT::bookTTree() {
     
   
   if (useJPTJets_ ) {
-    if (debug_) std::cout<<"Saving JPT specific information"<<std::endl;
+    if (debug_ > 5) std::cout<<"Saving JPT specific information"<<std::endl;
   }
   
   if (useJPTJets_ || usePFJets_) {
-    if (debug_) std::cout<<"Saving JPT/PF specific information"<<std::endl;
+    if (debug_ > 5) std::cout<<"Saving JPT/PF specific information"<<std::endl;
     mJetData->Branch(prefix_+"JetChargedFem",  mat_d_JetChargedFem,  prefix_+"JetChargedFem["+prefix_+"NJets]/D");
     mJetData->Branch(prefix_+"JetNeutralFem",  mat_d_JetNeutralFem,  prefix_+"JetNeutralFem["+prefix_+"NJets]/D");
     mJetData->Branch(prefix_+"JetChargedFhad", mat_d_JetChargedFhad, prefix_+"JetChargedFhad["+prefix_+"NJets]/D");
@@ -639,7 +641,7 @@ void JetAnalyzerPAT::bookTTree() {
   }
   
   if (usePFJets_) {
-    if (debug_) std::cout<<"Saving PF specific information"<<std::endl;
+    if (debug_ > 5) std::cout<<"Saving PF specific information"<<std::endl;
     mJetData->Branch(prefix_+"JetChargedFmu",  mat_d_JetChargedFmu,  prefix_+"JetChargedFmu["+prefix_+"NJets]/D");
     mJetData->Branch(prefix_+"JetChargedFele", mat_d_JetChargedFele, prefix_+"JetChargedFele["+prefix_+"NJets]/D");
     mJetData->Branch(prefix_+"JetChargedFpho", mat_d_JetChargedFpho, prefix_+"JetChargedFpho["+prefix_+"NJets]/D");
@@ -654,12 +656,12 @@ void JetAnalyzerPAT::bookTTree() {
   }
   
   if (useTrackJets_) {
-    if (debug_) std::cout<<"Saving Track specific information"<<std::endl;
+    if (debug_ > 5) std::cout<<"Saving Track specific information"<<std::endl;
     //mJetData->Branch(prefix_+"JetCharge",  mat_d_JetCharge,  prefix_+"JetCharge["+prefix_+"NJets]/D");
   }
   
   if (useCaloJets_ || useJPTJets_) {
-    if (debug_) std::cout<<"Saving Calo/JPT specific information"<<std::endl;
+    if (debug_ > 5) std::cout<<"Saving Calo/JPT specific information"<<std::endl;
     mJetData->Branch(prefix_+"JetfHPD", mat_d_JetfHPD, prefix_+"JetfHPD["+prefix_+"NJets]/D");
     mJetData->Branch(prefix_+"JetfRBX", mat_d_JetfRBX, prefix_+"JetfRBX["+prefix_+"NJets]/D");
     mJetData->Branch(prefix_+"Jetn90",  mat_d_JetN90,  prefix_+"Jetn90["+prefix_+"NJets]/D");

@@ -1,18 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from JSturdy.AnalysisNtuplePAT.jetAnalyzerPAT_cfi import jetAnalyzerPAT
-from JSturdy.AnalysisNtuplePAT.metAnalyzerPAT_cfi import metAnalyzerPAT
-from JSturdy.AnalysisNtuplePAT.leptonAnalyzerPAT_cfi import leptonAnalyzerPAT
-from JSturdy.AnalysisNtuplePAT.trackAnalyzerPAT_cfi import trackAnalyzerPAT
+from JSturdy.AnalysisNtuplePAT.jetAnalyzerPAT_cfi     import jetAnalyzerPAT
+from JSturdy.AnalysisNtuplePAT.metAnalyzerPAT_cfi     import metAnalyzerPAT
+from JSturdy.AnalysisNtuplePAT.leptonAnalyzerPAT_cfi  import leptonAnalyzerPAT
+from JSturdy.AnalysisNtuplePAT.trackAnalyzerPAT_cfi   import trackAnalyzerPAT
 from JSturdy.AnalysisNtuplePAT.triggerAnalyzerPAT_cfi import triggerAnalyzerPAT
-from JSturdy.AnalysisNtuplePAT.vertexAnalyzerPAT_cfi import vertexAnalyzerPAT
-from JSturdy.AnalysisNtuplePAT.photonAnalyzerPAT_cfi import photonAnalyzerPAT
+from JSturdy.AnalysisNtuplePAT.vertexAnalyzerPAT_cfi  import vertexAnalyzerPAT
+from JSturdy.AnalysisNtuplePAT.photonAnalyzerPAT_cfi  import photonAnalyzerPAT
 #from JSturdy.AnalysisNtuplePAT.hemisphereAnalyzerPAT_cfi import hemisphereAnalyzerPAT
 
 #global switch for data/mc
-doMC = cms.untracked.bool(False)
-debugLevel = cms.untracked.int32(1)
+doMC = cms.untracked.bool(True)
+debugLevel = cms.untracked.int32(0)
+
 
 analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
 
@@ -22,8 +23,8 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             jetMinPt  = cms.untracked.double(10.),
             doMCJets  = doMC,
             useCaloJets  = cms.untracked.bool(True),
-            
-            jetTag     = cms.untracked.InputTag("cleanPatJetsAK5"),
+            debugJets = debugLevel,
+            jetTag     = cms.untracked.InputTag("cleanPatJetsAK5Calo"),
             prefixJets = cms.untracked.string("Calo")
         )
     ),
@@ -33,7 +34,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             jetMinPt  = cms.untracked.double(8.),
             doMCJets  = doMC,
             useJPTJets   = cms.untracked.bool(True),
-            
+            debugJets = debugLevel,
             jetTag     = cms.untracked.InputTag("cleanPatJetsAK5JPT"),
             prefixJets = cms.untracked.string("JPT")
         )
@@ -43,9 +44,8 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
         jetAnalyzerPAT.clone(
             jetMinPt  = cms.untracked.double(8.),
             doMCJets  = doMC,
-            useJPTJets   = cms.untracked.bool(True),
-            useCaloJets  = cms.untracked.bool(True),
-            
+            usePFJets   = cms.untracked.bool(True),
+            debugJets = debugLevel,
             jetTag     = cms.untracked.InputTag("cleanPatJetsAK5PF"),
             prefixJets = cms.untracked.string("PF")
         )
@@ -56,58 +56,12 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             jetMinPt  = cms.untracked.double(8.),
             doMCJets  = doMC,
             useTrackJets   = cms.untracked.bool(True),
-            
+            debugJets = debugLevel,
             jetTag     = cms.untracked.InputTag("cleanPatJetsAK5Track"),
             prefixJets = cms.untracked.string("Track")
         )
     ),
                                   
-#                                   ############HT/MHT section############
-#    caloHTMHTParameters     = cms.untracked.PSet(
-#        htmhtAnalyzerPAT.clone(
-#            jetMaxEta = cms.untracked.double(3.0),
-#            jetMinPt  = cms.untracked.double(10.),
-#            doMHHTMHT = doMC,
-#            jetTag      = cms.untracked.InputTag("cleanPatJetsAK5Calo"),
-#            mhtTag      = cms.untracked.InputTag("patMHTsAK5Calo"),
-#            prefixHTMHT = cms.untracked.string("Calo")
-#        )
-#    ),
-#                                  
-#    jptHTMHTParameters     = cms.untracked.PSet(
-#        htmhtAnalyzerPAT.clone(
-#            jetMaxEta = cms.untracked.double(3.0),
-#            jetMinPt  = cms.untracked.double(10.),
-#        
-#            jetTag      = cms.untracked.InputTag("cleanPatJetsAK5JPT"),
-#            prefixHTMHT = cms.untracked.string("JPT")
-#        )
-#    ),
-#
-#    pfHTMHTParameters     = cms.untracked.PSet(
-#        htmhtAnalyzerPAT.clone(
-#            jetMaxEta = cms.untracked.double(3.0),
-#            jetMinPt  = cms.untracked.double(10.),
-#        
-#            jetTag      = cms.untracked.InputTag("cleanPatJetsAK5PF"),
-#            prefixHTMHT = cms.untracked.string("PF")
-#        )
-#    ),
-#
-#    trackHTMHTParameters     = cms.untracked.PSet(
-#        htmhtAnalyzerPAT.clone(
-#            jetMaxEta = cms.untracked.double(3.0),
-#            jetMinPt  = cms.untracked.double(10.),
-#        
-#            jetTag      = cms.untracked.InputTag("cleanPatJetsAK5Track"),
-#            prefixHTMHT = cms.untracked.string("Track")
-#        )
-#    ),
-
-   #hemisphereParameters = cms.untracked.PSet(
-   #     hemisphereAnalyzerPAT.clone(
-   #     )
-   #),
                                    ############Lepton section############
     leptonParameters     = cms.untracked.PSet(
         leptonAnalyzerPAT.clone(
@@ -118,15 +72,6 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             prefixLeps = cms.untracked.string("")
         )
     ),
-    pfleptonParameters     = cms.untracked.PSet(
-        leptonAnalyzerPAT.clone(
-            doMCLeps  = doMC,
-            elecTag   = cms.untracked.InputTag("selectedPatElectronsPF"),
-            muonTag   = cms.untracked.InputTag("selectedPatMuonsPF"),
-            #tauTag   = cms.untracked.InputTag("selectedPatTausPF"),
-            prefixLeps = cms.untracked.string("PF")
-        )
-    ),
                                    ############Photon section############
     photonParameters     = cms.untracked.PSet(
         photonAnalyzerPAT.clone(
@@ -135,10 +80,21 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             prefixPhots = cms.untracked.string("")
         )
     ),
+
+    #PF section
+    pfleptonParameters     = cms.untracked.PSet(
+        leptonAnalyzerPAT.clone(
+            doMCLeps  = doMC,
+            elecTag   = cms.untracked.InputTag("cleanPatElectronsPF"),
+            muonTag   = cms.untracked.InputTag("cleanPatMuonsPF"),
+            #tauTag   = cms.untracked.InputTag("cleanPatTausPF"),
+            prefixLeps = cms.untracked.string("PF")
+        )
+    ),
     pfphotonParameters     = cms.untracked.PSet(
         photonAnalyzerPAT.clone(
             doMCPhots = doMC,
-            photTag  = cms.untracked.InputTag("selectedPatPhotonsPF"),
+            photTag  = cms.untracked.InputTag("cleanPatPhotonsPF"),
             prefixPhots = cms.untracked.string("PF")
         )
     ),
@@ -149,65 +105,17 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             doMCMET   = doMC,
             genMETTag = cms.untracked.InputTag("genMetCalo"),
             metTag    = cms.untracked.InputTag("patMETsAK5Calo"),
-            prefixMET = cms.untracked.string("Calo")
+            prefixMET = cms.untracked.string("CaloTypeI")
         )
     ),
-    calometOptParameters        = cms.untracked.PSet(
-        metAnalyzerPAT.clone(
-            doMCMET   = doMC,
-            genMETTag = cms.untracked.InputTag("genMetCalo"),
-            metTag    = cms.untracked.InputTag("patMETsAK5CaloOpt"),
-            prefixMET = cms.untracked.string("CaloOpt")
-        )
-    ),
-    calometTypeIIParameters        = cms.untracked.PSet(
-        metAnalyzerPAT.clone(
-            doMCMET   = doMC,
-            genMETTag = cms.untracked.InputTag("genMetCalo"),
-            metTag    = cms.untracked.InputTag("patMETsAK5CaloTypeII"),
-            prefixMET = cms.untracked.string("CaloTypeII")
-        )
-    ),
-    calometOptTypeIIParameters        = cms.untracked.PSet(
-        metAnalyzerPAT.clone(
-            doMCMET   = doMC,
-            genMETTag = cms.untracked.InputTag("genMetCalo"),
-            metTag    = cms.untracked.InputTag("patMETsAK5CaloOptTypeII"),
-            prefixMET = cms.untracked.string("CaloOptTypeII")
-        )
-    ),
-    calometCleanParameters        = cms.untracked.PSet(
-        metAnalyzerPAT.clone(
-            doMCMET   = doMC,
-            genMETTag = cms.untracked.InputTag("genMetCalo"),
-            metTag    = cms.untracked.InputTag("patMETsAK5CaloClean"),
-            prefixMET = cms.untracked.string("CaloClean")
-        )
-    ),
-    calometCleanOptParameters        = cms.untracked.PSet(
-        metAnalyzerPAT.clone(
-            doMCMET   = doMC,
-            genMETTag = cms.untracked.InputTag("genMetCalo"),
-            metTag    = cms.untracked.InputTag("patMETsAK5CaloCleanOpt"),
-            prefixMET = cms.untracked.string("CaloCleanOpt")
-        )
-    ),
-    calometCleanTypeIIParameters        = cms.untracked.PSet(
-        metAnalyzerPAT.clone(
-            doMCMET   = doMC,
-            genMETTag = cms.untracked.InputTag("genMetCalo"),
-            metTag    = cms.untracked.InputTag("patMETsAK5CaloCleanTypeII"),
-            prefixMET = cms.untracked.string("CaloCleanTypeII")
-        )
-    ),
-    calometCleanOptTypeIIParameters        = cms.untracked.PSet(
-        metAnalyzerPAT.clone(
-            doMCMET   = doMC,
-            genMETTag = cms.untracked.InputTag("genMetCalo"),
-            metTag    = cms.untracked.InputTag("patMETsAK5CaloCleanOptTypeII"),
-            prefixMET = cms.untracked.string("CaloCleanOptTypeII")
-        )
-    ),
+    #calometTypeIIParameters        = cms.untracked.PSet(
+    #    metAnalyzerPAT.clone(
+    #        doMCMET   = doMC,
+    #        genMETTag = cms.untracked.InputTag("genMetCalo"),
+    #        metTag    = cms.untracked.InputTag("patMETsAK5CaloTypeII"),
+    #        prefixMET = cms.untracked.string("CaloTypeII")
+    #    )
+    #),
 
     pfmetParameters        = cms.untracked.PSet(
         metAnalyzerPAT.clone(
@@ -224,23 +132,16 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             prefixMET = cms.untracked.string("TC")
         )
     ),
-    tcmetCleanedParameters        = cms.untracked.PSet(
-        metAnalyzerPAT.clone(
-            metTag    = cms.untracked.InputTag("patMETsTCClean"),
-            prefixMET = cms.untracked.string("TCClean")
-        )
-    ),
-
 
                                        ############Other information section############
     vertexParameters     = cms.untracked.PSet(
         vertexAnalyzerPAT.clone(
-#            debugTriggers = debugLevel
+#            debugVertex = debugLevel
         )
     ),
     trackParameters      = cms.untracked.PSet(
         trackAnalyzerPAT.clone(
-#            debugTriggers = debugLevel
+#            debugTracks = debugLevel
         )
     ),
     triggerParameters    = cms.untracked.PSet(
@@ -249,7 +150,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
         )
     ),
 
-    debugDiJets = cms.untracked.int32(10)
+    debugDiJets = cms.untracked.int32(0)
 )
 
 

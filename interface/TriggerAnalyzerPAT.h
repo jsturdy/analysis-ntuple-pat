@@ -74,6 +74,7 @@ class TriggerAnalyzerPAT {
 private:
 
   bool doMCData_;                 /// switch to turn off generator level information
+  bool getHLTfromConfig_; 
 
   static const int nMaxL1Tech = 64;
   static const int nMaxL1Algo = 128;

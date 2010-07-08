@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: LeptonAnalyzerPAT.cc,v 1.6 2010/06/09 18:02:26 sturdy Exp $
+// $Id: LeptonAnalyzerPAT.cc,v 1.7 2010/07/05 09:28:12 sturdy Exp $
 //
 //
 
@@ -199,7 +199,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   if (debug_) edm::LogVerbatim("LeptonEvent")<<logmessage<<std::endl;
   for (int i=0;i<i_ElecN;i++){
     const::pat::Electron& theElectron = (*elecHandle)[i];
-    if ( (theElectron.pt() > elecMinEt_) && !(theElectron.eta() < elecMaxEta_) ) {
+    if ( (theElectron.pt() > elecMinEt_) && !(theElectron.eta() > elecMaxEta_) ) {
       if (debug_) edm::LogVerbatim("LeptonEvent") << " looping over good electrons " << std::endl;
       //v_elecP4.at(el)    = theElectron.p4();
       v_elecP4.push_back(theElectron.p4());
@@ -346,7 +346,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
 
   for (int i=0;i<i_MuonN;i++){
     const pat::Muon& theMuon = (*muonHandle)[i];
-    if ( (theMuon.pt() > muonMinEt_) && !(theMuon.eta() < muonMaxEta_) ) {
+    if ( (theMuon.pt() > muonMinEt_) && !(theMuon.eta() > muonMaxEta_) ) {
       if (debug_) edm::LogVerbatim("LeptonEvent") << " looping over good muons " << std::endl;      
       //v_muonP4.at(mu) = theMuon.p4();
       v_muonP4.push_back(theMuon.p4());

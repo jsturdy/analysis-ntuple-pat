@@ -2,14 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 
 leptonAnalyzerPAT = cms.untracked.PSet(
-    elecMaxEta = cms.untracked.double(2.4),
+    elecMaxEta = cms.untracked.double(5.0),
     elecMaxEt  = cms.untracked.double(15.),
-    elecMinEt  = cms.untracked.double(5.),
+    elecMinEt  = cms.untracked.double(2.5),
     elecRelIso = cms.untracked.double(0.5),
 
-    muonMaxEta = cms.untracked.double(2.),
+    muonMaxEta = cms.untracked.double(5.0),
     muonMaxEt  = cms.untracked.double(10.),
-    muonMinEt  = cms.untracked.double(5.),
+    muonMinEt  = cms.untracked.double(2.5),
     muonRelIso = cms.untracked.double(0.1),
     
     #tauMaxEta = cms.untracked.double(2.),
