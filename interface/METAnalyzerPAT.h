@@ -85,6 +85,7 @@ class METAnalyzerPAT {
   std::map<std::string, float> corrSumET;
   
   double m_MET_Fullcorr_nocc[3];
+  double m_METpt_Fullcorr_nocc;
   double m_METphi_Fullcorr_nocc;
   double m_METsumEt_Fullcorr_nocc;
   double m_METsignificance_Fullcorr_nocc;

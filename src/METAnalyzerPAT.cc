@@ -11,7 +11,7 @@
 //
 // Original Author:  Jared Sturdy
 //         Created:  Tue Feb 2 12:11:44 PDT 2010
-// $Id: METAnalyzerPAT.cc,v 1.5 2010/06/09 18:02:26 sturdy Exp $
+// $Id: METAnalyzerPAT.cc,v 1.6 2010/07/05 09:28:12 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/METAnalyzerPAT.h"
@@ -102,34 +102,35 @@ bool METAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
   double metsig = theMET.mEtSig();      
 
   // Do the MET save for full corr no cc MET
-  m_MET_Fullcorr_nocc[0]           = mex;
-  m_MET_Fullcorr_nocc[1]           = mey;
-  m_MET_Fullcorr_nocc[2]           = mez;
-  m_METphi_Fullcorr_nocc           = metphi;
-  m_METsumEt_Fullcorr_nocc         = sumet;
-  m_METsignificance_Fullcorr_nocc  = metsig;
+  m_MET_Fullcorr_nocc[0]          = mex;
+  m_MET_Fullcorr_nocc[1]          = mey;
+  m_MET_Fullcorr_nocc[2]          = mez;
+  m_METpt_Fullcorr_nocc           = met;
+  m_METphi_Fullcorr_nocc          = metphi;
+  m_METsumEt_Fullcorr_nocc        = sumet;
+  m_METsignificance_Fullcorr_nocc = metsig;
 
   if (debug_) std::cout<<"Number of corrections applied to MET object "<<metTag_<<"  "<<theMET.nCorrections()<<std::endl;
   // Do the MET save for no corr no cc MET
-  m_MET_Nocorr_nocc[0]   = mex -   theMET.corEx(pat::MET::uncorrALL);
-  m_MET_Nocorr_nocc[1]   = mey -   theMET.corEy(pat::MET::uncorrALL);
-  m_METsumEt_Nocorr_nocc = sumet - theMET.corSumEt(pat::MET::uncorrALL);
+  m_MET_Nocorr_nocc[0]   = theMET.corEx(pat::MET::uncorrALL);
+  m_MET_Nocorr_nocc[1]   = theMET.corEy(pat::MET::uncorrALL);
+  m_METsumEt_Nocorr_nocc = theMET.corSumEt(pat::MET::uncorrALL);
   m_METpt_Nocorr_nocc    = theMET.uncorrectedPt(pat::MET::uncorrALL);
   m_METphi_Nocorr_nocc   = theMET.uncorrectedPhi(pat::MET::uncorrALL);
   
   // Do the MET save for muon corr no cc MET
   // i.e., remove JES corrections
-  m_MET_Muoncorr_nocc[0]   = mex -   theMET.corEx(pat::MET::uncorrJES);
-  m_MET_Muoncorr_nocc[1]   = mey -   theMET.corEy(pat::MET::uncorrJES);
-  m_METsumEt_Muoncorr_nocc = sumet - theMET.corSumEt(pat::MET::uncorrJES);
+  m_MET_Muoncorr_nocc[0]   = theMET.corEx(pat::MET::uncorrJES);
+  m_MET_Muoncorr_nocc[1]   = theMET.corEy(pat::MET::uncorrJES);
+  m_METsumEt_Muoncorr_nocc = theMET.corSumEt(pat::MET::uncorrJES);
   m_METpt_Muoncorr_nocc    = theMET.uncorrectedPt(pat::MET::uncorrJES);
   m_METphi_Muoncorr_nocc   = theMET.uncorrectedPhi(pat::MET::uncorrJES);
   
   // Do the MET save for JES corr no cc MET
   // i.e., remove muon corrections
-  m_MET_JEScorr_nocc[0]   = mex -   theMET.corEx(pat::MET::uncorrMUON);
-  m_MET_JEScorr_nocc[1]   = mey -   theMET.corEy(pat::MET::uncorrMUON);
-  m_METsumEt_JEScorr_nocc = sumet - theMET.corSumEt(pat::MET::uncorrMUON);
+  m_MET_JEScorr_nocc[0]   = theMET.corEx(pat::MET::uncorrMUON);
+  m_MET_JEScorr_nocc[1]   = theMET.corEy(pat::MET::uncorrMUON);
+  m_METsumEt_JEScorr_nocc = theMET.corSumEt(pat::MET::uncorrMUON);
   m_METpt_JEScorr_nocc    = theMET.uncorrectedPt(pat::MET::uncorrMUON);
   m_METphi_JEScorr_nocc   = theMET.uncorrectedPhi(pat::MET::uncorrMUON);
   
@@ -158,6 +159,8 @@ void METAnalyzerPAT::bookTTree() {
 
   mMETData->Branch(prefix_+"METP4",   &mep4,  prefix_+"METP4/D");
 
+  mMETData->Branch(prefix_+"MET_Fullcorr_nocc",             &m_MET_Fullcorr_nocc,             prefix_+"MET_Fullcorr_nocc/D");
+  mMETData->Branch(prefix_+"METpt_Fullcorr_nocc",           &m_METpt_Fullcorr_nocc,           prefix_+"METpt_Fullcorr_nocc/D");
   mMETData->Branch(prefix_+"METphi_Fullcorr_nocc",          &m_METphi_Fullcorr_nocc,          prefix_+"METphi_Fullcorr_nocc/D");
   mMETData->Branch(prefix_+"METsumEt_Fullcorr_nocc",        &m_METsumEt_Fullcorr_nocc,        prefix_+"METsumEt_Fullcorr_nocc/D");
   mMETData->Branch(prefix_+"METsignificance_Fullcorr_nocc", &m_METsignificance_Fullcorr_nocc, prefix_+"METsignificance_Fullcorr_nocc/D");
