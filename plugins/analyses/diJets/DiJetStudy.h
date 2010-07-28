@@ -674,7 +674,7 @@ class DiJetStudy {
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void     Init(TTree *tree, TString jetPrefix, TString metPrefix, TString lepPrefix, TString phtPrefix);
-  virtual void     Loop(std::string outfilename="outfile.root", std::string analysisVer="met", double lum=1., double xs=1., double eff=1.);
+  virtual void     Loop(std::string outfilename="outfile.root", std::string analysisVer="met", double lum=1., double xs=1., double eff=1., double numGen=1.);
   virtual Bool_t   Notify();
 
   Bool_t   goodMuonTag(int index, int mode=1);
@@ -697,7 +697,7 @@ class DiJetStudy {
 
   virtual void     Show(Long64_t entry = -1);
 
-  Double_t luminosity_, cross_section_, efficiency_;
+  Double_t luminosity_, cross_section_, efficiency_, generated_events_;
   std::string outfilename_;
   std::string infilename_;
   std::string jetPrefix_;
@@ -810,10 +810,10 @@ DiJetStudy::DiJetStudy(TTree *tree,
   cut_mht  = 250.;
   cut_meff = 250.;
   //To be fixed
-  cut_jet12dphi     = 0.3;
+  cut_jet12dphi     = -1.;
   cut_jet1metdphi   = 0.3;
   cut_jet2metdphi   = 0.5;
-  cut_jetallmetdphi = 0.5;
+  cut_jetallmetdphi = -1.;
   cut_dphistar      = 0.4;
 
   electron_minpt     = 10.0;

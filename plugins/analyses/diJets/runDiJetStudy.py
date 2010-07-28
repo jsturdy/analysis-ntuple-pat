@@ -69,11 +69,11 @@ xsvals = [
     ]
 effs = [
     #QCD MadGraph
-    0.22,
-    0.33,
-    0.21,
-    0.31,
-    0.21,
+    1.0, #0.22,
+    1.0, #0.33,
+    1.0, #0.21,
+    1.0, #0.31,
+    1.0, #0.21,
     #SUSY
     1.0,
     1.0,
@@ -92,13 +92,46 @@ effs = [
     1.0,
     1.0,
     1.0,
-    #TTbarJets
-    0.35,
-    #VectorBosons
-    0.45,
-    0.44,
-    0.45,
+    #TTbarJets-madgraph
+    1.0, #0.35,
+    #VectorBosons-madgraph
+    1.0, #0.45,
+    1.0, #0.44,
+    1.0, #0.45,
     1.0
+    ]
+numGenEvents = [
+    #QCD MadGraph
+    2e5,
+    10e6,
+    45e5,
+    7e6,
+    15e5,
+    #SUSY
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    2e5,
+    #TTbarJets-madgraph
+    1e6,
+    #VectorBosons-madgraph
+    10e6,
+    1e6,
+    2e6,
+    2e6
     ]
 
 fileCount = [
@@ -172,7 +205,7 @@ for step in steps:
                 FILE.write("\tdiJets = new DiJetStudy(treeA, true, \"%s\",\"%s\",\"%s\",\"%s\");\n"%(jetTag[ana[0]], metTag[ana[01]], lepTag[ana[2]], phtTag[ana[3]]))
                 outfilename = "%s_%s_j%sm%sl%s_%02dx.root"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
                 #FILE.write("\tstring outfilename = \"./%s_%s_%s_%s_%s_%f.root\";\n"%(samples[step],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],step))
-                FILE.write("\tdiJets.Loop(\"%s\",\"%s\",%d,%f,%1.2f);\n"%(outfilename,ver,lumi,xsvals[step-1],effs[step-1]))
+                FILE.write("\tdiJets.Loop(\"%s\",\"%s\",%d,%f,%1.2f);\n"%(outfilename,ver,lumi,xsvals[step-1],effs[step-1],numGen[step-1]))
                 
                 FILE.write("}\n")
                 FILE.close()
@@ -184,9 +217,9 @@ for step in steps:
                 FILE.write("Executable = /uscms_data/d2/sturdy07/SUSY/CMSSW_3_7_0_patch4/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/condorROOT.csh\n")
                 FILE.write("Should_Transfer_Files = YES\n")
                 FILE.write("WhenToTransferOutput = ON_EXIT\n")
-                FILE.write("Output = diJet_%s_%02dx_$(Process).stdout\n"%(anStep,count))
-                FILE.write("Error = diJet_%s_%02dx_$(Process).stderr\n"%(anStep,count))
-                FILE.write("Log = diJet_%s_%02dx_$(Process).log\n"%(anStep,count))
+                FILE.write("Output = diJet_%s_%s_j%sm%sl%s_%02dx_$(Process).stdout\n"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
+                FILE.write("Error = diJet_%s_%s_j%sm%sl%s_%02dx_$(Process).stderr\n"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
+                FILE.write("Log = diJet_%s_%s_j%sm%sl%s_%02dx_$(Process).log\n"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
                 FILE.write("notify_user = jared.todd.sturdy@cern.ch\n")
                 FILE.write("Arguments = $(PROCESS) /uscms_data/d2/sturdy07/SUSY/CMSSW_3_7_0_patch4/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/%s\n"%(filename))
                 FILE.write("Queue 1\n")
@@ -194,9 +227,4 @@ for step in steps:
                 FILE.close()
                 cmd = "condor_submit "+tmpcondorsub
                 print(cmd)
-                #os.system(cmd)
-    #outfile = "./data/pf_data_%02dx.out"%(iter)
-    #cmd = "root -b -x -q %s >& %s &"%(filename,outfile)
-    #print(cmd)
-    #os.system(cmd)
-    
+                os.system(cmd)

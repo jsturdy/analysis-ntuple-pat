@@ -7,7 +7,7 @@
 #define NSTEPS     4
 #define NUMHISTOS 26
 
-void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lum, double xs, double eff)
+void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lum, double xs, double eff, double numGen)
 {
   //   In a ROOT session, you can do:
   //      Root > .L DiJetStudy.C
@@ -38,6 +38,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   luminosity_    = lum;
   cross_section_ = xs;
   efficiency_    = eff;
+  generated_events_ = numGen;
 
   printf("version: %s  lum: %2.2f,  xs: %2.2f,  eff: %2.2f\n",outfilename_.c_str(), lum, xs, eff);
   if (fChain == 0) return;
@@ -101,7 +102,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 
   char plottitle[NUMHISTOS][128];
   std::string plotname[NUMHISTOS] = {
-    jetPrefix_+" E_{T}^{J_{1}}",
+    jetPrefix_+" E_{T}^{J_{1}}",                               
     jetPrefix_+" E_{T}^{J_{2}}",
     jetPrefix_+" E_{T}^{J_{3+}}",
     metPrefix_+" #slash E_{T}",
@@ -334,6 +335,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry); nbytes += nb;
     ++totalcounter;
+    h_selections[1]->Fill(20.5);
     //if (Preselection(ientry) < 0) continue;
     //++preselection;
     // if (TriggerSelection(ientry) < 0) continue;
@@ -1588,7 +1590,10 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 
 
   // scale histograms to desired values
-  double scale = luminosity_ * cross_section_ * efficiency_ / (double)nentries;
+  double scale = luminosity_ * cross_section_ * efficiency_ / generated_events_;
+  h_selections[1]->SetBinContent(21,cross_section_);
+  h_selections[1]->SetBinContent(22,efficiency_);
+  h_selections[1]->SetBinContent(23,luminosity_);
 
   char ytitle[128];
   sprintf(ytitle,"Events / %2.0f pb^{-1}",luminosity_);
@@ -1615,7 +1620,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   h_selections[0]->GetXaxis()->SetBinLabel(17,"H_{T}");
   h_selections[0]->GetXaxis()->SetBinLabel(18,"#slashH_{T}");
   h_selections[0]->GetXaxis()->SetBinLabel(19,"M_{eff}");
-  h_selections[0]->GetXaxis()->SetBinLabel(20,"#Delta#phi^{*}(Jets,, #slashH_{T})");
+  h_selections[0]->GetXaxis()->SetBinLabel(20,"#Delta#phi^{*}(Jets, #slashH_{T})");
   h_selections[0]->GetXaxis()->SetBinLabel(21,"ALL");
   h_selections[0]->SetStats(kFALSE);
 
@@ -1637,8 +1642,12 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   h_selections[1]->GetXaxis()->SetBinLabel(16,"H_{T}/#slash H_{T} Type Cuts");
   h_selections[1]->GetXaxis()->SetBinLabel(17,"H_{T}");
   h_selections[1]->GetXaxis()->SetBinLabel(18,"#slashH_{T}");
-  h_selections[1]->GetXaxis()->SetBinLabel(19,"#Delta#phi^{*}(Jets,, #slashH_{T})");
+  h_selections[1]->GetXaxis()->SetBinLabel(19,"#Delta#phi^{*}(Jets, #slashH_{T})");
   h_selections[1]->GetXaxis()->SetBinLabel(20,"M_{eff}");
+  h_selections[1]->GetXaxis()->SetBinLabel(21,"Total Events");
+  h_selections[1]->GetXaxis()->SetBinLabel(22,"#sigma");
+  h_selections[1]->GetXaxis()->SetBinLabel(23,"#epsilon");
+  h_selections[1]->GetXaxis()->SetBinLabel(20,"#integralL dt");
   h_selections[1]->SetStats(kFALSE);
 
   for (int mine = 0; mine < 2; ++mine) {
@@ -1654,7 +1663,9 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_MT[mine]->Scale(scale);
     h_MT[mine]->GetYaxis()->SetTitle(ytitle);
     h_Minv[mine]->Scale(scale);
-    h_Minv[mine]->GetYaxis()->SetTitle(ytitle);}
+    h_Minv[mine]->GetYaxis()->SetTitle(ytitle);
+    h_SumEt[mine]->Scale(scale);
+    h_SumEt[mine]->GetYaxis()->SetTitle(ytitle);}
   
   for (int mine = 0; mine < 4; ++mine) {
     sprintf(ytitle,"Events / %2.0f pb^{-1}",luminosity_);
@@ -1671,7 +1682,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_Nmuon[mine]->GetYaxis()->SetTitle(ytitle);
     h_Ngoodmuon[mine]->Scale(scale);
     h_Ngoodmuon[mine]->GetYaxis()->SetTitle(ytitle);
-
+    
     h_jet1eta[mine]->Scale(scale);
     h_jet1eta[mine]->GetYaxis()->SetTitle(ytitle);
     h_jet2eta[mine]->Scale(scale);
