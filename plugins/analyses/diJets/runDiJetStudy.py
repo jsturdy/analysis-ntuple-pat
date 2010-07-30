@@ -102,36 +102,36 @@ effs = [
     ]
 numGenEvents = [
     #QCD MadGraph
-    2e5,
-    10e6,
-    45e5,
-    7e6,
-    15e5,
+    220715,
+    10875132,
+    4913036,
+    4234762,
+    1661261,
     #SUSY
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
-    2e5,
+    207533,
+    207273,
+    190240,
+    246225,
+    229750,
+    255954,
+    242840,
+    275950,
+    275169,
+    217435,
+    220000,
+    214424,
+    219834,
+    203818,
+    276780,
+    208620,
+    221800,
     #TTbarJets-madgraph
-    1e6,
+    1483404,
     #VectorBosons-madgraph
-    10e6,
-    1e6,
-    2e6,
-    2e6
+    10068895,
+    1084921,
+    2110493,
+    2111268
     ]
 
 fileCount = [
@@ -205,7 +205,7 @@ for step in steps:
                 FILE.write("\tdiJets = new DiJetStudy(treeA, true, \"%s\",\"%s\",\"%s\",\"%s\");\n"%(jetTag[ana[0]], metTag[ana[01]], lepTag[ana[2]], phtTag[ana[3]]))
                 outfilename = "%s_%s_j%sm%sl%s_%02dx.root"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
                 #FILE.write("\tstring outfilename = \"./%s_%s_%s_%s_%s_%f.root\";\n"%(samples[step],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],step))
-                FILE.write("\tdiJets.Loop(\"%s\",\"%s\",%d,%f,%1.2f);\n"%(outfilename,ver,lumi,xsvals[step-1],effs[step-1],numGen[step-1]))
+                FILE.write("\tdiJets.Loop(\"%s\",\"%s\",%d,%f,%1.2f,%f);\n"%(outfilename,ver,lumi,xsvals[step-1],effs[step-1],numGenEvents[step-1]))
                 
                 FILE.write("}\n")
                 FILE.close()
