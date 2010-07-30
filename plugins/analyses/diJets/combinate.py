@@ -3,38 +3,46 @@
 import sys,os
 from ROOT import *
 
-steps = [1,2,3,4,5,6,7,12,13,21,22,23,24,25,26,27]
+steps = [1,2,3,4,5,6,7,12,13,21,22,23,24,25,26,27,28,29,30,31,32]
 samples = [
-    "QCD/MadGraph/Pt50to100-madgraph",
-    "QCD/MadGraph/Pt100to250-madgraph",
-    "QCD/MadGraph/Pt250to500-madgraph",
-    "QCD/MadGraph/Pt500to1000-madgraph",
-    "QCD/MadGraph/Pt1000toInf-madgraph",
-    "SUSY/LM0",
-    "SUSY/LM1",
-    "SUSY/LM2",
-    "SUSY/LM2mhfeq360",
-    "SUSY/LM3",
-    "SUSY/LM4",
-    "SUSY/LM5",
-    "SUSY/LM6",
-    "SUSY/LM7",
-    "SUSY/LM8",
-    "SUSY/LM9",
-    "SUSY/LM9t175",
-    "SUSY/LM9p",
-    "SUSY/LM10",
-    "SUSY/LM11",
-    "SUSY/LM12",
-    "SUSY/LM13",
-    "TTbar/TTbarJets-madgraph",
-    "VectorBosons/WJets-madgraph",
-    "VectorBosons/ZJets-madgraph",
-    "VectorBosons/ZInvisibleJets",
-    "VectorBosons/Zmumu"
-    ]
+    "MC/QCD/MadGraph/Pt50to100-madgraph",
+    "MC/QCD/MadGraph/Pt100to250-madgraph",
+    "MC/QCD/MadGraph/Pt250to500-madgraph",
+    "MC/QCD/MadGraph/Pt500to1000-madgraph",
+    "MC/QCD/MadGraph/Pt1000toInf-madgraph",
+    "MC/SUSY/LM0",
+    "MC/SUSY/LM1",
+    "MC/SUSY/LM2",
+    "MC/SUSY/LM2mhfeq360",
+    "MC/SUSY/LM3",
+    "MC/SUSY/LM4",
+    "MC/SUSY/LM5",
+    "MC/SUSY/LM6",
+    "MC/SUSY/LM7",
+    "MC/SUSY/LM8",
+    "MC/SUSY/LM9",
+    "MC/SUSY/LM9t175",
+    "MC/SUSY/LM9p",
+    "MC/SUSY/LM10",
+    "MC/SUSY/LM11",
+    "MC/SUSY/LM12",
+    "MC/SUSY/LM13",
+    "MC/TTbar/TTbarJets-madgraph",
+    "MC/VectorBosons/WJets-madgraph",
+    "MC/VectorBosons/ZJets-madgraph",
+    "MC/VectorBosons/ZInvisibleJets",
+    "MC/VectorBosons/Zmumu"
 
-version = ["met", "mht"]
+    "MC/MinBias/Pythia8-MinBias",
+    "MC/MinBias/QCD_Pt15",
+
+    "Data/July6thRun2010AJetMETTau",
+    "Data/June9thMinBiasJetMETTau",
+    "Data/June9thRun2010AJetMETTau",
+    "Data/Run2010A_Prompt-v4"
+]
+
+version = ["met", "mht","full"]
 jetTag = ["Calo", "JPT", "PF", "Track"]
 metTag = ["CaloTypeI", "PF", "TC"]
 lepTag = ["", "PF"]

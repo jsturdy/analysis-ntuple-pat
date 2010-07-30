@@ -806,7 +806,7 @@ DiJetStudy::DiJetStudy(TTree *tree,
 
   cut_njet = 2;
   cut_met  = 250.;
-  cut_ht   = 250.;
+  cut_ht   = 0.;
   cut_mht  = 250.;
   cut_meff = 250.;
   //To be fixed
@@ -814,7 +814,7 @@ DiJetStudy::DiJetStudy(TTree *tree,
   cut_jet1metdphi   = 0.3;
   cut_jet2metdphi   = 0.5;
   cut_jetallmetdphi = -1.;
-  cut_dphistar      = 0.4;
+  cut_dphistar      = 0.25;
 
   electron_minpt     = 10.0;
   electron_maxpt     = 10.0;

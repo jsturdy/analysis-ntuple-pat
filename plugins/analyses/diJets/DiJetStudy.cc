@@ -59,7 +59,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
    
   TH1D *h_jet1emfrac[4], *h_jet2emfrac[4], *h_jetFem[4];
   TH1D *h_jet12dphi[4], *h_jet1metdphi[4], *h_jet2metdphi[4];
-  TH1D* h_dphistar[4];
+  TH1D *h_dphistar[4];
   // bins of 100 GeV
   TH1D *h_HT[4], *h_Meff[4];
   // bins of 50 GeV
@@ -69,7 +69,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   TH1D *h_elecEt[4], *h_muonEt[4];
   //only plot these for pre cuts and post cuts
   //TH1D *h_jet1phi[2], *h_jet2phi[2], *h_METphi[2];
-   
+  TH1D *h_counters[4];
+
   char histtitle[NUMHISTOS][128];
   std::string histname[NUMHISTOS] = {
     "01_jet1et",
@@ -147,12 +148,12 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     //individual cuts
     // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
     {2500., 2500., 100.,  5000., 5000., 2000., 5000.,
-     // j1mdp,   j2mdp,   j12dp,   dphistar   njets, ngood
-     localpi, localpi, localpi, localpi, 20.,   20.,
-     // jetetmultiplier, dummy values
-     10.,   0.,   0.,   0.,   0.,
-     // nelec, nmuon, dum6, dum7, elecet, muonet
-     15.,   15.,   0.,   0.,   2500.,  2500.},
+    // j1mdp,   j2mdp,   j12dp,   dphistar   njets, ngood
+    localpi, localpi, localpi, localpi, 20.,   20.,
+    // jetetmultiplier, dummy values
+    10.,   0.,   0.,   0.,   0.,
+    // nelec, nmuon, dum6, dum7, elecet, muonet
+    15.,   15.,   0.,   0.,   2500.,  2500.},
     */
     
     //sequential cuts
@@ -235,6 +236,12 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_elecEt[tt]   = new TH1D(histtitle[24],plottitle[24],static_cast<int>(bins[tt][22]/binsize),0.,bins[tt][22]);
     h_muonEt[tt]   = new TH1D(histtitle[25],plottitle[25],static_cast<int>(bins[tt][23]/binsize),0.,bins[tt][23]);
   }
+  //Counters for selections
+  for (int tt = 0; tt < 4; ++tt) {
+    sprintf(histtitle[tt],"%sevents",histpre[tt].c_str());
+    sprintf(plottitle[tt],"Events Passing Cuts");
+    h_counters[tt] = new TH1D(histtitle[tt],plottitle[tt],25,0,25);
+  }
 
   //pre cuts
   //h_jet1phi[0] = new TH1D("h_pre_cuts_9_jet1phi","",100,-localpi,localpi);
@@ -251,7 +258,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   //h_METphi[1]  = new TH1D("h_post_cuts_9_METphi", "",100,-localpi,localpi);
   h_MT[1]      = new TH1D("h_post_cuts_9_MT",     "M_{T}",1500/25,0,1500);
   h_Minv[1]    = new TH1D("h_post_cuts_9_Minv",   "M_{inv}",1500/25,0,1500);
-  sprintf(myname,"%s #SigmaE_{T}",metPrefix_.c_str());
+  //sprintf(myname,"%s #SigmaE_{T}",metPrefix_.c_str());
   h_SumEt[1]   = new TH1D("h_post_cuts_9_SumEt",  myname,1500/25,0,1500);
 
   // individual cuts histos
@@ -294,6 +301,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_muonEt[step]   ->Sumw2();
     h_muonEta[step]  ->Sumw2();
     h_Ngoodmuon[step]->Sumw2();
+    h_counters[step] ->Sumw2();
   }
 
   for (int hist = 0; hist < 2; ++hist) {
@@ -555,632 +563,1145 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     //    printf("%d       %d       %d   %d   %d   %d   %d   %d   %d   %d\n",preselection,triggerselectiondijetselection,finaljet,dphiselection,dphistarselection,metselection,leptonveto,htselection,mhtselection);
 
     //**************************Individual cut counters***********************//
-    if (preselection) 
+    if (preselection) {
       pscounter[0]++;
-    if (triggerselection)
+      h_counters[1]->Fill(0.5);
+    }
+    if (triggerselection) {
       trcounter[0]++;
-    if (leptonveto)
+      h_counters[1]->Fill(1.5);
+    }
+    if (leptonveto) {
       leptoncounter[0][0]++;
-    if (finaljet)
+      h_counters[1]->Fill(5.5);
+      h_counters[1]->Fill(9.5);
+    }
+    if (finaljet) {
       fjcounter[0]++;
+      h_counters[1]->Fill(2.5);
+    }
     //Selection based on MET/DPhi(Jet1,2,MET)
-    if (metselection)
+    if (metselection) {
       metcounter[0]++;
-    if (dphiselection)
+      h_counters[1]->Fill(3.5);
+    }
+    if (dphiselection) {
       dphicounter[0]++;
+      h_counters[1]->Fill(4.5);
+    }
     //Selection based on HT/MHT/DPhiStar
-    if (htselection)
+    if (htselection) {
       htcounter[0]++;
-    if (mhtselection)
+      h_counters[1]->Fill(6.5);
+    }
+    if (mhtselection) {
       mhtcounter[0]++;
-    if (dphistarselection)
+      h_counters[1]->Fill(7.5);
+    }
+    if (dphistarselection) {
       dphistarcounter[0]++;
+      h_counters[1]->Fill(8.5);
+    }
 
 
     //**************************Sequential pre/post cut counters***********************//
-    pscounter[1]++;
-    if (preselection) {
-      pscounter[2]++;
-      trcounter[1]++;
-      if (triggerselection) {
-	trcounter[2]++;
+    if (analysisVer=="met"||analysisVer=="mht") {
+      pscounter[1]++;
+      h_counters[0]->Fill(0.5);
+      if (preselection) {
+	pscounter[2]++;
+	h_counters[3]->Fill(0.5);
+	trcounter[1]++;
+	h_counters[0]->Fill(1.5);
+	if (triggerselection) {
+	  trcounter[2]++;
+	  h_counters[3]->Fill(1.5);
 	  fjcounter[1]++;
+	  h_counters[0]->Fill(2.5);
 	  if (finaljet) {
 	    fjcounter[2]++;
+	    h_counters[3]->Fill(2.5);
 	    //Selection based on MET/DPhi(Jet1,2,MET)
 	    metcounter[1]++;
+	    h_counters[0]->Fill(3.5);
 	    if (metselection) {
 	      metcounter[2]++;
+	      h_counters[3]->Fill(3.5);
 	      dphicounter[1]++;
+	      h_counters[0]->Fill(4.5);
 	      if (dphiselection) {
 		dphicounter[2]++;
-		  leptoncounter[1][0]++;
-		  if (leptonveto) {
-		    leptoncounter[2][0]++;}}}
+		h_counters[3]->Fill(4.5);
+		leptoncounter[1][0]++;
+		h_counters[0]->Fill(5.5);
+		if (leptonveto) {
+		  leptoncounter[2][0]++;
+		  h_counters[3]->Fill(5.5);}}}
 	    //Selection based on HT/MHT/DPhiStar
 	    htcounter[1]++;
+	    h_counters[0]->Fill(6.5);
 	    if (htselection) {
 	      htcounter[2]++;
+	      h_counters[3]->Fill(6.5);
 	      mhtcounter[1]++;
+	      h_counters[0]->Fill(7.5);
 	      if (mhtselection) {
 		mhtcounter[2]++;
+		h_counters[3]->Fill(7.5);
 		dphistarcounter[1]++;
+		h_counters[0]->Fill(8.5);
 		if (dphistarselection) {
 		  dphistarcounter[2]++;
+		  h_counters[3]->Fill(8.5);
 		  leptoncounter[1][1]++;
+		  h_counters[0]->Fill(9.5);
 		  if (leptonveto) {
-		    leptoncounter[2][1]++;}}}}}}}
-
-    
-    //**************************N-1 cut counters***********************//
-    if (
-	triggerselection &&
-	leptonveto       &&
-	//dijetselection   &&
-	finaljet         &&
-	(
-	 (
+		    leptoncounter[2][1]++;
+		    h_counters[3]->Fill(9.5);}}}}}}}
+      //**************************N-1 cut counters***********************//
+      if (
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
+	  (
+	   (
+	    metselection    &&
+	    dphiselection
+	    )  ||
+	   (
+	    htselection     &&
+	    mhtselection    &&
+	    dphistarselection
+	    )
+	   )
+	  ) {
+	pscounter[3]++;
+	h_counters[2]->Fill(0.5);}
+      if (
+	  preselection     &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
+	  (
+	   (
+	    metselection    &&
+	    dphiselection
+	    )  ||
+	   (
+	    htselection     &&
+	    mhtselection    &&
+	    dphistarselection
+	    )
+	   )
+	  ) {
+	trcounter[3]++;
+	h_counters[2]->Fill(1.5);}
+      //met lepton counter
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  //dijetselection   &&
+	  finaljet         &&
 	  metselection    &&
 	  dphiselection
-	 )  ||
-	 (
+	  ) {
+	leptoncounter[3][0]++;
+	h_counters[2]->Fill(5.5);}
+      //ht/mht lepton counter
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  //dijetselection   &&
+	  finaljet         &&
 	  htselection     &&
 	  mhtselection    &&
 	  dphistarselection
-	 )
-	)
-       )
-      pscounter[3]++;
-    if (
-	preselection     &&
-	leptonveto       &&
-	//dijetselection   &&
-	finaljet         &&
-	(
-	 (
-	  metselection    &&
+	  ) {
+	leptoncounter[3][1]++;
+	h_counters[2]->Fill(9.5);}
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  (
+	   (
+	    metselection    &&
+	    dphiselection
+	    )  ||
+	   (
+	    htselection     &&
+	    mhtselection    &&
+	    dphistarselection
+	    )
+	   )
+	  ) {
+	fjcounter[3]++;
+	h_counters[2]->Fill(2.5);}
+      //Selection based on MET/DPhi(Jet1,2,MET)
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
 	  dphiselection
-	 )  ||
-	 (
-	  htselection     &&
-	  mhtselection    &&
-	  dphistarselection
-	 )
-	)
-       )
-    trcounter[3]++;
-    //met lepton counter
-    if (
-	preselection     &&
-	triggerselection &&
-	//dijetselection   &&
-	finaljet         &&
-	metselection    &&
-	dphiselection
-       )
-      leptoncounter[3][0]++;
-    //ht/mht lepton counter
-    if (
-	preselection     &&
-	triggerselection &&
-	//dijetselection   &&
-	finaljet         &&
-	htselection     &&
-	mhtselection    &&
-	dphistarselection
-       )
-      leptoncounter[3][1]++;
-    if (
-	preselection     &&
-	triggerselection &&
-	leptonveto       &&
-	//dijetselection   &&
-	(
-	 (
-	  metselection    &&
-	  dphiselection
-	 )  ||
-	 (
-	  htselection     &&
-	  mhtselection    &&
-	  dphistarselection
-	 )
-	)
-       )
-      fjcounter[3]++;
-    //Selection based on MET/DPhi(Jet1,2,MET)
-    if (
-	preselection     &&
-	triggerselection &&
-	leptonveto       &&
-	//dijetselection   &&
-	finaljet         &&
-	(
-	 (
-	  dphiselection
-	 )//  ||
-	 //(
-	 // htselection     &&
-	 // mhtselection    &&
-	 // dphistarselection
-	 //)
-	)
-       )
-      metcounter[3]++;
-    if (
-	preselection     &&
-	triggerselection &&
-	leptonveto       &&
-	//dijetselection   &&
-	finaljet         &&
-	(
-	 (
+	  ) {
+	metcounter[3]++;
+	h_counters[2]->Fill(3.5);}
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
 	  metselection
-	 )//  ||
-	 //(
-	 // htselection     &&
-	 // mhtselection    &&
-	 // dphistarselection
-	 //)
-	)
-       )
-      dphicounter[3]++;
-    //Selection based on HT/MHT/DPhiStar
-    if (
-	preselection     &&
-	triggerselection &&
-	leptonveto       &&
-	//dijetselection   &&
-	finaljet         &&
-	(
-	 //(
-	 // metselection    &&
-	 // dphiselection
-	 //)  ||
-	 (
+	  ) {
+	dphicounter[3]++;
+	h_counters[2]->Fill(4.5);}
+      //Selection based on HT/MHT/DPhiStar
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
 	  mhtselection    &&
 	  dphistarselection
-	 )
-	)
-       )
-      htcounter[3]++;
-    if (
-	preselection     &&
-	triggerselection &&
-	leptonveto       &&
-	//dijetselection   &&
-	finaljet         &&
-	(
-	 //(
-	 // metselection    &&
-	 // dphiselection
-	 //)  ||
-	 (
+	  ) {
+	htcounter[3]++;
+	h_counters[2]->Fill(6.5);}
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
 	  htselection     &&
 	  dphistarselection
-	 )
-	)
-       )
-      mhtcounter[3]++;
-    if (
-	preselection     &&
-	triggerselection &&
-	leptonveto       &&
-	//dijetselection   &&
-	finaljet         &&
-	(
-	 //(
-	 // metselection    &&
-	 // dphiselection
-	 //)  ||
-	 (
+	  ) {
+	mhtcounter[3]++;
+	h_counters[2]->Fill(7.5);}
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
 	  htselection     &&
 	  mhtselection
-	 )
-	)
-       )
-      dphistarcounter[3]++;
+	  ) {
+	dphistarcounter[3]++;
+	h_counters[2]->Fill(8.5);}
       
-    ////////////
+      ////////////
       
-    nJetSelection[1] = 
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-      (
-       (jet1metdphiSelection[0]&&
-	jet2metdphiSelection[0]&&
-	metSelection[0]        ) 
-       ||
-       (htSelection[0]      &&
-	mhtSelection[0]     &&
-	meffSelection[0]    &&
-	dphistarSelection[0]   )
-       )       &&
+      nJetSelection[1] = 
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	(
+	 (jet1metdphiSelection[0]&&
+	  jet2metdphiSelection[0]&&
+	  metSelection[0]        ) 
+	 ||
+	 (htSelection[0]      &&
+	  mhtSelection[0]     &&
+	  meffSelection[0]    &&
+	  dphistarSelection[0]   )
+	 )       &&
 
-      leptonVeto[0];
+	leptonVeto[0];
     
-    hltTriggerSelection[1] = 
-      nJetSelection[0]     &&
-      jet1PtSelection[0]   &&
-      jet2PtSelection[0]   &&
-      jet1EtaSelection[0]  &&
-      jet2EtaSelection[0]  &&
-      jet1IDSelection[0]   &&
-      jet2IDSelection[0]   &&
-      excessiveJetVeto[0]  &&
-      jet12dphiSelection[0]&&
-      (
-       (jet1metdphiSelection[0]&&
-	jet2metdphiSelection[0]&&
-	metSelection[0]        ) 
-       ||
-       (htSelection[0]      &&
-	mhtSelection[0]     &&
-	meffSelection[0]    &&
-	dphistarSelection[0]   )
-       )       &&
-      leptonVeto[0];
+      hltTriggerSelection[1] = 
+	nJetSelection[0]     &&
+	jet1PtSelection[0]   &&
+	jet2PtSelection[0]   &&
+	jet1EtaSelection[0]  &&
+	jet2EtaSelection[0]  &&
+	jet1IDSelection[0]   &&
+	jet2IDSelection[0]   &&
+	excessiveJetVeto[0]  &&
+	jet12dphiSelection[0]&&
+	(
+	 (jet1metdphiSelection[0]&&
+	  jet2metdphiSelection[0]&&
+	  metSelection[0]        ) 
+	 ||
+	 (htSelection[0]      &&
+	  mhtSelection[0]     &&
+	  meffSelection[0]    &&
+	  dphistarSelection[0]   )
+	 )       &&
+	leptonVeto[0];
     
-    jet1PtSelection[1] =
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-      (
-       (jet1metdphiSelection[0]&&
-	jet2metdphiSelection[0]&&
-	metSelection[0]        ) 
-       ||
-       (htSelection[0]      &&
-	mhtSelection[0]     &&
-	meffSelection[0]    &&
-	dphistarSelection[0]   )
-       )       &&
-      leptonVeto[0];
+      jet1PtSelection[1] =
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	(
+	 (jet1metdphiSelection[0]&&
+	  jet2metdphiSelection[0]&&
+	  metSelection[0]        ) 
+	 ||
+	 (htSelection[0]      &&
+	  mhtSelection[0]     &&
+	  meffSelection[0]    &&
+	  dphistarSelection[0]   )
+	 )       &&
+	leptonVeto[0];
     
-    jet2PtSelection[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-      (
-       (jet1metdphiSelection[0]&&
-	jet2metdphiSelection[0]&&
-	metSelection[0]        ) 
-       ||
-       (htSelection[0]      &&
-	mhtSelection[0]     &&
-	meffSelection[0]    &&
-	dphistarSelection[0]   )
-       )       &&
-      leptonVeto[0];
+      jet2PtSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	(
+	 (jet1metdphiSelection[0]&&
+	  jet2metdphiSelection[0]&&
+	  metSelection[0]        ) 
+	 ||
+	 (htSelection[0]      &&
+	  mhtSelection[0]     &&
+	  meffSelection[0]    &&
+	  dphistarSelection[0]   )
+	 )       &&
+	leptonVeto[0];
     
-    jet1EtaSelection[1] = 
-      nJetSelection[0]      && 
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-      (
-       (jet1metdphiSelection[0]&&
-	jet2metdphiSelection[0]&&
-	metSelection[0]        ) 
-       ||
-       (htSelection[0]      &&
-	mhtSelection[0]     &&
-	meffSelection[0]    &&
-	dphistarSelection[0]   )
-       )       &&
-      leptonVeto[0];
+      jet1EtaSelection[1] = 
+	nJetSelection[0]      && 
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	(
+	 (jet1metdphiSelection[0]&&
+	  jet2metdphiSelection[0]&&
+	  metSelection[0]        ) 
+	 ||
+	 (htSelection[0]      &&
+	  mhtSelection[0]     &&
+	  meffSelection[0]    &&
+	  dphistarSelection[0]   )
+	 )       &&
+	leptonVeto[0];
     
-    jet2EtaSelection[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-      (
-       (jet1metdphiSelection[0]&&
-	jet2metdphiSelection[0]&&
-	metSelection[0]        ) 
-       ||
-       (htSelection[0]      &&
-	mhtSelection[0]     &&
-	meffSelection[0]    &&
-	dphistarSelection[0]   )
-       )       &&
-      leptonVeto[0];
+      jet2EtaSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	(
+	 (jet1metdphiSelection[0]&&
+	  jet2metdphiSelection[0]&&
+	  metSelection[0]        ) 
+	 ||
+	 (htSelection[0]      &&
+	  mhtSelection[0]     &&
+	  meffSelection[0]    &&
+	  dphistarSelection[0]   )
+	 )       &&
+	leptonVeto[0];
     
-    jet1IDSelection[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-      (
-       (jet1metdphiSelection[0]&&
-	jet2metdphiSelection[0]&&
-	metSelection[0]        ) 
-       ||
-       (htSelection[0]      &&
-	mhtSelection[0]     &&
-	meffSelection[0]    &&
-	dphistarSelection[0]   )
-       )       &&
-      leptonVeto[0];
+      jet1IDSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	(
+	 (jet1metdphiSelection[0]&&
+	  jet2metdphiSelection[0]&&
+	  metSelection[0]        ) 
+	 ||
+	 (htSelection[0]      &&
+	  mhtSelection[0]     &&
+	  meffSelection[0]    &&
+	  dphistarSelection[0]   )
+	 )       &&
+	leptonVeto[0];
     
-    jet2IDSelection[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-      (
-       (jet1metdphiSelection[0]&&
-	jet2metdphiSelection[0]&&
-	metSelection[0]        ) 
-       ||
-       (htSelection[0]      &&
-	mhtSelection[0]     &&
-	meffSelection[0]    &&
-	dphistarSelection[0]   )
-       )       &&
-      leptonVeto[0];
+      jet2IDSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	(
+	 (jet1metdphiSelection[0]&&
+	  jet2metdphiSelection[0]&&
+	  metSelection[0]        ) 
+	 ||
+	 (htSelection[0]      &&
+	  mhtSelection[0]     &&
+	  meffSelection[0]    &&
+	  dphistarSelection[0]   )
+	 )       &&
+	leptonVeto[0];
     
-    excessiveJetVeto[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      jet12dphiSelection[0] &&
-      (
-       (jet1metdphiSelection[0]&&
-	jet2metdphiSelection[0]&&
-	metSelection[0]        ) 
-       ||
-       (htSelection[0]      &&
-	mhtSelection[0]     &&
-	meffSelection[0]    &&
-	dphistarSelection[0]   )
-       )       &&
-      leptonVeto[0];
+      excessiveJetVeto[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	jet12dphiSelection[0] &&
+	(
+	 (jet1metdphiSelection[0]&&
+	  jet2metdphiSelection[0]&&
+	  metSelection[0]        ) 
+	 ||
+	 (htSelection[0]      &&
+	  mhtSelection[0]     &&
+	  meffSelection[0]    &&
+	  dphistarSelection[0]   )
+	 )       &&
+	leptonVeto[0];
       
-    jet12dphiSelection[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      (
-       (jet1metdphiSelection[0]&&
-	jet2metdphiSelection[0]&&
-	metSelection[0]        ) 
-       ||
-       (htSelection[0]      &&
-	mhtSelection[0]     &&
-	meffSelection[0]    &&
-	dphistarSelection[0]   )
-       )       &&
-      leptonVeto[0];
+      jet12dphiSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	(
+	 (jet1metdphiSelection[0]&&
+	  jet2metdphiSelection[0]&&
+	  metSelection[0]        ) 
+	 ||
+	 (htSelection[0]      &&
+	  mhtSelection[0]     &&
+	  meffSelection[0]    &&
+	  dphistarSelection[0]   )
+	 )       &&
+	leptonVeto[0];
       
-    //MET based analysis
-    jet1metdphiSelection[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
+      //MET based analysis
+      jet1metdphiSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
 
-      metSelection[0]        &&
-      jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	jet2metdphiSelection[0]&&
 
-      //htSelection[0]      &&
-      //mhtSelection[0]     &&
-      //meffSelection[0]    &&
-      //dphistarSelection[0]&&
-
-      leptonVeto[0];
+	leptonVeto[0];
     
-    jet2metdphiSelection[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
+      jet2metdphiSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
 
-      metSelection[0]        &&
-      jet1metdphiSelection[0]&&
+	metSelection[0]        &&
+	jet1metdphiSelection[0]&&
 
-      //htSelection[0]      &&
-      //mhtSelection[0]     &&
-      //meffSelection[0]    &&
-      //dphistarSelection[0]&&
+	leptonVeto[0];
 
-      leptonVeto[0];
-
-    metSelection[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
+      metSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
       
-      jet1metdphiSelection[0]&&
-      jet2metdphiSelection[0]&&
-
-      //htSelection[0]      &&
-      //mhtSelection[0]     &&
-      //meffSelection[0]    &&
-      //dphistarSelection[0]&&
-
-      leptonVeto[0];
-
-    //HT/MHT based analysis
-    htSelection[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-      
-      //metSelection[0]        &&
-      //jet1metdphiSelection[0]&&
-      //jet2metdphiSelection[0]&&
-
-      meffSelection[0]    &&
-      mhtSelection[0]     &&
-      dphistarSelection[0]&&
-
-      leptonVeto[0];
-
-    mhtSelection[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-
-      //metSelection[0]        &&
-      //jet1metdphiSelection[0]&&
-      //jet2metdphiSelection[0]&&
-
-      htSelection[0]      &&
-      meffSelection[0]    &&
-      dphistarSelection[0]&&
-
-      leptonVeto[0];
-
-    meffSelection[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-
-      //metSelection[0]        &&
-      //jet1metdphiSelection[0]&&
-      //jet2metdphiSelection[0]&&
-
-      htSelection[0]      &&
-      mhtSelection[0]     &&
-      dphistarSelection[0]&&
-
-      leptonVeto[0];
-
-    dphistarSelection[1] =
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-
-      //metSelection[0]        &&
-      //jet1metdphiSelection[0]&&
-      //jet2metdphiSelection[0]&&
-
-      htSelection[0]  &&
-      mhtSelection[0] &&
-      meffSelection[0]&&
-
-      leptonVeto[0];
-      
-    leptonVeto[1] = 
-      nJetSelection[0]      &&
-      hltTriggerSelection[0]&&
-      jet1PtSelection[0]    &&
-      jet2PtSelection[0]    &&
-      jet1EtaSelection[0]   &&
-      jet2EtaSelection[0]   &&
-      jet1IDSelection[0]    &&
-      jet2IDSelection[0]    &&
-      excessiveJetVeto[0]   &&
-      jet12dphiSelection[0] &&
-      (
-       (jet1metdphiSelection[0]&&
+	jet1metdphiSelection[0]&&
 	jet2metdphiSelection[0]&&
-	metSelection[0]        ) 
-       ||
-       (htSelection[0]      &&
+	leptonVeto[0];
+
+      //HT/MHT based analysis
+      htSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	meffSelection[0]    &&
+	mhtSelection[0]     &&
+	dphistarSelection[0]&&
+
+	leptonVeto[0];
+
+      mhtSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	htSelection[0]      &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+
+	leptonVeto[0];
+
+      meffSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	dphistarSelection[0]&&
+
+	leptonVeto[0];
+
+      dphistarSelection[1] =
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	htSelection[0]  &&
+	mhtSelection[0] &&
+	meffSelection[0]&&
+
+	leptonVeto[0];
+      
+      leptonVeto[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	(
+	 (jet1metdphiSelection[0]&&
+	  jet2metdphiSelection[0]&&
+	  metSelection[0]        ) 
+	 ||
+	 (htSelection[0]      &&
+	  mhtSelection[0]     &&
+	  meffSelection[0]    &&
+	  dphistarSelection[0]   )
+	 );
+
+    }
+    else {
+      pscounter[1]++;
+      h_counters[0]->Fill(0.5);
+      if (preselection) {
+	pscounter[2]++;
+	h_counters[3]->Fill(0.5);
+	trcounter[1]++;
+	h_counters[0]->Fill(1.5);
+	if (triggerselection) {
+	  trcounter[2]++;
+	  h_counters[3]->Fill(1.5);
+	  fjcounter[1]++;
+	  h_counters[0]->Fill(2.5);
+	  if (finaljet) {
+	    fjcounter[2]++;
+	    h_counters[3]->Fill(2.5);
+	    //Selection based on MET/DPhi(Jet1,2,MET)
+	    metcounter[1]++;
+	    h_counters[0]->Fill(3.5);
+	    if (metselection) {
+	      metcounter[2]++;
+	      h_counters[3]->Fill(3.5);
+	      dphicounter[1]++;
+	      h_counters[0]->Fill(4.5);
+	      if (dphiselection) {
+		dphicounter[2]++;
+		h_counters[3]->Fill(4.5);
+		leptoncounter[1][0]++;
+		h_counters[0]->Fill(5.5);
+		//Selection based on HT/MHT/DPhiStar
+		htcounter[1]++;
+		h_counters[0]->Fill(6.5);
+		if (htselection) {
+		  htcounter[2]++;
+		  h_counters[3]->Fill(6.5);
+		  mhtcounter[1]++;
+		  h_counters[0]->Fill(7.5);
+		  if (mhtselection) {
+		    mhtcounter[2]++;
+		    h_counters[3]->Fill(7.5);
+		    dphistarcounter[1]++;
+		    h_counters[0]->Fill(8.5);
+		    if (dphistarselection) {
+		      dphistarcounter[2]++;
+		      h_counters[3]->Fill(8.5);
+		      leptoncounter[1][1]++;
+		      h_counters[0]->Fill(9.5);
+		      if (leptonveto) {
+			leptoncounter[2][1]++;
+			h_counters[3]->Fill(9.5);}}}}}}}}}
+      //**************************N-1 cut counters***********************//
+      if (
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
+	  metselection    &&
+	  dphiselection &&
+	  htselection     &&
+	  mhtselection    &&
+	  dphistarselection
+	  ) {
+	pscounter[3]++;
+	h_counters[2]->Fill(0.5);}
+      if (
+	  preselection     &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
+	  metselection    &&
+	  dphiselection   &&
+	  htselection     &&
+	  mhtselection    &&
+	  dphistarselection
+	  ) {
+	trcounter[3]++;
+	h_counters[2]->Fill(1.5);}
+      //met lepton counter
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  //dijetselection   &&
+	  finaljet         &&
+	  metselection    &&
+	  dphiselection   &&
+	  htselection     &&
+	  mhtselection    &&
+	  dphistarselection
+	  ) {
+	leptoncounter[3][1]++;
+	h_counters[2]->Fill(95.5);}
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  metselection    &&
+	  dphiselection   &&
+	  htselection     &&
+	  mhtselection    &&
+	  dphistarselection
+	  ) {
+	fjcounter[3]++;
+	h_counters[2]->Fill(2.5);}
+      //Selection based on MET/DPhi(Jet1,2,MET)
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
+	  dphiselection    &&
+	  htselection      &&
+	  mhtselection     &&
+	  dphistarselection
+	  ) {
+	metcounter[3]++;
+	h_counters[2]->Fill(3.5);}
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
+	  metselection     &&
+	  htselection      &&
+	  mhtselection     &&
+	  dphistarselection
+	  ) {
+	dphicounter[3]++;
+	h_counters[2]->Fill(4.5);}
+      //Selection based on HT/MHT/DPhiStar
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
+	  metselection    &&
+	  dphiselection   &&
+	  mhtselection    &&
+	  dphistarselection
+	  ) {
+	htcounter[3]++;
+	h_counters[2]->Fill(6.5);}
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
+	  metselection    &&
+	  dphiselection   &&
+	  htselection     &&
+	  dphistarselection
+	  ) {
+	mhtcounter[3]++;
+	h_counters[2]->Fill(7.5);}
+      if (
+	  preselection     &&
+	  triggerselection &&
+	  leptonveto       &&
+	  //dijetselection   &&
+	  finaljet         &&
+	  metselection    &&
+	  dphiselection   &&
+	  htselection     &&
+	  mhtselection
+	  ) {
+	dphistarcounter[3]++;
+	h_counters[2]->Fill(8.5);}
+      
+      ////////////
+      
+      nJetSelection[1] = 
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	htSelection[0]        &&
+	mhtSelection[0]       &&
+	meffSelection[0]      &&
+	dphistarSelection[0]  &&
+	leptonVeto[0];
+    
+      hltTriggerSelection[1] = 
+	nJetSelection[0]     &&
+	jet1PtSelection[0]   &&
+	jet2PtSelection[0]   &&
+	jet1EtaSelection[0]  &&
+	jet2EtaSelection[0]  &&
+	jet1IDSelection[0]   &&
+	jet2IDSelection[0]   &&
+	excessiveJetVeto[0]  &&
+	jet12dphiSelection[0]&&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	htSelection[0]      &&
 	mhtSelection[0]     &&
 	meffSelection[0]    &&
-	dphistarSelection[0]   )
-       );
+	dphistarSelection[0]&&
+	leptonVeto[0];
+    
+      jet1PtSelection[1] =
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+	leptonVeto[0];
+    
+      jet2PtSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+	leptonVeto[0];
+    
+      jet1EtaSelection[1] = 
+	nJetSelection[0]      && 
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+	leptonVeto[0];
+    
+      jet2EtaSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+	leptonVeto[0];
+    
+      jet1IDSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+	leptonVeto[0];
+    
+      jet2IDSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+	leptonVeto[0];
+    
+      excessiveJetVeto[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	jet12dphiSelection[0] &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+	leptonVeto[0];
+      
+      jet12dphiSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+	leptonVeto[0];
+      
+      //MET based analysis
+      jet1metdphiSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+      
+	metSelection[0]        &&
+	jet2metdphiSelection[0]&&
+      
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+
+	leptonVeto[0];
+    
+      jet2metdphiSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+
+	metSelection[0]        &&
+	jet1metdphiSelection[0]&&
+
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+
+	leptonVeto[0];
+
+      metSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+      
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+
+	leptonVeto[0];
+
+      //HT/MHT based analysis
+      htSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+      
+	metSelection[0]        &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+
+	meffSelection[0]    &&
+	mhtSelection[0]     &&
+	dphistarSelection[0]&&
+
+	leptonVeto[0];
+
+      mhtSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+
+	metSelection[0]        &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+
+	htSelection[0]      &&
+	meffSelection[0]    &&
+	dphistarSelection[0]&&
+
+	leptonVeto[0];
+
+      meffSelection[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+
+	metSelection[0]        &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	dphistarSelection[0]&&
+
+	leptonVeto[0];
+
+      dphistarSelection[1] =
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+
+	metSelection[0]        &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+
+	htSelection[0]  &&
+	mhtSelection[0] &&
+	meffSelection[0]&&
+
+	leptonVeto[0];
+      
+      leptonVeto[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet2EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	htSelection[0]      &&
+	mhtSelection[0]     &&
+	meffSelection[0]    &&
+	dphistarSelection[0];
+    }
+      
+
     
     ///////////      
       
@@ -1496,11 +2017,15 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	meffSelection[0]       &&
 	dphistarSelection[0];
     else {
-      std::cout<<"No analysis type selected, defaulting to MET type analysis"<<std::endl;
+      std::cout<<"No analysis type selected, doing both MHT/MET"<<std::endl;
       analysis_step = 
 	metSelection[0]        &&
 	jet1metdphiSelection[0]&&
-	jet2metdphiSelection[0];
+	jet2metdphiSelection[0]&&
+	htSelection[0]         &&
+	mhtSelection[0]        &&
+	meffSelection[0]       &&
+	dphistarSelection[0];
     }
 
     bool selections = 
@@ -1669,6 +2194,27 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   
   for (int mine = 0; mine < 4; ++mine) {
     sprintf(ytitle,"Events / %2.0f pb^{-1}",luminosity_);
+    //sprintf(ytitle,"Raw Events passing cuts");
+    h_counters[mine]->Scale(scale);
+    h_counters[mine]->GetYaxis()->SetTitle(ytitle);
+    h_counters[mine]->GetXaxis()->SetBinLabel(1,"2 Loose ID Jets p_{T} > 50 GeV");
+    h_counters[mine]->GetXaxis()->SetBinLabel(2,"hlt Trigger Cuts");
+    h_counters[mine]->GetXaxis()->SetBinLabel(3,"Jet 2 p_{T} > 100 GeV no third jet");
+    sprintf(ytitle,"#slashE_{T} > %2.2f",cut_met);
+    h_counters[mine]->GetXaxis()->SetBinLabel(4,ytitle);
+    sprintf(ytitle,"#Delta#phi(J_{1},#slashE_{T}) > %2.2f, #Delta#phi(J_{2},#slashE_{T}) > %2.2f",cut_jet1metdphi,cut_jet2metdphi);
+    h_counters[mine]->GetXaxis()->SetBinLabel(5,ytitle);
+    h_counters[mine]->GetXaxis()->SetBinLabel(6,"e/#mu Veto");
+    sprintf(ytitle,"H_{T} > %2.2f",cut_ht);
+    h_counters[mine]->GetXaxis()->SetBinLabel(7,ytitle);
+    sprintf(ytitle,"#slashH_{T} > %2.2f",cut_mht);
+    h_counters[mine]->GetXaxis()->SetBinLabel(8,ytitle);
+    sprintf(ytitle,"#Delta#phi* > %2.2f",cut_dphistar);
+    h_counters[mine]->GetXaxis()->SetBinLabel(9,ytitle);
+    h_counters[mine]->GetXaxis()->SetBinLabel(10,"e/#mu Veto");
+    h_counters[mine]->SetStats(kFALSE);
+    
+    sprintf(ytitle,"Events / %2.0f pb^{-1}",luminosity_);
     for (int my = 0; my < 2; ++my) {
       h_Njets[mine][my]->Scale(scale);
       h_Njets[mine][my]->GetYaxis()->SetTitle(ytitle);}
@@ -1781,6 +2327,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_muonEt[step]   ->Write();
     h_muonEta[step]  ->Write();
     h_Ngoodmuon[step]->Write();
+    h_counters[step] ->Write();
   }
    
   for (int hist = 0; hist < 2; ++hist) {
