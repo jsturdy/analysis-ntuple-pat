@@ -210,27 +210,27 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_Meff[tt]    = new TH1D(histtitle[6],plottitle[6],static_cast<int>(bins[tt][6]/binsize),0.,bins[tt][6]);
     
     // fixed number of bins
-    h_jet1metdphi[tt] = new TH1D(histtitle[7],plottitle[7],50,0.,bins[tt][7]);
-    h_jet2metdphi[tt] = new TH1D(histtitle[8],plottitle[8],50,0.,bins[tt][8]);
-    h_jet12dphi[tt]   = new TH1D(histtitle[9],plottitle[9],50,0.,bins[tt][9]);
-    h_dphistar[tt]    = new TH1D(histtitle[10],plottitle[10],50,0.,bins[tt][10]);
+    h_jet1metdphi[tt] = new TH1D(histtitle[7],plottitle[7],25,0.,bins[tt][7]);
+    h_jet2metdphi[tt] = new TH1D(histtitle[8],plottitle[8],25,0.,bins[tt][8]);
+    h_jet12dphi[tt]   = new TH1D(histtitle[9],plottitle[9],25,0.,bins[tt][9]);
+    h_dphistar[tt]    = new TH1D(histtitle[10],plottitle[10],25,0.,bins[tt][10]);
 
     h_Njets[tt][0]  = new TH1D(histtitle[11],plottitle[11],static_cast<int>(bins[tt][11]),0.,bins[tt][11]);
     h_Njets[tt][1]  = new TH1D(histtitle[12],plottitle[12],static_cast<int>(bins[tt][12]),0.,bins[tt][12]);
-    h_jet1eta[tt]   = new TH1D(histtitle[13],plottitle[13],100,-5.,5.);
-    h_jet2eta[tt]   = new TH1D(histtitle[14],plottitle[14],100,-5.,5.);
+    h_jet1eta[tt]   = new TH1D(histtitle[13],plottitle[13],50,-5.,5.);
+    h_jet2eta[tt]   = new TH1D(histtitle[14],plottitle[14],50,-5.,5.);
 
-    h_jetFem[tt]     = new TH1D(histtitle[15],plottitle[15],50,0.,1.);
-    h_jet1emfrac[tt] = new TH1D(histtitle[16],plottitle[16],50,0.,1.);
-    h_jet2emfrac[tt] = new TH1D(histtitle[17],plottitle[17],50,0.,1.);
+    h_jetFem[tt]     = new TH1D(histtitle[15],plottitle[15],25,0.,1.);
+    h_jet1emfrac[tt] = new TH1D(histtitle[16],plottitle[16],25,0.,1.);
+    h_jet2emfrac[tt] = new TH1D(histtitle[17],plottitle[17],25,0.,1.);
 
     //lepton plots
     h_Nelec[tt]     = new TH1D(histtitle[18],plottitle[18],static_cast<int>(bins[tt][18]),0.,bins[tt][18]);
     h_Ngoodelec[tt] = new TH1D(histtitle[19],plottitle[19],static_cast<int>(bins[tt][18]),0.,bins[tt][18]);
     h_Nmuon[tt]     = new TH1D(histtitle[20],plottitle[20],static_cast<int>(bins[tt][19]),0.,bins[tt][19]);
     h_Ngoodmuon[tt] = new TH1D(histtitle[21],plottitle[21],static_cast<int>(bins[tt][19]),0.,bins[tt][19]);
-    h_elecEta[tt]   = new TH1D(histtitle[22],plottitle[22],100,-5.,5.);
-    h_muonEta[tt]   = new TH1D(histtitle[23],plottitle[23],100,-5.,5.);
+    h_elecEta[tt]   = new TH1D(histtitle[22],plottitle[22],50,-5.,5.);
+    h_muonEta[tt]   = new TH1D(histtitle[23],plottitle[23],50,-5.,5.);
     
     binsize = 25.;// bins of 25 GeV 
     h_elecEt[tt]   = new TH1D(histtitle[24],plottitle[24],static_cast<int>(bins[tt][22]/binsize),0.,bins[tt][22]);
@@ -494,8 +494,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     if (nJets>0) jet1IDSelection[0]  = jetID(0,false);
     if (nJets>1) jet2IDSelection[0]  = jetID(1,false);
 
-    if (nJets>0) jet1EtaSelection[0]  = (JetEta[0] <= jet1_maxeta) ? true : false;
-    if (nJets>1) jet2EtaSelection[0]  = (JetEta[1] <= jet2_maxeta) ? true : false;
+    if (nJets>0) jet1EtaSelection[0]  = (fabs(JetEta[0]) <= jet1_maxeta) ? true : false;
+    if (nJets>1) jet2EtaSelection[0]  = (fabs(JetEta[1]) <= jet2_maxeta) ? true : false;
       
     if (nJets>1) jet12dphiSelection[0]   = (jet12dphi   >= cut_jet12dphi)   ? true : false;
     if (nJets>0) jet1metdphiSelection[0] = (jet1metdphi >= cut_jet1metdphi) ? true : false;
@@ -2017,7 +2017,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	meffSelection[0]       &&
 	dphistarSelection[0];
     else {
-      std::cout<<"No analysis type selected, doing both MHT/MET"<<std::endl;
+      //std::cout<<"No analysis type selected, doing both MHT/MET"<<std::endl;
       analysis_step = 
 	metSelection[0]        &&
 	jet1metdphiSelection[0]&&
@@ -2104,6 +2104,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       
       h_jet1metdphi[3]->Fill(jet1metdphi);
       h_jet2metdphi[3]->Fill(jet2metdphi);
+      h_dphistar[2]->Fill(dphistar);
       
       //h_jet1phi[1]->Fill(JetPhi[0]);
       //h_jet2phi[1]->Fill(JetPhi[1]);
@@ -2246,6 +2247,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_jet1metdphi[mine]->GetYaxis()->SetTitle(ytitle);
     h_jet2metdphi[mine]->Scale(scale);
     h_jet2metdphi[mine]->GetYaxis()->SetTitle(ytitle);
+    h_dphistar[mine]->Scale(scale);
+    h_dphistar[mine]->GetYaxis()->SetTitle(ytitle);
 
     sprintf(ytitle,"Events / 50 GeV / %2.0f pb^{-1}",luminosity_);
 

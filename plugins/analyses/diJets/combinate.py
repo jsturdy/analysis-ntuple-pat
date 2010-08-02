@@ -31,7 +31,7 @@ samples = [
     "MC/VectorBosons/WJets-madgraph",
     "MC/VectorBosons/ZJets-madgraph",
     "MC/VectorBosons/ZInvisibleJets",
-    "MC/VectorBosons/Zmumu"
+    "MC/VectorBosons/Zmumu",
 
     "MC/MinBias/Pythia8-MinBias",
     "MC/MinBias/QCD_Pt15",
@@ -56,45 +56,55 @@ analyses = [
     [3,2,0,0],###Track-TC-""   
     [2,1,1,0]###PF-PF-PF      
     ]
-for step in steps:
-    lastinstance = samples[step-1].rfind("/") + 1
-    anStep = samples[step-1][lastinstance:]
-    for ana in analyses:
-        for ver in version:
-            outfilename = "%s_%s_j%sm%sl%s.root"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
-            infilename  = "%s_%s_j%sm%sl%s_*.root"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
-            cmd = "hadd %s  %s"%(outfilename, infilename)
-            print(cmd)
-            os.system(cmd)
-            
-            cmd = "rm   %s"%(infilename)
-            print(cmd)
-            os.system(cmd)
-
+#for step in steps:
+#    lastinstance = samples[step-1].rfind("/") + 1
+#    anStep = samples[step-1][lastinstance:]
+#    #for ana in analyses:
+#    ana = analyses[0]
+#    for ver in version:
+#        outfilename = "%s_%s_j%sm%sl%s.root"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+#        infilename  = "%s_%s_j%sm%sl%s_*.root"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+#        cmd = "hadd %s  %s"%(outfilename, infilename)
+#        print(cmd)
+#        os.system(cmd)
+#        
+#        cmd = "rm   %s"%(infilename)
+#        print(cmd)
+#        os.system(cmd)
+        
 backgrounds = [
     "QCD_MadGraph_Pt50toInf",
     "VectorBosons",
-    "SM_Background"
+    "SM_Background",
+    "7TeV_Data"
     ]
-for ana in analyses:
-    for ver in version:
-        qcdoutfilename = "%s_%s_j%sm%sl%s.root"%(backgrounds[0],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
-        infilename  = "Pt*to*-madgraph_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
-        cmd = "hadd %s  %s"%(qcdoutfilename,infilename)
-        print(cmd)
-        os.system(cmd)
-        
-        vboutfilename = "%s_%s_j%sm%sl%s.root"%(backgrounds[1],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
-        infilename1  = "WJets*_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
-        infilename2  = "ZJets*_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
-        infilename3  = "ZInvisibleJets*_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
-        cmd = "hadd %s  %s %s %s"%(vboutfilename,infilename1,infilename2,infilename3)
-        print(cmd)
-        os.system(cmd)
-        
-        smoutfilename = "%s_%s_j%sm%sl%s.root"%(backgrounds[2],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
-        infilename  = "TTbar*_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
-        cmd = "hadd %s  %s %s %s"%(smoutfilename,qcdoutfilename,vboutfilename,infilename)
-        print(cmd)
-        os.system(cmd)
-        
+#for ana in analyses:
+ana = analyses[0]
+for ver in version:
+    #qcdoutfilename = "%s_%s_j%sm%sl%s.root"%(backgrounds[0],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    #infilename  = "Pt*to*-madgraph_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    #cmd = "hadd %s  %s"%(qcdoutfilename,infilename)
+    #print(cmd)
+    #os.system(cmd)
+    #
+    #vboutfilename = "%s_%s_j%sm%sl%s.root"%(backgrounds[1],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    #infilename1  = "WJets*_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    #infilename2  = "ZJets*_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    #infilename3  = "ZInvisibleJets*_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    #cmd = "hadd %s  %s %s %s"%(vboutfilename,infilename1,infilename2,infilename3)
+    #print(cmd)
+    #os.system(cmd)
+    #
+    #smoutfilename = "%s_%s_j%sm%sl%s.root"%(backgrounds[2],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    #infilename  = "TTbar*_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    #cmd = "hadd %s  %s %s %s"%(smoutfilename,qcdoutfilename,vboutfilename,infilename)
+    #print(cmd)
+    #os.system(cmd)
+    
+    dataoutfilename = "%s_%s_j%sm%sl%s.root"%(backgrounds[3],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    infilename1  = "June9thMin*_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    infilename2  = "June9thRun*_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    infilename3  = "July6thRun*_%s_j%sm%sl%s.root"%(ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]])
+    cmd = "hadd %s  %s %s %s"%(dataoutfilename,infilename1,infilename2,infilename3)
+    print(cmd)
+    os.system(cmd)

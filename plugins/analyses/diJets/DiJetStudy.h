@@ -1278,8 +1278,8 @@ Bool_t DiJetStudy::jetID(int index, bool tight) {
     looseJet &= JetIDLoose[index];
   //track
   else {
-    looseJet &= JetPt[index]  > 20.;
-    looseJet &= JetEta[index] < 2.4;
+    looseJet &= JetPt[index]        > 20.;
+    looseJet &= fabs(JetEta[index]) < 2.4;
   }
 
   //if (jetRequirement)
@@ -1298,7 +1298,7 @@ Bool_t DiJetStudy::muonID(int index, int mode) {
     //if (< muon_maxchi2)
     //if (>= muon_minhits)
     if (MuonPt[index] >= muon_minpt)
-      if (MuonEta[index] <= muon_maxeta)
+      if (fabs(MuonEta[index]) <= muon_maxeta)
 	if (relIso < muon_maxreliso)
 	  if (MuonTrkD0[index]< muon_maxd0)
 	    //if (MuonCompD0[index]< muon_maxd0)
@@ -1319,7 +1319,7 @@ Bool_t DiJetStudy::electronID(int index, bool tight ) {
 
   if (electronRequirement)
     if (ElecPt[index] >= electron_minpt)
-      //if (ElecEta[index] <= electron_maxeta)
+      //if (fabs(ElecEta[index]) <= electron_maxeta)
       if (relIso < electron_maxreliso)
 	if (ElecD0[index]< electron_maxd0)
 	  //if (ElecCompD0[index]< electron_maxd0)
@@ -1342,7 +1342,7 @@ Bool_t DiJetStudy::photonID(int index, bool tight) {
 
   if (photonRequirement)
     if (PhotPt[index] >= photon_minpt)
-      if (PhotEta[index] <= photon_maxeta)
+      if (fabs(PhotEta[index]) <= photon_maxeta)
 	if (relIso < photon_maxreliso)
 	  //if (PhotTrkD0[index]< photon_maxd0)
 	  //if (PhotCompD0[index]< photon_maxd0)
@@ -1365,7 +1365,7 @@ Double_t DiJetStudy::computeHT(double& minpt, double& maxeta, bool fromRAW) {
     else
       theJet.SetPxPyPzE(JetPx[jet],JetPy[jet],JetPz[jet],JetE[jet]);
     if (theJet.Pt() > minpt)
-      if (theJet.Eta() < maxeta)
+      if (fabs(theJet.Eta()) < maxeta)
 	//if (jetID(jet,false)
 	//Do we want some jetID requirement?
 	theHT += theJet.Pt();
@@ -1379,7 +1379,7 @@ Double_t DiJetStudy::computeHT(double& minpt, double& maxeta, bool fromRAW) {
   //for (unsigned int jet = 0; jet < theJets.size(); ++jet) {
   //  LorentzV myJet = theJets.at(jet);
   //  if (myJet.Pt() > minpt)
-  //    if (myJet.Eta() < maxeta)
+  //    if (fabs(myJet.Eta()) < maxeta)
   //	//if (jetID(jet,false)
   //	//Do we want some jetID requirement?
   //	theHT += myJet.Pt();
@@ -1400,7 +1400,7 @@ TLorentzVector DiJetStudy::computeMHT(double& minpt, double& maxeta, bool fromRA
     else
       theJet.SetPxPyPzE(JetPx[jet],JetPy[jet],JetPz[jet],JetE[jet]);
     if (theJet.Pt() > minpt)
-      if (theJet.Eta() < maxeta) {
+      if (fabs(theJet.Eta()) < maxeta) {
 	
 	//if (jetID(jet,false)
 	//Do we want some jetID requirement?
@@ -1416,7 +1416,7 @@ TLorentzVector DiJetStudy::computeMHT(double& minpt, double& maxeta, bool fromRA
   //for (unsigned int jet = 0; jet < theJets.size(); ++jet) {
   //  TLorentzVector myJet = theJets.at(jet);
   //  if (myJet.Pt() > minpt)
-  //    if (myJet.Eta() < maxeta)
+  //    if (fabs(myJet.Eta()) < maxeta)
   //	//if (jetID(jet,false)
   //	//Do we want some jetID requirement?
   //	theMHT -= myJet;
@@ -1437,7 +1437,7 @@ Double_t DiJetStudy::computeDPhiStar(TLorentzVector mht, double& minpt, double& 
     else 
       theJet.SetPxPyPzE(JetPx[jet],JetPy[jet],JetPz[jet],JetE[jet]);
     if (theJet.Pt() > minpt)
-      if (theJet.Eta() < maxeta) {
+      if (fabs(theJet.Eta()) < maxeta) {
 	//if (jetID(jet,false)
 	//Do we want some jetID requirement?
 	mht += theJet;
@@ -1456,7 +1456,7 @@ Double_t DiJetStudy::computeDPhiStar(TLorentzVector mht, double& minpt, double& 
   //for (unsigned int jet = 0; jet < theJets.size(); ++jet) {
   //  TLorentzVector myJet = theJets.at(jet);
   //if (myJet.Pt() > minpt)
-  //  if (myJet.Eta() < maxeta) {
+  //  if (fabs(myJet.Eta()) < maxeta) {
   //	//if (jetID(jet,false)
   //	//Do we want some jetID requirement?
   //	mht += myJet;
@@ -1576,7 +1576,7 @@ Bool_t DiJetStudy::goodMuonProbe(int index, int mode, int probeCharge) {
   
   if (muonType && MuonIsTracker[index]) {
     if (MuonPt[index] > muon_minpt)
-      if (MuonEta[index] < muon_maxeta)
+      if (fabs(MuonEta[index]) < muon_maxeta)
 	if (MuonTrkValidHits[index] > muon_minhits)
 	  if (relIso < muon_maxreliso)
 	    //if (MuonCombD0[index] < muon_maxd0)
@@ -1613,7 +1613,7 @@ Bool_t DiJetStudy::goodMuonTag(int index, int mode) {
 
   if (muonType) {
     if (MuonPt[index] > muon_minpt)
-      if (MuonEta[index] < muon_maxeta)
+      if (fabs(MuonEta[index]) < muon_maxeta)
 	if (MuonTrkValidHits[index] > muon_minhits)
 	  if (relIso < muon_maxreliso)
 	    //if (MuonCombD0[index] < muon_maxd0)
