@@ -36,7 +36,7 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
   static const int NUMFILES2 = 5;
   static const double localpi  = acos(-1);
 
-  gROOT->SetStyle("Plain");
+  //gROOT->SetStyle("Plain");
 
   TFile* file[NUMFILES];
   TFile* file2[NUMFILES2];
@@ -77,15 +77,15 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
   THStack* thestack2[NUMHISTS2][NUMVARS];
   
   //TString suffix_ = "_met_jCalomCaloTypeIl";
-  //TString suffix_ = "_mht_jCalomCaloTypeIl";
-  TString suffix_ = "_full_jCalomCaloTypeIl";
+  TString suffix_ = "_mht_jCalomCaloTypeIl";
+  //TString suffix_ = "_full_jCalomCaloTypeIl";
   filenames[0]  = "LM0";
   filenames[1]  = "LM1";
   filenames[2]  = "LM5";
   filenames[3]  = "LM6";
   filenames[4]  = "LM12";
   filenames[5]  = "LM13";
-  filenames[6]  = "7TeVData";
+  filenames[6]  = "7TeV_Data";
 
   filenames2[0]  = "ZJets-madgraph";
   filenames2[1]  = "TTbarJets-madgraph";  
@@ -181,11 +181,11 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
   linecolor[5] = kYellow+3;//LQ to CMu M400
   linecolor[6] = kBlack+3;//LQ to CMu M400
 
-  linecolor2[0] = 8;//W+Jets
-  linecolor2[1] = 9;//Z+Jets
-  linecolor2[2] = 30;//Z Invi +Jets
-  linecolor2[3] = 46;//TTbar+Jets
-  linecolor2[4] = 28;//QCD
+  linecolor2[0] = 8;//kGreen-2;//Z+Jets
+  linecolor2[1] = 9;//kBlue-2;//TTbar+Jets
+  linecolor2[2] = 26;//kTeal-7;//Z Invi +Jets
+  linecolor2[3] = 30;//kRed-3;//W+Jets
+  linecolor2[4] = 46;//kOrange+3;//QCD
 
   linestyle[0] = 4;
   linestyle[1] = 5;
@@ -203,11 +203,11 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
   fillcolor[5] = kYellow+1;//LQ to CMu M400
   fillcolor[6] = kBlack+1;//LQ to CMu M400
 
-  fillcolor2[0] = 8;//W+Jets
-  fillcolor2[1] = 9;//Z+Jets
-  fillcolor2[2] = 30;//Z Invi +Jets
-  fillcolor2[3] = 46;//TTbar+Jets
-  fillcolor2[4] = 28;//QCD
+  fillcolor2[0] = 8;//kGreen-2;//Z+Jets
+  fillcolor2[1] = 9;//kBlue-2;//TTbar+Jets
+  fillcolor2[2] = 28;//kTeal-7;//Z Invi +Jets
+  fillcolor2[3] = 30;//kRed-3;//W+Jets
+  fillcolor2[4] = 46;//kOrange+3;//QCD
 
   fillstyle[0] = 4;
   fillstyle[1] = 5;
@@ -231,30 +231,38 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
 
   for (int tt = 0; tt < NUMVARS; tt++) {
     for (int z = 0; z < NUMHISTS; z++) {
-      mycanvas[z][tt]  = new TCanvas(histnames[z][tt], "", 600,600);}}
+      mycanvas[z][tt]  = new TCanvas(histnames[z][tt], "", 800,600);}}
   
   for (int ss = 0; ss < 2; ss++) {
     for (int y = 0; y < NUMHISTS2; y++) {
-      mycanvas2[y][ss] = new TCanvas(histnames2[y][ss], "", 600,600);}}
+      mycanvas2[y][ss] = new TCanvas(histnames2[y][ss], "", 800,600);}}
 
   TString metTag    = mettype;
   TString jetTag    = jettype;
   TString energyTag = energy;
 
   for (int j = 0; j < NUMFILES; j++) {
-    //TString filepath = "./Full_Analysis/CaloJets/"+filenames[j]+suffix_+".root";
-    TString filepath = "./Full_Analysis/"+filenames[j]+suffix_+".root";
+    //TString filepath = "./MHT_Analysis/CaloJets/"+filenames[j]+suffix_+".root";
+    TString filepath = "./MHT_Analysis/"+filenames[j]+suffix_+".root";
     file[j] = new TFile(filepath);
     
     for (int tt = 0; tt < NUMVARS; tt++) {
       for (int z = 0; z < NUMHISTS; z++) {
 	hist[j][z][tt] = (TH1F*)gDirectory->Get(histnames[z][tt]);
+	int nbins =  hist[j][z][tt]->GetNbinsX();
+	double overflows = hist[j][z][tt]->GetBinContent(nbins+1);
+	double lastbin   = hist[j][z][tt]->GetBinContent(nbins);
+	hist[j][z][tt]->SetBinContent(nbins,overflows+lastbin);
 	double histmax = hist[j][z][tt]->GetMaximum();
 	max[z][tt] = (max[z][tt]>histmax)?max[z][tt]:histmax;}}
     
     for (int ss = 0; ss < 2; ss++) {
       for (int y = 0; y < NUMHISTS2; y++) {
 	hist2[j][y][ss] = (TH1F*)gDirectory->Get(histnames2[y][ss]);
+	int nbins =  hist2[j][y][ss]->GetNbinsX();
+	double overflows = hist2[j][y][ss]->GetBinContent(nbins+1);
+	double lastbin   = hist2[j][y][ss]->GetBinContent(nbins);
+	hist2[j][y][ss]->SetBinContent(nbins,overflows+lastbin);
 	Double_t hist2max = hist2[j][y][ss]->GetMaximum();
 	max2[y][ss] = (max2[y][ss]>hist2max)?max2[y][ss]:hist2max;}}}
 
@@ -265,10 +273,14 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
     for (int z = 0; z < NUMHISTS; z++) {
       thestack[z][tt] = new THStack();
       for (int j = 0; j < NUMFILES2; j++) {
-	//TString filepath = "./Full_Analysis/CaloJets/"+filenames[j]+suffix_+".root";
-	TString filepath = "./Full_Analysis/"+filenames2[j]+suffix_+".root";
+	//TString filepath = "./MHT_Analysis/CaloJets/"+filenames[j]+suffix_+".root";
+	TString filepath = "./MHT_Analysis/"+filenames2[j]+suffix_+".root";
 	file2[j] = new TFile(filepath);
 	histbac[j][z][tt] = (TH1F*)gDirectory->Get(histnames[z][tt]);
+	int nbins =  histbac[j][z][tt]->GetNbinsX();
+	double overflows = histbac[j][z][tt]->GetBinContent(nbins+1);
+	double lastbin   = histbac[j][z][tt]->GetBinContent(nbins);
+	histbac[j][z][tt]->SetBinContent(nbins,overflows+lastbin);
 	tmpmax[z][tt] += histbac[j][z][tt]->GetMaximum();}
       max[z][tt] = (max[z][tt]>tmpmax[z][tt])?max[z][tt]:tmpmax[z][tt];
     }
@@ -279,6 +291,10 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
       thestack2[y][ss] = new THStack();
       for (int j = 0; j < NUMFILES2; j++) {
 	histbac2[j][y][ss] = (TH1F*)file2[j]->Get(histnames2[y][ss]);
+	int nbins =  histbac2[j][y][ss]->GetNbinsX();
+	double overflows = histbac2[j][y][ss]->GetBinContent(nbins+1);
+	double lastbin   = histbac2[j][y][ss]->GetBinContent(nbins);
+	histbac2[j][y][ss]->SetBinContent(nbins,overflows+lastbin);
 	tmpmax2[y][ss] += histbac2[j][y][ss]->GetMaximum();}
       max2[y][ss] = (max2[y][ss]>tmpmax2[y][ss])?max2[y][ss]:tmpmax2[y][ss];
     }
@@ -324,7 +340,7 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
       for (int j = 0; j < NUMFILES2; j++) {
 	histbac[j][z][tt]->SetFillStyle(1001);
 	histbac[j][z][tt]->SetFillColor(fillcolor2[j]);
-	//histbac[j][z][tt]->SetLineColor(linecolor2[j]);
+	histbac[j][z][tt]->SetLineColor(linecolor2[j]);
 	//histbac[j][z][tt]->SetLineStyle(linestyle[j]);
 	//histbac[j][z][tt]->SetLineWidth(linewidth);
 	//histbac[j][z][tt]->SetMarkerColor(linecolor2[j]);
@@ -339,7 +355,7 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
       for (int j = 0; j < NUMFILES2; j++) {
 	histbac2[j][y][ss]->SetFillStyle(1001);
 	histbac2[j][y][ss]->SetFillColor(fillcolor2[j]);
-	//histbac2[j][y][ss]->SetLineColor(linecolor2[j]);
+	histbac2[j][y][ss]->SetLineColor(linecolor2[j]);
 	//histbac2[j][y][ss]->SetLineStyle(linestyle[j]);
 	//histbac2[j][y][ss]->SetLineWidth(linewidth);
 	//histbac2[j][y][ss]->SetMarkerColor(linecolor2[j]);
@@ -349,18 +365,24 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
 	thestack2[y][ss]->Add(histbac2[j][y][ss],"bar");}
       thestack2[y][ss]->BuildStack();}}
 
-  leg = new TLegend(.0, .1, 1., .9);
-  leg->SetDrawOption("Plain");
+  //leg = new TLegend(.4, .6, 1, 1);
+  leg = new TLegend(0., 0., 1, 0.8);
+  //leg->SetDrawOption("Plain");
   leg->SetFillStyle(0);
+  leg->SetTextSize(0.05);
   for (int j = 0; j < NUMFILES; j++) {
-    leg->AddEntry(hist[j][0][0], filenames[j],"lep");
-    leg->SetTextSize(0.025);
+    TString extra = "";
+    if (j == 6)
+      extra = " #intLdt = 71.7 nb^{-1}";
+    leg->AddEntry(hist[j][0][0], filenames[j]+extra,"lep");
+    //leg->SetTextSize(0.05);
     //leg->GetEntry()->SetTextSize(2);
     //leg->GetEntry()->SetEntrySeparation(0.075);
   }
   for (int j = 0; j < NUMFILES2; j++) {
     leg->AddEntry(histbac[j][0][0], filenames2[j],"fel");
-    leg->SetTextSize(0.025);
+    //leg->SetTextSize(0.05);
+    //leg->SetTextSize(0.2);
     //leg->GetEntry()->SetTextSize(2);
     //leg->GetEntry()->SetEntrySeparation(0.075);
   }
@@ -369,13 +391,14 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
     for (int z = 0; z < NUMHISTS; z++) {
       mycanvas[z][tt]->cd();
 
-      TPad *subpad1e = new TPad("subpad1e","Sub-pad number 1e",0.00,0.00,0.85,1.00);
-      TPad *subpad1f = new TPad("subpad1f","Sub-pad number 1f",0.85,0.00,1,1.00);
+      TPad *subpad1e = new TPad("subpad1e","Sub-pad number 1e",0.00,0.00,0.8,1.00);
+      TPad *subpad1f = new TPad("subpad1f","Sub-pad number 1f",0.725,0.5,1,1.00);
       subpad1e->Draw();
       subpad1f->Draw();
       subpad1e->cd();      
+      gStyle->SetOptTitle(kFALSE);
       hist[0][z][tt]->SetMaximum(max[z][tt]);
-      hist[0][z][tt]->SetMinimum(0.0001);
+      //hist[0][z][tt]->SetMinimum(0.0001);
       hist[0][z][tt]->GetXaxis()->SetTitle(histtitle[z]);
       hist[0][z][tt]->GetXaxis()->SetLabelSize(0.03);
       hist[0][z][tt]->GetYaxis()->SetTitleOffset(1.2);
@@ -399,22 +422,26 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
 
       subpad1f->cd();
       leg->Draw();
+      mycanvas[z][tt]->Update();
       char outputimage[128];
       std::string outhistname = (std::string)histnames[z][tt];
-      //sprintf(outputimage,"./Full_Analysis/CaloJets/%s.png",outhistname.c_str());
-      sprintf(outputimage,"./Full_Analysis/%s.png",outhistname.c_str());
+      //sprintf(outputimage,"./MHT_Analysis/CaloJets/%s.png",outhistname.c_str());
+      sprintf(outputimage,"./MHT_Analysis/%s.png",outhistname.c_str());
       mycanvas[z][tt]->SaveAs(outputimage);}}
   //mycanvas[z][tt]->SaveAs();}}
 
   for(int ss = 0; ss <2; ss++) {
     for (int y = 0; y < NUMHISTS2; y++) {
       mycanvas2[y][ss]->cd();
-      TPad *subpad1e = new TPad("subpad1e","Sub-pad number 1e",0.00,0.00,0.85,1.00);
-      TPad *subpad1f = new TPad("subpad1f","Sub-pad number 1f",0.85,0.00,1,1.00);
+      TPad *subpad1e = new TPad("subpad1e","Sub-pad number 1e",0.00,0.00,0.8,1.00);
+      TPad *subpad1f = new TPad("subpad1f","Sub-pad number 1f",0.725,0.5,1,1.00);
+      subpad1e->Draw();
+      subpad1f->Draw();
       subpad1e->cd();
+      gStyle->SetOptTitle(kFALSE);
 
       hist2[0][y][ss]->SetMaximum(max2[y][ss]);
-      hist2[0][y][ss]->SetMinimum(0.0001);
+      //hist2[0][y][ss]->SetMinimum(0.0001);
       hist2[0][y][ss]->GetXaxis()->SetTitle(histtitle2[y]);
       hist2[0][y][ss]->GetXaxis()->SetLabelSize(0.03);
       hist2[0][y][ss]->GetYaxis()->SetTitleOffset(1.2);
@@ -428,10 +455,11 @@ void diJetPlots(std::string mettype="CaloMET", std::string jettype="CaloJets", s
 
       subpad1f->cd();
       leg->Draw();
+      mycanvas[y][ss]->Update();
       char outputimage2[128];
       std::string outhistname2 = (std::string)histnames2[y][ss];
-      //sprintf(outputimage2,"./Full_Analysis/CaloJets/%s.png",outhistname2.c_str());
-      sprintf(outputimage2,"./Full_Analysis/%s.png",outhistname2.c_str());
+      //sprintf(outputimage2,"./MHT_Analysis/CaloJets/%s.png",outhistname2.c_str());
+      sprintf(outputimage2,"./MHT_Analysis/%s.png",outhistname2.c_str());
       mycanvas2[y][ss]->SaveAs(outputimage2);}}  
   //mycanvas2[y][ss]->SaveAs();}}  
 }
