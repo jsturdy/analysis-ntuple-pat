@@ -71,6 +71,7 @@ jetTag = ["Calo", "JPT", "PF", "Track"]
 metTag = ["CaloTypeI", "PF", "TC"]
 lepTag = ["", "PF"]
 phtTag = ["", "PF"]
+anDirs = ["MET_Analysis", "MHT_Analysis", "Full_Analysis"]
 analyses = [
     [0,0,0,0],###Calo-TypeI-"" 
     [0,2,0,0],###Calo-TC-""    
@@ -86,9 +87,9 @@ for step in steps:
     #for ana in analyses:
     ana = analyses[0]
     #ver = version[2]
-    for ver in version:
+    for ver,anDir in zip(version,anDirs):
         for count in range(fileCount[step-1]+1):
-            filename = "runDiJetStudy_%s_%s_j%sm%sl%s_%02dx.C"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
+            filename = "%s/%sJets/runDiJetStudy_%s_%s_j%sm%sl%s_%02dx.C"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
             FILE = open(filename,"w")
             FILE.write("{\n")
             FILE.write("\tgROOT->ProcessLine(\".L ./DiJetStudy.so\");\n\n")
@@ -103,8 +104,7 @@ for step in steps:
             FILE.write("\ttreeA = chainA;\n")
             FILE.write("\tDiJetStudy* diJets;\n")
             FILE.write("\tdiJets = new DiJetStudy(treeA, true, \"%s\",\"%s\",\"%s\",\"%s\");\n"%(jetTag[ana[0]], metTag[ana[01]], lepTag[ana[2]], phtTag[ana[3]]))
-            outfilename = "%s_%s_j%sm%sl%s_%02dx.root"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
-            #FILE.write("\tstring outfilename = \"./%s_%s_%s_%s_%s_%f.root\";\n"%(samples[step],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],step))
+            outfilename = "%s/%sJets/%s_%s_j%sm%sl%s_%02dx.root"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
             FILE.write("\tdiJets.Loop(\"%s\",\"%s\",%d,%f,%1.2f,%f);\n"%(outfilename,ver,lumi,xsvals[step-1],effs[step-1],numGenEvents[step-1]))
             
             FILE.write("}\n")
@@ -117,11 +117,11 @@ for step in steps:
             FILE.write("Executable = /uscms_data/d2/sturdy07/SUSY/CMSSW_3_7_0_patch4/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/condorROOT.csh\n")
             FILE.write("Should_Transfer_Files = YES\n")
             FILE.write("WhenToTransferOutput = ON_EXIT\n")
-            FILE.write("Output = diJet_%s_%s_j%sm%sl%s_%02dx_$(Process).stdout\n"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
-            FILE.write("Error = diJet_%s_%s_j%sm%sl%s_%02dx_$(Process).stderr\n"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
-            FILE.write("Log = diJet_%s_%s_j%sm%sl%s_%02dx_$(Process).log\n"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
+            FILE.write("Output = %s/%sJets/diJet_%s_%s_j%sm%sl%s_%02dx_$(Process).stdout\n"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
+            FILE.write("Error = %s/%sJets/diJet_%s_%s_j%sm%sl%s_%02dx_$(Process).stderr\n"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
+            FILE.write("Log = %s/%sJets/diJet_%s_%s_j%sm%sl%s_%02dx_$(Process).log\n"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
             #FILE.write("notify_user = jared.todd.sturdy@cern.ch\n")
-            FILE.write("Arguments = $(PROCESS) /uscms_data/d2/sturdy07/SUSY/CMSSW_3_7_0_patch4/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/%s\n"%(filename))
+            FILE.write("Arguments = $(PROCESS) /uscms_data/d2/sturdy07/SUSY/CMSSW_3_7_0_patch4/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/%s/%sJets/%s\n"%(anDir,jetTag[ana[0]],filename))
             FILE.write("Queue 1\n")
             
             FILE.close()
