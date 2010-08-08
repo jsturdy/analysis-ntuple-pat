@@ -808,10 +808,10 @@ DiJetStudy::DiJetStudy(TTree *tree,
   cut_met  = 250.;
   cut_ht   = 0.;
   cut_mht  = 250.;
-  cut_meff = 250.;
+  cut_meff = 0.;
   //To be fixed
   cut_jet12dphi     = -1.;
-  cut_jet1metdphi   = 0.3;
+  cut_jet1metdphi   = 0.5;
   cut_jet2metdphi   = 0.5;
   cut_jetallmetdphi = -1.;
   cut_dphistar      = 0.25;
