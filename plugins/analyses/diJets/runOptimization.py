@@ -180,56 +180,58 @@ analyses = [
     [1,0,0,0],###JPT-TypeI-""  
     [1,2,0,0],###JPT-TC-""     
     [3,0,0,0],###Track-TypeI-""
+    [3,1,0,0],###Track-PF-""   
     [3,2,0,0],###Track-TC-""   
-    [2,1,1,0]###PF-PF-PF      
+    [2,1,1,1]###PF-PF-PF      
+    [2,2,1,1]###PF-TC-PF      
     ]
 for step in steps:
     lastinstance = samples[step-1].rfind("/") + 1
     anStep = samples[step-1][lastinstance:]
-    #for ana in analyses:
-    ana = analyses[0]
-    ver = version[0]
-    anDir = anDirs[0]
+    for ana in analyses:
+    #ana = analyses[0]
+    #ver = version[0]
+    #anDir = anDirs[0]
     #for ver,anDir in zip(version,anDirs):
-    for count in range(fileCount[step-1]+1):
-        filename = "%s/%sJets/runOptimization_%s_%s_j%sm%sl%s_%02dx.C"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
-        FILE = open(filename,"w")
-        FILE.write("{\n")
-        FILE.write("\tgROOT->ProcessLine(\".L ./optimizeCuts.so\");\n\n")
-        FILE.write("\tTChain* chainA = new TChain(\"analysisNtuplePAT/AllData\");\n")
-        path = "/pnfs/cms/WAX/resilient/sturdy07/PAT_V9/MC/%s"%(samples[step-1])
-        if ( count==0 ):
-            myRan = "_?_?_???"
-        else :
-            myRan = "_%d?_?_???"%(count)
-        FILE.write("\tchainA->Add(\"dcache:%s/*%s.root\");\n"%(path,myRan))
+        for count in range(fileCount[step-1]+1):
+            filename = "%s/%sJets/runOptimization_%s_%s_j%sm%sl%s_%02dx.C"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
+            FILE = open(filename,"w")
+            FILE.write("{\n")
+            FILE.write("\tgROOT->ProcessLine(\".L ./optimizeCuts.so\");\n\n")
+            FILE.write("\tTChain* chainA = new TChain(\"analysisNtuplePAT/AllData\");\n")
+            path = "/pnfs/cms/WAX/resilient/sturdy07/PAT_V9/MC/%s"%(samples[step-1])
+            if ( count==0 ):
+                myRan = "_?_?_???"
+            else :
+                myRan = "_%d?_?_???"%(count)
+            FILE.write("\tchainA->Add(\"dcache:%s/*%s.root\");\n"%(path,myRan))
         
-        FILE.write("\ttreeA = chainA;\n")
-        FILE.write("\toptimizeCuts* Optimizer;\n")
-        FILE.write("\tOptimizer = new optimizeCuts(treeA, true, \"%s\",\"%s\",\"%s\",\"%s\");\n"%(jetTag[ana[0]], metTag[ana[01]], lepTag[ana[2]], phtTag[ana[3]]))
-        outfilename = "%s/%sJets/%s_%s_j%sm%sl%s_%02dx.root"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
-        #FILE.write("\tstring outfilename = \"./%s_%s_%s_%s_%s_%f.root\";\n"%(samples[step],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],step))
-        FILE.write("\tOptimizer.Loop(\"%s\",\"%s\",%d,%f,%1.2f,%f);\n"%(outfilename,ver,lumi,xsvals[step-1],effs[step-1],numGenEvents[step-1]))
+            FILE.write("\ttreeA = chainA;\n")
+            FILE.write("\toptimizeCuts* Optimizer;\n")
+            FILE.write("\tOptimizer = new optimizeCuts(treeA, true, \"%s\",\"%s\",\"%s\",\"%s\");\n"%(jetTag[ana[0]], metTag[ana[01]], lepTag[ana[2]], phtTag[ana[3]]))
+            outfilename = "%s/%sJets/%s_%s_j%sm%sl%s_%02dx.root"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
+            #FILE.write("\tstring outfilename = \"./%s_%s_%s_%s_%s_%f.root\";\n"%(samples[step],ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],step))
+            FILE.write("\tOptimizer.Loop(\"%s\",\"%s\",%d,%f,%1.2f,%f);\n"%(outfilename,ver,lumi,xsvals[step-1],effs[step-1],numGenEvents[step-1]))
         
-        FILE.write("}\n")
-        FILE.close()
-        
+            FILE.write("}\n")
+            FILE.close()
+            
         ###Condor steps
-        tmpcondorsub = "/tmp/sturdy/condor_optimize_%s_%s_j%sm%sl%s_%02dx.sub"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
-        FILE = open(tmpcondorsub,"w")
-        FILE.write("universe = vanilla\n")
-        FILE.write("Executable = /uscms_data/d2/sturdy07/SUSY/CMSSW_3_7_0_patch4/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/condorROOT.csh\n")
-        FILE.write("Should_Transfer_Files = YES\n")
-        FILE.write("WhenToTransferOutput = ON_EXIT\n")
-        FILE.write("Output = %s/%sJets/optimization_%s_%s_j%sm%sl%s_%02dx_$(Process).stdout\n"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
-        FILE.write("Error = %s/%sJets/optimization_%s_%s_j%sm%sl%s_%02dx_$(Process).stderr\n"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
-        FILE.write("Log = %s/%sJets/optimization_%s_%s_j%sm%sl%s_%02dx_$(Process).log\n"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
-        #FILE.write("notify_user = jared.todd.sturdy@cern.ch\n")
-        FILE.write("Arguments = $(PROCESS) /uscms_data/d2/sturdy07/SUSY/CMSSW_3_7_0_patch4/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/%s\n"%(filename))
-        FILE.write("Queue 1\n")
-        
-        FILE.close()
-        cmd = "condor_submit "+tmpcondorsub
-        print(cmd)
-        os.system(cmd)
-        
+            tmpcondorsub = "/tmp/sturdy/condor_optimize_%s_%s_j%sm%sl%s_%02dx.sub"%(anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count)
+            FILE = open(tmpcondorsub,"w")
+            FILE.write("universe = vanilla\n")
+            FILE.write("Executable = /uscms_data/d2/sturdy07/SUSY/CMSSW_3_7_0_patch4/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/condorROOT.csh\n")
+            FILE.write("Should_Transfer_Files = YES\n")
+            FILE.write("WhenToTransferOutput = ON_EXIT\n")
+            FILE.write("Output = %s/%sJets/optimization_%s_%s_j%sm%sl%s_%02dx_$(Process).stdout\n"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
+            FILE.write("Error = %s/%sJets/optimization_%s_%s_j%sm%sl%s_%02dx_$(Process).stderr\n"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
+            FILE.write("Log = %s/%sJets/optimization_%s_%s_j%sm%sl%s_%02dx_$(Process).log\n"%(anDir,jetTag[ana[0]],anStep,ver,jetTag[ana[0]],metTag[ana[1]],lepTag[ana[2]],count))
+        ###FILE.write("notify_user = jared.todd.sturdy@cern.ch\n")
+            FILE.write("Arguments = $(PROCESS) /uscms_data/d2/sturdy07/SUSY/CMSSW_3_7_0_patch4/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/%s\n"%(filename))
+            FILE.write("Queue 1\n")
+            
+            FILE.close()
+            cmd = "condor_submit "+tmpcondorsub
+            print(cmd)
+            os.system(cmd)
+            

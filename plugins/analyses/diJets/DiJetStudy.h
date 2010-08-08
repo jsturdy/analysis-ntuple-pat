@@ -1014,7 +1014,7 @@ void DiJetStudy::Init(TTree *tree, TString jetPrefix, TString metPrefix, TString
   //MET
   fChain->SetBranchAddress("nFull"+metPrefix+"MET", &nFullMET, &b_nFullMET);
   fChain->SetBranchAddress("nUncorr"+metPrefix+"MET", &nUncorrMET, &b_nUncorrMET);
-  fChain->SetBranchAddress(metPrefix+"METP4", &METP4, &b_METP4);
+  //fChain->SetBranchAddress(metPrefix+"METP4", &METP4, &b_METP4);
   fChain->SetBranchAddress(metPrefix+"MET_Fullcorr_nocc", MET_Fullcorr_nocc, &b_MET_Fullcorr_nocc);
   fChain->SetBranchAddress(metPrefix+"METpt_Fullcorr_nocc", &METpt_Fullcorr_nocc, &b_METpt_Fullcorr_nocc);
   fChain->SetBranchAddress(metPrefix+"METphi_Fullcorr_nocc", &METphi_Fullcorr_nocc, &b_METphi_Fullcorr_nocc);
