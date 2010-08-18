@@ -1427,7 +1427,7 @@ TLorentzVector DiJetStudy::computeMHT(double& minpt, double& maxeta, bool fromRA
 Double_t DiJetStudy::computeDPhiStar(TLorentzVector mht, double& minpt, double& maxeta, bool fromRAW) {
 
   LorentzVs theJets;
-  double dphistar = 10.;
+  double    dphistar = 10.;
 
   TLorentzVector theJet;
   for (int jet = 0; jet < NJets; ++jet) {
@@ -1442,8 +1442,8 @@ Double_t DiJetStudy::computeDPhiStar(TLorentzVector mht, double& minpt, double& 
 	//Do we want some jetID requirement?
 	mht += theJet;
 	double tmpdphi = theJet.DeltaPhi(mht);
-	dphistar = (dphistar < 0)    ? -dphistar         : dphistar;
-	dphistar = (dphistar > M_PI) ? 2*M_PI - dphistar : dphistar;
+	tmpdphi = (tmpdphi < 0)    ? -tmpdphi         : tmpdphi;
+	tmpdphi = (tmpdphi > M_PI) ? 2*M_PI - tmpdphi : tmpdphi;
 	dphistar = (fabs(dphistar) < fabs(tmpdphi)) ? dphistar : tmpdphi;
       }
   }

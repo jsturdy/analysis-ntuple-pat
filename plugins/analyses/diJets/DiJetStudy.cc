@@ -31,7 +31,6 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
    
   Long64_t nentries = fChain->GetEntriesFast();
    
-  double localpi  = acos(-1);
   TH1D *h_selections[2];
   TH1D *h_Nelec[4], *h_Ngoodelec[4], *h_Nmuon[4], *h_Ngoodmuon[4];
    
@@ -168,7 +167,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
     {2500., 2500., 1000.,  2000., 5000., 2000., 5000., 
      // j1mdp,   j2mdp,   j12dp,  dphistar   njets, ngood
-     localpi, localpi, localpi, localpi, 20.,   20.,
+     M_PI, M_PI, M_PI, M_PI, 20.,   20.,
      // jetetmultiplier, dummy values
      1.,   0.,   0.,   0.,   0.,
      // nelec, nmuon, dum6, dum7, elecet, muonet
@@ -179,7 +178,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
     {2500., 2500., 100.,  5000., 5000., 2000., 5000.,
     // j1mdp,   j2mdp,   j12dp,   dphistar   njets, ngood
-    localpi, localpi, localpi, localpi, 20.,   20.,
+    M_PI, M_PI, M_PI, M_PI, 20.,   20.,
     // jetetmultiplier, dummy values
     10.,   0.,   0.,   0.,   0.,
     // nelec, nmuon, dum6, dum7, elecet, muonet
@@ -190,7 +189,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
     {2500., 2500., 1000.,  2000., 5000., 2000., 5000.,
      // j1mdp,   j2mdp,   j12dp,   dphistar   njets, ngood
-     localpi, localpi, localpi, localpi, 20.,   20.,
+     M_PI, M_PI, M_PI, M_PI, 20.,   20.,
      // jetetmultiplier, dummy values
      1.,   0.,   0.,   0.,   0.,
      // nelec, nmuon, dum6, dum7, elecet, muonet
@@ -200,7 +199,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
     {1500., 1500., 500.,  1500., 5000., 1500., 5000.,
      // j1mdp,   j2mdp,   j12dp,   dphistar   njets, ngood
-     localpi, localpi, localpi, localpi, 20.,   20.,
+     M_PI, M_PI, M_PI, M_PI, 20.,   20.,
      // jetetmultiplier, dummy values
      1.,   0.,   0.,   0.,   0.,
      // nelec, nmuon, dum6, dum7, elecet, muonet
@@ -210,7 +209,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
     {1500., 1500., 100.,  1500., 2500., 1500., 3000.,
      // j1mdp,   j2mdp,   j12dp,   dphistar   njets, ngood
-     localpi, localpi, localpi, localpi, 20.,   20.,
+     M_PI, M_PI, M_PI, M_PI, 20.,   20.,
      // jetetmultiplier, dummy values
      10.,   0.,   0.,   0.,   0.,
      // nelec, nmuon, dum6, dum7, elecet, muonet
@@ -315,18 +314,18 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   }
 
   //pre cuts
-  //h_jet1phi[0] = new TH1D("h_pre_cuts_9_jet1phi","",100,-localpi,localpi);
-  //h_jet2phi[0] = new TH1D("h_pre_cuts_9_jet2phi","",100,-localpi,localpi);
-  //h_METphi[0]  = new TH1D("h_pre_cuts_9_METphi", "",100,-localpi,localpi);
+  //h_jet1phi[0] = new TH1D("h_pre_cuts_9_jet1phi","",100,-M_PI,M_PI);
+  //h_jet2phi[0] = new TH1D("h_pre_cuts_9_jet2phi","",100,-M_PI,M_PI);
+  //h_METphi[0]  = new TH1D("h_pre_cuts_9_METphi", "",100,-M_PI,M_PI);
   h_MT[0]      = new TH1D("h_pre_cuts_9_MT",     "M_{T}",3000/50,0,3000);
   h_Minv[0]    = new TH1D("h_pre_cuts_9_Minv",   "M_{inv}",3000/50,0,3000);
   char myname[128];
   sprintf(myname,"%s #SigmaE_{T}",metPrefix_.c_str());
   h_SumEt[0]   = new TH1D("h_pre_cuts_9_SumEt",  myname,2500/50,0,2500);
   //post cuts
-  //h_jet1phi[1] = new TH1D("h_post_cuts_9_jet1phi","",100,-localpi,localpi);
-  //h_jet2phi[1] = new TH1D("h_post_cuts_9_jet2phi","",100,-localpi,localpi);
-  //h_METphi[1]  = new TH1D("h_post_cuts_9_METphi", "",100,-localpi,localpi);
+  //h_jet1phi[1] = new TH1D("h_post_cuts_9_jet1phi","",100,-M_PI,M_PI);
+  //h_jet2phi[1] = new TH1D("h_post_cuts_9_jet2phi","",100,-M_PI,M_PI);
+  //h_METphi[1]  = new TH1D("h_post_cuts_9_METphi", "",100,-M_PI,M_PI);
   h_MT[1]      = new TH1D("h_post_cuts_9_MT",     "M_{T}",3000/50,0,3000);
   h_Minv[1]    = new TH1D("h_post_cuts_9_Minv",   "M_{inv}",3000/50,0,3000);
   //sprintf(myname,"%s #SigmaE_{T}",metPrefix_.c_str());
@@ -425,15 +424,15 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   int  totalcounter       = 0;  //preselection
   int  pscounter[4]       = {0};  //preselection
   int  trcounter[4]       = {0};  //trigger requirements
-  int  leptoncounter[4]   = {0};//isolated lepton veto
   int  fjcounter[4]       = {0};  //final jet requirements
+  int  leptoncounter[4]   = {0};  //isolated lepton veto
   //Branch for MET based analysis
-  int  metcounter[4]      = {0};  //met cut
   int  dphicounter[4]     = {0};  //dphi beween jets and met
+  int  metcounter[4]      = {0};  //met cut
   //Branch for HT/MHT based analysis
   int  htcounter[4]       = {0};  //ht cut
-  int  mhtcounter[4]      = {0};  //mht cut
   int  dphistarcounter[4] = {0};  //dphi between jets and mht
+  int  mhtcounter[4]      = {0};  //mht cut
 
 
   Long64_t nbytes = 0, nb = 0;
@@ -447,21 +446,13 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_counters[1]->Fill(10.5);
     h_counters[2]->Fill(10.5);
     h_counters[3]->Fill(10.5);
-    //if (Preselection(ientry) < 0) continue;
-    //++preselection;
-    // if (TriggerSelection(ientry) < 0) continue;
-    // if (JetSelection(ientry) < 0) continue;
-    // if (DiJetSelection(ientry) < 0) continue;
-    // if (METSelection(ientry) < 0) continue;
-    // if (HTSelection(ientry) < 0) continue;
-    // if (MHTSelection(ientry) < 0) continue;
-    // if (LeptonVeto(ientry) < 0) continue;
 
     double nJets  = NJets;
     double nElecs = ElecN;
     double nMuons = MuonN;
 
     double met    = METpt_Fullcorr_nocc;
+    double rawmet = METpt_Nocorr_nocc;
     //TLorentzVector met
     //double mex = MET_Fullcorr_nocc[0];
     //double mex = MET_Fullcorr_nocc[1];
@@ -469,8 +460,6 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     //met.SetPxPyPzE(mex,mey,mez,en);
     double metphi = METphi_Fullcorr_nocc;
     double sumEt  = METsumEt_Fullcorr_nocc;
-    //double mex    = met*cos(metphi);
-    //double mey    = met*sin(metphi);
 
     double         ht  = computeHT(ht_jet_minpt, ht_jet_maxeta, false);
     TLorentzVector mht = computeMHT(mht_jet_minpt, mht_jet_maxeta, false);
@@ -481,18 +470,18 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     double jet2metdphi = 0.;
 
     if (nJets > 1){
-      jet1metdphi = JetPhi[0]-metphi;//uses JE corrections, but not muons (for LQ samples)
+      jet1metdphi = JetPhi[0]-metphi;
       jet12dphi   = JetPhi[0]-JetPhi[1];
-      jet2metdphi = JetPhi[1]-metphi;//uses JE corrections, but not muons (for LQ samples)
+      jet2metdphi = JetPhi[1]-metphi;
     }
     
     jet12dphi   = (jet12dphi < 0)       ? -jet12dphi            : jet12dphi;
-    jet12dphi   = (jet12dphi > localpi) ? 2*localpi - jet12dphi : jet12dphi;
+    jet12dphi   = (jet12dphi > M_PI) ? 2*M_PI - jet12dphi : jet12dphi;
 
-    jet1metdphi = (jet1metdphi < 0)       ? -jet1metdphi            : jet1metdphi;
-    jet1metdphi = (jet1metdphi > localpi) ? 2*localpi - jet1metdphi : jet1metdphi;
-    jet2metdphi = (jet2metdphi < 0)       ? -jet2metdphi            : jet2metdphi;
-    jet2metdphi = (jet2metdphi > localpi) ? 2*localpi - jet2metdphi : jet2metdphi;
+    jet1metdphi = (jet1metdphi < 0)    ? -jet1metdphi         : jet1metdphi;
+    jet1metdphi = (jet1metdphi > M_PI) ? 2*M_PI - jet1metdphi : jet1metdphi;
+    jet2metdphi = (jet2metdphi < 0)    ? -jet2metdphi         : jet2metdphi;
+    jet2metdphi = (jet2metdphi > M_PI) ? 2*M_PI - jet2metdphi : jet2metdphi;
       
     //calculated dphistar
     double dphistar = 0.;
