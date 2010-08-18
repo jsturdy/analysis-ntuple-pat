@@ -674,7 +674,7 @@ class DiJetStudy {
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void     Init(TTree *tree, TString jetPrefix, TString metPrefix, TString lepPrefix, TString phtPrefix);
-  virtual void     Loop(std::string outfilename="outfile.root", std::string analysisVer="met", double lum=1., double xs=1., double eff=1., double numGen=1.);
+  virtual void     Loop(std::string outfilename="outfile.root", std::string analysisVer="met", double lum=1., double xs=1., double eff=1., double numGen=1., double cutJet1=100., double cutJet2=100., double cutMET=250.);
   virtual Bool_t   Notify();
 
   Bool_t   goodMuonTag(int index, int mode=1);
@@ -788,10 +788,10 @@ DiJetStudy::DiJetStudy(TTree *tree,
   phtPrefix_ = phtPrefix;
 
   //Would like to pass these in via a cut file or similar
-  jet1_minpt    = 100.;
+  jet1_minpt    = 120.;//100
   jet1_maxeta   = 2.5;
 
-  jet2_minpt    = 100.;
+  jet2_minpt    = 100.;//100
   jet2_maxeta   = 3.0;
 
   jetall_minpt  = 50.;
@@ -805,7 +805,7 @@ DiJetStudy::DiJetStudy(TTree *tree,
   mht_jet_maxeta = 5.0;
 
   cut_njet = 2;
-  cut_met  = 250.;
+  cut_met  = 250.; //325
   cut_ht   = 0.;
   cut_mht  = 250.;
   cut_meff = 0.;
@@ -814,7 +814,7 @@ DiJetStudy::DiJetStudy(TTree *tree,
   cut_jet1metdphi   = 0.5;
   cut_jet2metdphi   = 0.5;
   cut_jetallmetdphi = -1.;
-  cut_dphistar      = 0.25;
+  cut_dphistar      = -1;
 
   electron_minpt     = 10.0;
   electron_maxpt     = 10.0;

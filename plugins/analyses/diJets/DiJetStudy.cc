@@ -4,34 +4,15 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 
-#define NSTEPS     4
-#define NUMHISTOS 26
+#define NSTEPS       4
+#define NUMHISTOS   26
+#define NUMTESTHIST 13
 
-void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lum, double xs, double eff, double numGen)
+void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lum, double xs, double eff, double numGen, double cutJet1, double cutJet2, double cutMET)
 {
-  //   In a ROOT session, you can do:
-  //      Root > .L DiJetStudy.C
-  //      Root > DiJetStudy t
-  //      Root > t.GetEntry(12); // Fill t data members with entry number 12
-  //      Root > t.Show();       // Show values of entry 12
-  //      Root > t.Show(16);     // Read and show values of entry 16
-  //      Root > t.Loop();       // Loop on all entries
-  //
-
-  //     This is the loop skeleton where:
-  //    jentry is the global entry number in the chain
-  //    ientry is the entry number in the current Tree
-  //  Note that the argument to GetEntry must be:
-  //    jentry for TChain::GetEntry
-  //    ientry for TTree::GetEntry and TBranch::GetEntry
-  //
-  //       To read only selected branches, Insert statements like:
-  // METHOD1:
-  //    fChain->SetBranchStatus("*",0);  // disable all branches
-  //    fChain->SetBranchStatus("branchname",1);  // activate branchname
-  // METHOD2: replace line
-  //    fChain->GetEntry(jentry);       //read all branches
-  //by  b_branchname->GetEntry(ientry); //read only this branch
+  jet1_minpt = cutJet1;
+  jet2_minpt = cutJet2;
+  cut_met    = cutMET;
 
   outfilename_ = outputfile;
   
@@ -40,7 +21,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   efficiency_    = eff;
   generated_events_ = numGen;
 
-  printf("version: %s  lum: %2.2f,  xs: %2.2f,  eff: %2.2f\n",outfilename_.c_str(), lum, xs, eff);
+  printf("version: %s  pT1: %d  pT2: %d  MET: %d  lum: %f,  xs: %f,  eff: %f\n",outfilename_.c_str(), jet1_minpt, jet2_minpt, lum, xs, eff);
   if (fChain == 0) return;
 
   char tmpfile[128];
@@ -100,7 +81,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     "55_elecet",
     "56_muonet"
   };
-
+  
   char plottitle[NUMHISTOS][128];
   std::string plotname[NUMHISTOS] = {
     jetPrefix_+" E_{T}^{J_{1}}",                               
@@ -130,9 +111,58 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     lepPrefix_+" E_{T}^{e}",
     lepPrefix_+" E_{T}^{#mu}"
   };
+
+  //test histograms for describing backgrounds
+  TH1D *th_metoversumet[4], *th_metovermht[4], *th_metovermeff[4], *th_metoverht[4];
+  TH1D *th_htovermht[4],    *th_htovermeff[4], *th_htoversumet[4];
+  TH1D *th_mhtovermeff[4],  *th_mhtoversumet[4];
+  TH1D *th_sumetovermeff[4];
+  TH1D *th_dphi1overdphi2[4], *th_dphi2overdphi12[4], *th_dphi1overdphi12[4];
+
+  TH2D *th_metvssumet[4], *th_metvsmht[4], *th_metvsmeff[4],  *th_metvsht[4];
+  TH2D *th_htvsmht[4],    *th_htvsmeff[4], *th_htvssumet[4];
+  TH2D *th_mhtvsmeff[4],  *th_mhtvssumet[4];
+  TH2D *th_sumetvsmeff[4];
+  TH2D *th_dphi1vsdphi2[4], *th_dphi2vsdphi12[4],   *th_dphi1vsdphi12[4];
+
+  char testhisttitle[NUMTESTHIST][2][128];
+  std::string testhistname[NUMTESTHIST][2] = {
+    {"q01_metoversumet",         "q01_metvssumet"   },//0
+    {"q02_metovermht",	         "q02_metvsmht"     },//1
+    {"q03_metoverht",	         "q03_metvsht"      },//2
+    {"q04_metovermeff",	         "q04_metvsmeff"    },//3
+    {"q11_htovermht",	         "q11_htvsmht"      },//4
+    {"q12_htovermeff",	         "q12_htvsmeff"     },//5
+    {"q13_htoversumet",	         "q13_htvssumet"    },//6
+    {"q21_mhtovermeff",	         "q21_mhtvsmeff"    },//7
+    {"q22_mhtoversumet",         "q22_mhtvssumet"   },//8
+    {"q31_sumetovermeff",	 "q31_sumetvsmeff"  },//9
+    {"q41_dphi1overdphi2",       "q41_dphi1vsdphi2" },//10
+    {"q42_dphi1overdphi12",      "q42_dphi1vsdphi12"},//11
+    {"q43_dphi2overdphi12",      "q43_dphi2vsdphi12"} //12
+  };
+  
+  char testplottitle[NUMTESTHIST][2][128];
+  std::string testplotname[NUMTESTHIST][2] = {
+    {"#frac{#slash E_{T}}{#Sigma E_{T}}",    "#slash E_{T} vs. #Sigma E_{T}"   },
+    {"#frac{#slash E_{T}}{#slash H_{T}}",    "#slash E_{T} vs. #slash H_{T}"   },
+    {"#frac{#slash E_{T}}{H_{T}}",	     "#slash E_{T} vs. H_{T}"          },
+    {"#frac{#slash E_{T}}{M_{eff}}",	     "#slash E_{T} vs. M_{eff}"        },
+    {"#frac{H_{T}}{#slash H_{T}}",	     "H_{T} vs. #slash H_{T}"          },
+    {"#frac{H_{T}}{M_{eff}}",	             "H_{T} vs. M_{eff}"               },
+    {"#frac{H_{T}}{#Sigma E_{T}}",	     "H_{T} vs. #Sigma E_{T}"          },
+    {"#frac{#slash H_{T}}{M_{eff}}",	     "#slash H_{T} vs. M_{eff}"        },
+    {"#frac{#slash H_{T}}{#Sigma E_{T}}",    "#slash H_{T} vs. #Sigma E_{T}"   },
+    {"#frac{#Sigma E_{T}}{M_{eff}}",	     "#Sigma E_{T} vs. M_{eff}"        },
+    {"#frac{#Delta#phi(J_{1},#slash E_{T})}{#Delta#phi(J_{2},#slash E_{T})}", "#Delta#phi(J_{1},#slash E_{T}) vs. #Delta#phi(J_{2},#slash E_{T})" },
+    {"#frac{#Delta#phi(J_{1},#slash E_{T})}{#Delta#phi(J_{1},J_{2})}",        "#Delta#phi(J_{1},#slash E_{T}) vs. #Delta#phi(J_{1},J_{2})"        },
+    {"#frac{#Delta#phi(J_{2},#slash E_{T})}{#Delta#phi(J_{1},J_{2})}",        "#Delta#phi(J_{2},#slash E_{T}) vs. #Delta#phi(J_{1},J_{2})"        }
+  };
+
+
   string histpre[4] = {"h_pre_cuts_","h_individual_cuts_","h_N1_cuts_","h_post_cuts_"};
   //std::string histpre[4] = {"h_pre_cuts_","h_previous_cuts_","h_N1_cuts_","h_post_cuts_"};
-                            
+  
   double bins[4][NUMHISTOS] = {
     //pre cuts
     // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
@@ -142,8 +172,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
      // jetetmultiplier, dummy values
      1.,   0.,   0.,   0.,   0.,
      // nelec, nmuon, dum6, dum7, elecet, muonet
-     15.,   15.,   0.,   0.,   3000.,  3000.},
-
+     15.,   15.,   0.,   0.,   1500.,  1500.},
+    
     /*
     //individual cuts
     // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
@@ -158,34 +188,34 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     
     //sequential cuts
     // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
-    {2500., 2500., 100.,  2000., 5000., 2000., 5000.,
-     // j1mdp,   j2mdp,   j12dp,   dphistar   njets, ngood
-     localpi, localpi, localpi, localpi, 20.,   20.,
-     // jetetmultiplier, dummy values
-     1.,   0.,   0.,   0.,   0.,
-     // nelec, nmuon, dum6, dum7, elecet, muonet
-     15.,   15.,   0.,   0.,   3000.,  3000.},
-    
-    //N-1 cuts
-    // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
     {2500., 2500., 1000.,  2000., 5000., 2000., 5000.,
      // j1mdp,   j2mdp,   j12dp,   dphistar   njets, ngood
      localpi, localpi, localpi, localpi, 20.,   20.,
      // jetetmultiplier, dummy values
      1.,   0.,   0.,   0.,   0.,
      // nelec, nmuon, dum6, dum7, elecet, muonet
-     15.,   15.,   0.,   0.,   3000.,  3000.},
+     15.,   15.,   0.,   0.,   1500.,  1500.},
+    
+    //N-1 cuts
+    // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
+    {1500., 1500., 500.,  1500., 5000., 1500., 5000.,
+     // j1mdp,   j2mdp,   j12dp,   dphistar   njets, ngood
+     localpi, localpi, localpi, localpi, 20.,   20.,
+     // jetetmultiplier, dummy values
+     1.,   0.,   0.,   0.,   0.,
+     // nelec, nmuon, dum6, dum7, elecet, muonet
+     15.,   15.,   0.,   0.,   500.,  500.},
     
     //post cuts
     // j1et,  j2et,  jallet, met,   ht ,   mht,   meff
-    {2500., 2500., 100.,  2000., 5000., 2000., 5000.,
+    {1500., 1500., 100.,  1500., 2500., 1500., 3000.,
      // j1mdp,   j2mdp,   j12dp,   dphistar   njets, ngood
      localpi, localpi, localpi, localpi, 20.,   20.,
      // jetetmultiplier, dummy values
      10.,   0.,   0.,   0.,   0.,
      // nelec, nmuon, dum6, dum7, elecet, muonet
-     15.,   15.,   0.,   0.,   2500.,  2500.}};
-
+     15.,   15.,   0.,   0.,   500.,  500.}};
+  
   double binsize = 0.;
 
   for (int tt = 0; tt < 4; ++tt) {
@@ -193,27 +223,65 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       sprintf(histtitle[hh],"%s%s",histpre[tt].c_str(),histname[hh].c_str());
       sprintf(plottitle[hh],"%s",plotname[hh].c_str());
     }
+    for (int hh = 0; hh < NUMTESTHIST; ++hh) {
+      sprintf(testhisttitle[hh][0],"%s%s",histpre[tt].c_str(),testhistname[hh][0].c_str());
+      sprintf(testplottitle[hh][0],"%s",  testplotname[hh][0].c_str());
+      sprintf(testhisttitle[hh][1],"%s%s",histpre[tt].c_str(),testhistname[hh][1].c_str());
+      sprintf(testplottitle[hh][1],"%s",  testplotname[hh][1].c_str());
+    }
+    
+    binsize = 25.;
+    if (tt > 1)
+      binsize = 5.;// bins of 5 GeV for N-1/post
+    h_jetallet[tt]    = new TH1D(histtitle[2],plottitle[2],static_cast<int>(bins[tt][2]/binsize),0.,bins[tt][2]);
 
-    if (tt==0||tt==2) binsize = 50.;// bins of 25 GeV for pre/N-1
-    else binsize = 5.;// bins of 5 GeV for individual/post
-    h_jetallet[tt]    = new TH1D(histtitle[2],plottitle[2],static_cast<int>(bins[tt][12]*bins[tt][2]/binsize),0.,bins[tt][2]);
-
-    binsize = 50.; // bins of 50 GeV
-
+    binsize = 25.; // bins of 25 GeV
     h_jet1et[tt]  = new TH1D(histtitle[0],plottitle[0],static_cast<int>(bins[tt][0]/binsize),0.,bins[tt][0]);
     h_jet2et[tt]  = new TH1D(histtitle[1],plottitle[1],static_cast<int>(bins[tt][1]/binsize),0.,bins[tt][1]);
+
+    binsize = 25.; // bins of 25 GeV
     h_MET[tt]     = new TH1D(histtitle[3],plottitle[3],static_cast<int>(bins[tt][3]/binsize),0.,bins[tt][3]);
+    th_metoversumet[tt] = new TH1D(testhisttitle[0][0],testplottitle[0][0],100,0,10.);                                                          
+    th_metvssumet[tt]   = new TH2D(testhisttitle[0][1],testplottitle[0][1],static_cast<int>(bins[tt][3]/binsize),0.,bins[tt][3],2500/50,0,2500);
+    th_metovermht[tt]   = new TH1D(testhisttitle[1][0],testplottitle[1][0],100,0,10.);                                                          
+    th_metvsmht[tt]     = new TH2D(testhisttitle[1][1],testplottitle[1][1],static_cast<int>(bins[tt][3]/binsize),0.,bins[tt][3],static_cast<int>(bins[tt][5]/binsize),0.,bins[tt][5]); 
+    th_metovermeff[tt]  = new TH1D(testhisttitle[2][0],testplottitle[2][0],100,0,10.);                                                           
+    th_metvsmeff[tt]    = new TH2D(testhisttitle[2][1],testplottitle[2][1],static_cast<int>(bins[tt][3]/binsize),0.,bins[tt][3],static_cast<int>(bins[tt][6]/50),0.,bins[tt][6]);
+    th_metoverht[tt]    = new TH1D(testhisttitle[3][0],testplottitle[3][0],100,0,10.);                                                          
+    th_metvsht[tt]      = new TH2D(testhisttitle[3][1],testplottitle[3][1],static_cast<int>(bins[tt][3]/binsize),0.,bins[tt][3],static_cast<int>(bins[tt][4]/50),0.,bins[tt][4]);
+    
     h_MHT[tt]     = new TH1D(histtitle[5],plottitle[5],static_cast<int>(bins[tt][5]/binsize),0.,bins[tt][5]);
+    th_mhtovermeff[tt]  = new TH1D(testhisttitle[7][0],testplottitle[7][0],100,0,10.);                                                          
+    th_mhtvsmeff[tt]    = new TH2D(testhisttitle[7][1],testplottitle[7][1],static_cast<int>(bins[tt][5]/binsize),0.,bins[tt][5],static_cast<int>(bins[tt][6]/50),0.,bins[tt][6]);
+    th_mhtoversumet[tt] = new TH1D(testhisttitle[8][0],testplottitle[8][0],100,0,10.);                                                          
+    th_mhtvssumet[tt]   = new TH2D(testhisttitle[8][1],testplottitle[8][1],static_cast<int>(bins[tt][5]/binsize),0.,bins[tt][5],2500/50,0,2500);
 
     binsize = 50.; // bins of 50 GeV
     //binsize = 100.; // bins of 100 GeV
     h_HT[tt]      = new TH1D(histtitle[4],plottitle[4],static_cast<int>(bins[tt][4]/binsize),0.,bins[tt][4]);
+    th_htovermht[tt]   = new TH1D(testhisttitle[4][0],testplottitle[4][0],100,0,10.);                                                          
+    th_htvsmht[tt]     = new TH2D(testhisttitle[4][1],testplottitle[4][1],static_cast<int>(bins[tt][4]/binsize),0.,bins[tt][4],static_cast<int>(bins[tt][5]/25),0.,bins[tt][5]);
+    th_htovermeff[tt]  = new TH1D(testhisttitle[5][0],testplottitle[5][0],100,0,10.);                                                          
+    th_htvsmeff[tt]    = new TH2D(testhisttitle[5][1],testplottitle[5][1],static_cast<int>(bins[tt][4]/binsize),0.,bins[tt][4],static_cast<int>(bins[tt][6]/binsize),0.,bins[tt][6]);
+    th_htoversumet[tt] = new TH1D(testhisttitle[6][0],testplottitle[6][0],100,0,10.);                                                          
+    th_htvssumet[tt]   = new TH2D(testhisttitle[6][1],testplottitle[6][1],static_cast<int>(bins[tt][4]/binsize),0.,bins[tt][4],2500/50,0,2500);
+
     h_Meff[tt]    = new TH1D(histtitle[6],plottitle[6],static_cast<int>(bins[tt][6]/binsize),0.,bins[tt][6]);
+    th_sumetovermeff[tt] = new TH1D(testhisttitle[9][0],testplottitle[9][0],100,0,10.);                                                         
+    th_sumetvsmeff[tt]   = new TH2D(testhisttitle[9][1],testplottitle[9][1],2500/50,0,2500,static_cast<int>(bins[tt][6]/binsize),0.,bins[tt][6]);
     
     // fixed number of bins
-    h_jet1metdphi[tt] = new TH1D(histtitle[7],plottitle[7],25,0.,bins[tt][7]);
-    h_jet2metdphi[tt] = new TH1D(histtitle[8],plottitle[8],25,0.,bins[tt][8]);
-    h_jet12dphi[tt]   = new TH1D(histtitle[9],plottitle[9],25,0.,bins[tt][9]);
+    h_jet1metdphi[tt] = new TH1D(histtitle[7],plottitle[7],50,0.,bins[tt][7]);
+    h_jet2metdphi[tt] = new TH1D(histtitle[8],plottitle[8],50,0.,bins[tt][8]);
+    h_jet12dphi[tt]   = new TH1D(histtitle[9],plottitle[9],50,0.,bins[tt][9]);
+
+    th_dphi1overdphi2[tt]  = new TH1D(testhisttitle[10][0],testplottitle[10][0],100,0,10.);                                                         
+    th_dphi1vsdphi2[tt]    = new TH2D(testhisttitle[10][1],testplottitle[10][1],50,0.,bins[tt][7],50,0.,bins[tt][8]);
+    th_dphi1overdphi12[tt] = new TH1D(testhisttitle[11][0],testplottitle[11][0],100,0,10.);                                                         
+    th_dphi1vsdphi12[tt]   = new TH2D(testhisttitle[11][1],testplottitle[11][1],50,0.,bins[tt][7],50,0.,bins[tt][9]);
+    th_dphi2overdphi12[tt] = new TH1D(testhisttitle[12][0],testplottitle[12][0],100,0,10.);                                                         
+    th_dphi2vsdphi12[tt]   = new TH2D(testhisttitle[12][1],testplottitle[12][1],50,0.,bins[tt][8],50,0.,bins[tt][9]);
+
     h_dphistar[tt]    = new TH1D(histtitle[10],plottitle[10],25,0.,bins[tt][10]);
 
     h_Njets[tt][0]  = new TH1D(histtitle[11],plottitle[11],static_cast<int>(bins[tt][11]),0.,bins[tt][11]);
@@ -234,6 +302,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_muonEta[tt]   = new TH1D(histtitle[23],plottitle[23],50,-5.,5.);
     
     binsize = 25.;// bins of 25 GeV 
+    if (tt > 1)
+      binsize = 5.;
     h_elecEt[tt]   = new TH1D(histtitle[24],plottitle[24],static_cast<int>(bins[tt][22]/binsize),0.,bins[tt][22]);
     h_muonEt[tt]   = new TH1D(histtitle[25],plottitle[25],static_cast<int>(bins[tt][23]/binsize),0.,bins[tt][23]);
   }
@@ -248,19 +318,19 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   //h_jet1phi[0] = new TH1D("h_pre_cuts_9_jet1phi","",100,-localpi,localpi);
   //h_jet2phi[0] = new TH1D("h_pre_cuts_9_jet2phi","",100,-localpi,localpi);
   //h_METphi[0]  = new TH1D("h_pre_cuts_9_METphi", "",100,-localpi,localpi);
-  h_MT[0]      = new TH1D("h_pre_cuts_9_MT",     "M_{T}",5000/50,0,5000);
-  h_Minv[0]    = new TH1D("h_pre_cuts_9_Minv",   "M_{inv}",5000/50,0,5000);
+  h_MT[0]      = new TH1D("h_pre_cuts_9_MT",     "M_{T}",3000/50,0,3000);
+  h_Minv[0]    = new TH1D("h_pre_cuts_9_Minv",   "M_{inv}",3000/50,0,3000);
   char myname[128];
   sprintf(myname,"%s #SigmaE_{T}",metPrefix_.c_str());
-  h_SumEt[0]   = new TH1D("h_pre_cuts_9_SumEt",  myname,5000/50,0,5000);
+  h_SumEt[0]   = new TH1D("h_pre_cuts_9_SumEt",  myname,2500/50,0,2500);
   //post cuts
   //h_jet1phi[1] = new TH1D("h_post_cuts_9_jet1phi","",100,-localpi,localpi);
   //h_jet2phi[1] = new TH1D("h_post_cuts_9_jet2phi","",100,-localpi,localpi);
   //h_METphi[1]  = new TH1D("h_post_cuts_9_METphi", "",100,-localpi,localpi);
-  h_MT[1]      = new TH1D("h_post_cuts_9_MT",     "M_{T}",5000/50,0,5000);
-  h_Minv[1]    = new TH1D("h_post_cuts_9_Minv",   "M_{inv}",5000/50,0,5000);
+  h_MT[1]      = new TH1D("h_post_cuts_9_MT",     "M_{T}",3000/50,0,3000);
+  h_Minv[1]    = new TH1D("h_post_cuts_9_Minv",   "M_{inv}",3000/50,0,3000);
   //sprintf(myname,"%s #SigmaE_{T}",metPrefix_.c_str());
-  h_SumEt[1]   = new TH1D("h_post_cuts_9_SumEt",  myname,5000/50,0,5000);
+  h_SumEt[1]   = new TH1D("h_post_cuts_9_SumEt",  myname,2500/50,0,2500);
 
   // individual cuts histos
   h_selections[0]   = new TH1D("h_selections","",25,0,25);
@@ -303,6 +373,34 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_muonEta[step]  ->Sumw2();
     h_Ngoodmuon[step]->Sumw2();
     h_counters[step] ->Sumw2();
+    th_dphi1overdphi2[step] ->Sumw2();
+    th_dphi1overdphi12[step]->Sumw2();
+    th_dphi2overdphi12[step]->Sumw2();
+    th_dphi1vsdphi2[step]   ->Sumw2();
+    th_dphi1vsdphi12[step]  ->Sumw2();
+    th_dphi2vsdphi12[step]  ->Sumw2();
+
+    th_metoversumet[step]   ->Sumw2();
+    th_metovermht[step]     ->Sumw2();
+    th_metovermeff[step]    ->Sumw2();
+    th_metoverht[step]      ->Sumw2();
+    th_metvssumet[step]     ->Sumw2();
+    th_metvsmht[step]       ->Sumw2();
+    th_metvsmeff[step]      ->Sumw2();
+    th_metvsht[step]        ->Sumw2();
+    th_htovermht[step]      ->Sumw2();
+    th_htovermeff[step]     ->Sumw2();
+    th_htoversumet[step]    ->Sumw2();
+    th_htvsmht[step]        ->Sumw2();
+    th_htvsmeff[step]       ->Sumw2();
+    th_htvssumet[step]      ->Sumw2();
+    th_mhtovermeff[step]    ->Sumw2();
+    th_mhtoversumet[step]   ->Sumw2();
+    th_mhtvsmeff[step]      ->Sumw2();
+    th_mhtvssumet[step]     ->Sumw2();
+    th_sumetovermeff[step]  ->Sumw2();
+    th_sumetvsmeff[step]    ->Sumw2();
+
   }
 
   for (int hist = 0; hist < 2; ++hist) {
@@ -521,7 +619,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     
     for (int ijet = 2; ijet < nJets; ++ijet) 
       if (jetID(ijet,false)) {
-	++goodjetcount;
+	if (JetPt[ijet] > jetall_minpt)
+	  ++goodjetcount;
 	if (JetPt[ijet] > jetall_maxpt)
 	  excessiveJetVeto[0] = false;
       }
@@ -1716,16 +1815,26 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       jet2.SetPxPyPzE(JetPx[1],JetPy[1],JetPz[1],JetE[1]);
       h_jet12dphi[0]->Fill(jet1.DeltaPhi(jet2) );
 
-      h_MT[0]->Fill(MT);
-      h_Minv[0]->Fill(Minv);
-      h_SumEt[0]->Fill(sumEt);
+      th_dphi1overdphi2[0] ->Fill(jet1metdphi/jet2metdphi);
+      th_dphi1overdphi12[0]->Fill(jet1metdphi/jet1.DeltaPhi(jet2));
+      th_dphi2overdphi12[0]->Fill(jet2metdphi/jet1.DeltaPhi(jet2));
+      th_dphi1vsdphi2[0]   ->Fill(jet1metdphi,jet2metdphi);
+      th_dphi1vsdphi12[0]  ->Fill(jet1metdphi,jet1.DeltaPhi(jet2));
+      th_dphi2vsdphi12[0]  ->Fill(jet2metdphi,jet1.DeltaPhi(jet2));
     }
+
+    h_MT[0]->Fill(MT);
+    h_Minv[0]->Fill(Minv);
+    h_SumEt[0]->Fill(sumEt);
 
     int ijet = 2;
     while (ijet < nJets) {
-      h_jetFem[0]->Fill(JetFem[ijet]);
-      h_jetallet[0]->Fill(JetPt[ijet]);
-      ijet++;}
+      if (jetID(ijet,false)) {
+	h_jetFem[0]->Fill(JetFem[ijet]);
+	h_jetallet[0]->Fill(JetPt[ijet]);
+      }
+      ijet++;
+    }
     
     h_Njets[0][1]->Fill(goodjetcount);
 
@@ -1735,6 +1844,28 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_HT[0]->Fill(ht);
     h_MHT[0]->Fill(mht.Pt());
     h_Meff[0]->Fill(Meff);
+
+    th_metoversumet[0]   ->Fill(met/sumEt     );
+    th_metovermht[0]     ->Fill(met/mht.Pt()  );
+    th_metovermeff[0]    ->Fill(met/Meff      );
+    th_metoverht[0]      ->Fill(met/ht        );
+    th_metvssumet[0]     ->Fill(met,sumEt     );
+    th_metvsmht[0]       ->Fill(met,mht.Pt()  );
+    th_metvsmeff[0]      ->Fill(met,Meff      );
+    th_metvsht[0]        ->Fill(met,ht        );
+    th_htovermht[0]      ->Fill(ht/mht.Pt()   );
+    th_htovermeff[0]     ->Fill(ht/Meff       );
+    th_htoversumet[0]    ->Fill(ht/sumEt      );
+    th_htvsmht[0]        ->Fill(ht,mht.Pt()   );
+    th_htvsmeff[0]       ->Fill(ht,Meff       );
+    th_htvssumet[0]      ->Fill(ht,sumEt      );
+    th_mhtovermeff[0]    ->Fill(mht.Pt()/Meff );
+    th_mhtoversumet[0]   ->Fill(mht.Pt()/sumEt);
+    th_mhtvsmeff[0]      ->Fill(mht.Pt(),Meff );
+    th_mhtvssumet[0]     ->Fill(mht.Pt(),sumEt);
+    th_sumetovermeff[0]  ->Fill(sumEt/Meff    );
+    th_sumetvsmeff[0]    ->Fill(sumEt,Meff    );
+
 
     //h_METphi[0]->Fill(metphi);
 
@@ -1817,16 +1948,22 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     //What's going on here???
     ijet = 2;
     while (ijet < nJets) {
-      if (JetPt[ijet]>jetall_minpt)
-	h_jetFem[1]->Fill(JetFem[ijet]);
-      ijet++;}
+      if (jetID(ijet,false)) {
+	if (JetPt[ijet]>jetall_minpt)
+	  h_jetFem[1]->Fill(JetFem[ijet]);
+      }
+      ijet++;
+    }
     
     if (excessiveJetVeto[0]) {
       ijet = 2;
       while (ijet < nJets) {
-	if (JetPt[ijet]>jetall_minpt)
-	  h_jetallet[1]->Fill(JetPt[ijet]);
-	ijet++;}
+	if (jetID(ijet,false)) {
+	  if (JetPt[ijet]>jetall_minpt)
+	    h_jetallet[1]->Fill(JetPt[ijet]);
+	}
+	ijet++;
+      }
       h_Njets[1][1]->Fill(goodjetcount);
       h_selections[0]->Fill(9.5);}
 
@@ -1834,6 +1971,10 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       TLorentzVector jet1, jet2;
       jet1.SetPxPyPzE(JetPx[0],JetPy[0],JetPz[0],JetE[0]);
       jet2.SetPxPyPzE(JetPx[1],JetPy[1],JetPz[1],JetE[1]);
+      th_dphi1overdphi12[1]->Fill(jet1metdphi/jet1.DeltaPhi(jet2));
+      th_dphi1vsdphi12[1]  ->Fill(jet1metdphi,jet1.DeltaPhi(jet2));
+      th_dphi2vsdphi12[1]  ->Fill(jet2metdphi,jet1.DeltaPhi(jet2));
+      th_dphi2overdphi12[1]->Fill(jet2metdphi/jet1.DeltaPhi(jet2));
       h_jet12dphi[1]->Fill(jet1.DeltaPhi(jet2) );
       h_selections[0]->Fill(10.5);}
 
@@ -1841,10 +1982,20 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 
     //MET analysis specific cuts    
     if (metSelection[0]) {
+      th_metoversumet[1]   ->Fill(met/sumEt     );
+      th_metovermht[1]     ->Fill(met/mht.Pt()  );
+      th_metovermeff[1]    ->Fill(met/Meff      );
+      th_metoverht[1]      ->Fill(met/ht        );
+      th_metvssumet[1]     ->Fill(met,sumEt     );
+      th_metvsmht[1]       ->Fill(met,mht.Pt()  );
+      th_metvsmeff[1]      ->Fill(met,Meff      );
+      th_metvsht[1]        ->Fill(met,ht        );
       h_MET[1]->Fill(met);
       h_selections[0]->Fill(12.5);}
 
     if (jet1metdphiSelection[0]) {
+      th_dphi1overdphi2[1] ->Fill(jet1metdphi/jet2metdphi);
+      th_dphi1vsdphi2[1]   ->Fill(jet1metdphi,jet2metdphi);
       h_jet1metdphi[1]->Fill(jet1metdphi);
       h_selections[0]->Fill(13.5);}
 
@@ -1855,14 +2006,26 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 
     //HT/MHT analysis specific cuts
     if (htSelection[0]) {
+      th_htovermht[1]      ->Fill(ht/mht.Pt()   );
+      th_htovermeff[1]     ->Fill(ht/Meff       );
+      th_htoversumet[1]    ->Fill(ht/sumEt      );
+      th_htvsmht[1]        ->Fill(ht,mht.Pt()   );
+      th_htvsmeff[1]       ->Fill(ht,Meff       );
+      th_htvssumet[1]      ->Fill(ht,sumEt      );
       h_HT[1]->Fill(ht);
       h_selections[0]->Fill(16.5);}
 
     if (mhtSelection[0]) {
+      th_mhtovermeff[1]    ->Fill(mht.Pt()/Meff );
+      th_mhtoversumet[1]   ->Fill(mht.Pt()/sumEt);
+      th_mhtvsmeff[1]      ->Fill(mht.Pt(),Meff );
+      th_mhtvssumet[1]     ->Fill(mht.Pt(),sumEt);
       h_MHT[1]->Fill(mht.Pt());
       h_selections[0]->Fill(17.5);}
 
     if (meffSelection[0]) {
+      th_sumetovermeff[1]  ->Fill(sumEt/Meff    );
+      th_sumetvsmeff[1]    ->Fill(sumEt,Meff    );
       h_Meff[1]->Fill(Meff);
       h_selections[0]->Fill(18.5);}
 
@@ -1870,12 +2033,12 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       h_dphistar[1]->Fill(dphistar);
       h_selections[0]->Fill(19.5);}
             
-      
+    
     //////////////////////////////////////
     ///////////////////////////////////////////
     //N-1 plots
     //////////////////////////////////////////
-      
+  
     if (nJetSelection[1]) {
       h_Njets[2][0]->Fill(nJets);
       h_selections[1]->Fill(0.5);}
@@ -1933,21 +2096,32 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       TLorentzVector jet1, jet2;
       jet1.SetPxPyPzE(JetPx[0],JetPy[0],JetPz[0],JetE[0]);
       jet2.SetPxPyPzE(JetPx[1],JetPy[1],JetPz[1],JetE[1]);
+      th_dphi1overdphi12[2]->Fill(jet1metdphi/jet1.DeltaPhi(jet2));
+      th_dphi2overdphi12[2]->Fill(jet2metdphi/jet1.DeltaPhi(jet2));
+      th_dphi1vsdphi12[2]  ->Fill(jet1metdphi,jet1.DeltaPhi(jet2));
+      th_dphi2vsdphi12[2]  ->Fill(jet2metdphi,jet1.DeltaPhi(jet2));
+
       h_jet12dphi[2]->Fill(jet1.DeltaPhi(jet2) );
       h_selections[1]->Fill(9.5);}
     
     ijet = 2;
     while (ijet < nJets) {
-      if (JetPt[ijet]>jet1_minpt)
-	h_jetFem[2]->Fill(JetFem[ijet]);
-      ijet++;}
+      if (jetID(ijet,false)) {
+	if (JetPt[ijet]>jet1_minpt)
+	  h_jetFem[2]->Fill(JetFem[ijet]);
+      }
+      ijet++;
+    }
 
     if (excessiveJetVeto[1]) {
       ijet = 2;
       while (ijet < nJets) {
-	if (JetPt[ijet]>jet2_minpt)
-	  h_jetallet[2]->Fill(JetPt[ijet]);
-	ijet++;}
+	if (jetID(ijet,false)) {
+	  if (JetPt[ijet]>jet2_minpt)
+	    h_jetallet[2]->Fill(JetPt[ijet]);
+	}
+	ijet++;
+      }
       h_Njets[2][1]->Fill(goodjetcount);
       //h_HT[2]->Fill(ht);//what to do about recalculating HT when some jets are rejected?
       h_selections[1]->Fill(10.5);}
@@ -1955,10 +2129,20 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 
     //MET Analysis path
     if (metSelection[1]) {
+      th_metoversumet[2]   ->Fill(met/sumEt     );
+      th_metovermht[2]     ->Fill(met/mht.Pt()  );
+      th_metovermeff[2]    ->Fill(met/Meff      );
+      th_metoverht[2]      ->Fill(met/ht        );
+      th_metvssumet[2]     ->Fill(met,sumEt     );
+      th_metvsmht[2]       ->Fill(met,mht.Pt()  );
+      th_metvsmeff[2]      ->Fill(met,Meff      );
+      th_metvsht[2]        ->Fill(met,ht        );
       h_MET[2]->Fill(met);
       h_selections[1]->Fill(12.5);}
 
     if (jet1metdphiSelection[1]) {
+      th_dphi1overdphi2[2] ->Fill(jet1metdphi/jet2metdphi);
+      th_dphi1vsdphi2[2]   ->Fill(jet1metdphi,jet2metdphi);
       h_jet1metdphi[2]->Fill(jet1metdphi);
       h_selections[1]->Fill(13.5);}
 
@@ -1969,14 +2153,26 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 
     //HT/MHT Analysis path
     if (htSelection[1]) {
+      th_htovermht[2]      ->Fill(ht/mht.Pt()   );
+      th_htovermeff[2]     ->Fill(ht/Meff       );
+      th_htoversumet[2]    ->Fill(ht/sumEt      );
+      th_htvsmht[2]        ->Fill(ht,mht.Pt()   );
+      th_htvsmeff[2]       ->Fill(ht,Meff       );
+      th_htvssumet[2]      ->Fill(ht,sumEt      );
       h_HT[2]->Fill(ht);
       h_selections[1]->Fill(16.5);}
 
     if (mhtSelection[1]) {
+      th_mhtovermeff[2]    ->Fill(mht.Pt()/Meff );
+      th_mhtoversumet[2]   ->Fill(mht.Pt()/sumEt);
+      th_mhtvsmeff[2]      ->Fill(mht.Pt(),Meff );
+      th_mhtvssumet[2]     ->Fill(mht.Pt(),sumEt);
       h_MHT[2]->Fill(mht.Pt());
       h_selections[1]->Fill(17.5);}
 
     if (meffSelection[1]) {
+      th_sumetovermeff[2]  ->Fill(sumEt/Meff    );
+      th_sumetvsmeff[2]    ->Fill(sumEt,Meff    );
       h_Meff[2]->Fill(Meff);
       h_selections[1]->Fill(18.5);}
 
@@ -2051,9 +2247,11 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       h_Meff[3]->Fill(Meff);
 
       for (int ijet = 2; ijet < nJets; ++ijet) {
-	if (JetPt[ijet] > jetall_minpt) {
-	  h_jetFem[3]->Fill(JetFem[ijet]);
-	  h_jetallet[3]->Fill(JetPt[ijet]);
+	if (jetID(ijet,false)) {
+	  if (JetPt[ijet] > jetall_minpt) {
+	    h_jetFem[3]->Fill(JetFem[ijet]);
+	    h_jetallet[3]->Fill(JetPt[ijet]);
+	  }
 	}
       }
 
@@ -2095,6 +2293,35 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       //h_jet1phi[1]->Fill(JetPhi[0]);
       //h_jet2phi[1]->Fill(JetPhi[1]);
       //h_METphi[1]->Fill(metphi);
+      th_dphi1overdphi2[3] ->Fill(jet1metdphi/jet2metdphi);
+      th_dphi1overdphi12[3]->Fill(jet1metdphi/jet1.DeltaPhi(jet2));
+      th_dphi2overdphi12[3]->Fill(jet2metdphi/jet1.DeltaPhi(jet2));
+      th_dphi1vsdphi2[3]   ->Fill(jet1metdphi,jet2metdphi);
+      th_dphi1vsdphi12[3]  ->Fill(jet1metdphi,jet1.DeltaPhi(jet2));
+      th_dphi2vsdphi12[3]  ->Fill(jet2metdphi,jet1.DeltaPhi(jet2));
+      
+      th_metoversumet[3]   ->Fill(met/sumEt     );
+      th_metovermht[3]     ->Fill(met/mht.Pt()  );
+      th_metovermeff[3]    ->Fill(met/Meff      );
+      th_metoverht[3]      ->Fill(met/ht        );
+      th_metvssumet[3]     ->Fill(met,sumEt     );
+      th_metvsmht[3]       ->Fill(met,mht.Pt()  );
+      th_metvsmeff[3]      ->Fill(met,Meff      );
+      th_metvsht[3]        ->Fill(met,ht        );
+      th_htovermht[3]      ->Fill(ht/mht.Pt()   );
+      th_htovermeff[3]     ->Fill(ht/Meff       );
+      th_htoversumet[3]    ->Fill(ht/sumEt      );
+      th_htvsmht[3]        ->Fill(ht,mht.Pt()   );
+      th_htvsmeff[3]       ->Fill(ht,Meff       );
+      th_htvssumet[3]      ->Fill(ht,sumEt      );
+      th_mhtovermeff[3]    ->Fill(mht.Pt()/Meff );
+      th_mhtoversumet[3]   ->Fill(mht.Pt()/sumEt);
+      th_mhtvsmeff[3]      ->Fill(mht.Pt(),Meff );
+      th_mhtvssumet[3]     ->Fill(mht.Pt(),sumEt);
+      th_sumetovermeff[3]  ->Fill(sumEt/Meff    );
+      th_sumetvsmeff[3]    ->Fill(sumEt,Meff    );
+
+
     }
     //////////////////////////////////////
     
@@ -2171,7 +2398,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     //h_METphi[mine]->Scale(scale);
     //h_METphi[mine]->GetYaxis()->SetTitle(ytitle);
 
-    sprintf(ytitle,"Events /50 GeV / %2.0f pb^{-1}",luminosity_);
+    sprintf(ytitle,"Events / 50 GeV / %2.0f pb^{-1}",luminosity_);
     h_MT[mine]->Scale(scale);
     h_MT[mine]->GetYaxis()->SetTitle(ytitle);
     h_Minv[mine]->Scale(scale);
@@ -2236,20 +2463,21 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_dphistar[mine]->Scale(scale);
     h_dphistar[mine]->GetYaxis()->SetTitle(ytitle);
 
-    sprintf(ytitle,"Events / 50 GeV / %2.0f pb^{-1}",luminosity_);
-
+    sprintf(ytitle,"Events / 25 GeV / %2.0f pb^{-1}",luminosity_);
     h_jet1et[mine]->Scale(scale);
     h_jet1et[mine]->GetYaxis()->SetTitle(ytitle);
     h_jet2et[mine]->Scale(scale);
     h_jet2et[mine]->GetYaxis()->SetTitle(ytitle);      
+
+    sprintf(ytitle,"Events / 25 GeV / %2.0f pb^{-1}",luminosity_);
     h_MET[mine]->Scale(scale);
     h_MET[mine]->GetYaxis()->SetTitle(ytitle);
     h_MHT[mine]->Scale(scale);
     h_MHT[mine]->GetYaxis()->SetTitle(ytitle);
 
-    if (mine==1||mine==3) sprintf(ytitle,"Events / 5 GeV / %2.0f pb^{-1}",luminosity_);
-    else                  sprintf(ytitle,"Events / 50 GeV / %2.0f pb^{-1}",luminosity_);
-
+    sprintf(ytitle,"Events / 25 GeV / %2.0f pb^{-1}",luminosity_);
+    if (mine > 1)
+      sprintf(ytitle,"Events / 5 GeV / %2.0f pb^{-1}",luminosity_);
     h_jetallet[mine]->Scale(scale);
     h_jetallet[mine]->GetYaxis()->SetTitle(ytitle);      
     h_elecEt[mine]->Scale(scale);
@@ -2257,26 +2485,54 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_muonEt[mine]->Scale(scale);
     h_muonEt[mine]->GetYaxis()->SetTitle(ytitle);
 
-    sprintf(ytitle,"Events / 100 GeV / %2.0f pb^{-1}",luminosity_);
+    sprintf(ytitle,"Events / 50 GeV / %2.0f pb^{-1}",luminosity_);
 
     h_HT[mine]->Scale(scale);
     h_HT[mine]->GetYaxis()->SetTitle(ytitle);
     h_Meff[mine]->Scale(scale);
     h_Meff[mine]->GetYaxis()->SetTitle(ytitle);
 
+    th_dphi1overdphi2[mine] ->Scale(scale);
+    th_dphi1overdphi12[mine]->Scale(scale);
+    th_dphi2overdphi12[mine]->Scale(scale);
+    th_dphi1vsdphi2[mine]   ->Scale(scale);
+    th_dphi1vsdphi12[mine]  ->Scale(scale);
+    th_dphi2vsdphi12[mine]  ->Scale(scale);
+
+    th_metoversumet[mine]   ->Scale(scale);
+    th_metovermht[mine]     ->Scale(scale);
+    th_metovermeff[mine]    ->Scale(scale);
+    th_metoverht[mine]      ->Scale(scale);
+    th_metvssumet[mine]     ->Scale(scale);
+    th_metvsmht[mine]       ->Scale(scale);
+    th_metvsmeff[mine]      ->Scale(scale);
+    th_metvsht[mine]        ->Scale(scale);
+    th_htovermht[mine]      ->Scale(scale);
+    th_htovermeff[mine]     ->Scale(scale);
+    th_htoversumet[mine]    ->Scale(scale);
+    th_htvsmht[mine]        ->Scale(scale);
+    th_htvsmeff[mine]       ->Scale(scale);
+    th_htvssumet[mine]      ->Scale(scale);
+    th_mhtovermeff[mine]    ->Scale(scale);
+    th_mhtoversumet[mine]   ->Scale(scale);
+    th_mhtvsmeff[mine]      ->Scale(scale);
+    th_mhtvssumet[mine]     ->Scale(scale);
+    th_sumetovermeff[mine]  ->Scale(scale);
+    th_sumetvsmeff[mine]    ->Scale(scale);
+
   }
 
   //
   int Nevents = totalcounter;
-  printf("Cut Series        Nevents - preselection - triggers - finaljet - dphiselection - leptonveto - metselection - dphistarselection - htselection - mhtselection\n");
+  printf("Cut Series        Nevents - preselection - triggers - finaljet - dphiselection - leptonveto - metselection\n");
   printf("Individual:       %7d - %12d - %8d - %8d - %16d - %12d - %13d - %11d - %12d - %17d\n",
-	 Nevents,pscounter[0],trcounter[0],fjcounter[0],dphicounter[0],leptoncounter[0],metcounter[0],dphistarcounter[0],htcounter[0],mhtcounter[0]);
+	 Nevents,pscounter[0],trcounter[0],fjcounter[0],dphicounter[0],leptoncounter[0],metcounter[0]);
   printf("Sequential-pre:   %7d - %12d - %8d - %8d - %16d - %12d - %13d - %11d - %12d - %17d\n",
-	 Nevents,pscounter[1],trcounter[1],fjcounter[1],dphicounter[1],leptoncounter[1],metcounter[1],dphistarcounter[1],htcounter[1],mhtcounter[1]);
+	 Nevents,pscounter[1],trcounter[1],fjcounter[1],dphicounter[1],leptoncounter[1],metcounter[1]);
   printf("Sequential-post:  %7d - %12d - %8d - %8d - %16d - %12d - %13d - %11d - %12d - %17d\n",
-	 Nevents,pscounter[2],trcounter[2],fjcounter[2],dphicounter[2],leptoncounter[2],metcounter[2],dphistarcounter[2],htcounter[2],mhtcounter[2]);
+	 Nevents,pscounter[2],trcounter[2],fjcounter[2],dphicounter[2],leptoncounter[2],metcounter[2]);
   printf("N-1:              %7d - %12d - %8d - %8d - %16d - %12d - %13d - %11d - %12d - %17d\n",
-	 Nevents,pscounter[3],trcounter[3],fjcounter[3],dphicounter[3],leptoncounter[3],metcounter[3],dphistarcounter[3],htcounter[3],mhtcounter[3]);
+	 Nevents,pscounter[3],trcounter[3],fjcounter[3],dphicounter[3],leptoncounter[3],metcounter[3]);
 
 
 
@@ -2317,6 +2573,34 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_muonEta[step]  ->Write();
     h_Ngoodmuon[step]->Write();
     h_counters[step] ->Write();
+
+    th_dphi1overdphi2[step] ->Write();
+    th_dphi1overdphi12[step]->Write();
+    th_dphi2overdphi12[step]->Write();
+    th_dphi1vsdphi2[step]   ->Write();
+    th_dphi1vsdphi12[step]  ->Write();
+    th_dphi2vsdphi12[step]  ->Write();
+
+    th_metoversumet[step]   ->Write();
+    th_metovermht[step]     ->Write();
+    th_metovermeff[step]    ->Write();
+    th_metoverht[step]      ->Write();
+    th_metvssumet[step]     ->Write();
+    th_metvsmht[step]       ->Write();
+    th_metvsmeff[step]      ->Write();
+    th_metvsht[step]        ->Write();
+    th_htovermht[step]      ->Write();
+    th_htovermeff[step]     ->Write();
+    th_htoversumet[step]    ->Write();
+    th_htvsmht[step]        ->Write();
+    th_htvsmeff[step]       ->Write();
+    th_htvssumet[step]      ->Write();
+    th_mhtovermeff[step]    ->Write();
+    th_mhtoversumet[step]   ->Write();
+    th_mhtvsmeff[step]      ->Write();
+    th_mhtvssumet[step]     ->Write();
+    th_sumetovermeff[step]  ->Write();
+    th_sumetvsmeff[step]    ->Write();
   }
    
   for (int hist = 0; hist < 2; ++hist) {
