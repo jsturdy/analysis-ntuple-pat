@@ -68,48 +68,29 @@ private:
   TTree * mPhotonData;      /// Will contain the additional di-jet specific data
 
   // Variables
-  //boost::shared_ptr<std::vector<reco::Candidate::LorentzVector> > v_photP4 (new std::vector<reco::Candidate::LorentzVector>() );
   std::vector<reco::Candidate::LorentzVector> v_photP4;
   int    i_PhotN;
-  double mat_d_PhotE[50];
-  double mat_d_PhotEt[50];
-  double mat_d_PhotPt[50];
-  double mat_d_PhotPx[50];
-  double mat_d_PhotPy[50];
-  double mat_d_PhotPz[50];
-  double mat_d_PhotEta[50];
-  double mat_d_PhotPhi[50];
 
-  double mat_d_PhotTrkIso[50];
-  double mat_d_PhotECalIso[50];
-  double mat_d_PhotHCalIso[50];
-  double mat_d_PhotAllIso[50];
+  std::vector<double>  vd_PhotTrkIso;
+  std::vector<double>  vd_PhotECalIso;
+  std::vector<double>  vd_PhotHCalIso;
+  std::vector<double>  vd_PhotAllIso;
 
   //bool m_ccPhotAssoc[50];
-  bool mat_b_PhotLooseEM[50];
-  bool mat_b_PhotLoosePhoton[50];
-  bool mat_b_PhotTightPhoton[50];
+  std::vector<bool>  vb_PhotLooseEM;
+  std::vector<bool>  vb_PhotLoosePhoton;
+  std::vector<bool>  vb_PhotTightPhoton;
 
-  double mat_d_PhotGenPdgId[50];
-  double mat_d_PhotGenMother[50];
-  double mat_d_PhotGenPx[50];
-  double mat_d_PhotGenPy[50];
-  double mat_d_PhotGenPz[50];
-  double mat_d_PhotGenPt[50];
-  double mat_d_PhotGenEt[50];
-  double mat_d_PhotGenE[50];
+  std::vector<reco::Candidate::LorentzVector> v_genphotP4;
+  std::vector<double> vd_PhotGenPdgId;
+  std::vector<double> vd_PhotGenMother;
   //
 
-  //boost::shared_ptr<std::vector<reco::Candidate::LorentzVector> > v_genPhotP4 (new std::vector<reco::Candidate::LorentzVector>() );
   std::vector<reco::Candidate::LorentzVector> v_genPhotP4;
   int   i_genPhotLength;
-  int   mat_i_genPhotIds[500];
-  int   mat_i_genPhotRefs[500];
-  int   mat_i_genPhotStatus[500];
-  float mat_f_genPhotE[500];
-  float mat_f_genPhotPx[500];
-  float mat_f_genPhotPy[500];
-  float mat_f_genPhotPz[500];
+  std::vector<int>   vi_genPhotIds;
+  std::vector<int>   vi_genPhotRefs;
+  std::vector<int>   vi_genPhotStatus;
 
 
   bool init_;                          // vectors initialised or not

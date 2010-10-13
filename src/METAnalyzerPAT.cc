@@ -11,18 +11,36 @@
 //
 // Original Author:  Jared Sturdy
 //         Created:  Tue Feb 2 12:11:44 PDT 2010
-// $Id: METAnalyzerPAT.cc,v 1.6 2010/07/05 09:28:12 sturdy Exp $
+// $Id: METAnalyzerPAT.cc,v 1.7 2010/07/13 14:51:20 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/METAnalyzerPAT.h"
 
 #include <TMath.h>
 
+#ifdef __CINT__ 
+
+typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> LorentzV;
+typedef std::vector<LorentzV>                                   LorentzVs;
+
+#pragma link C++ typedef LorentzV;
+#pragma link C++ typedef LorentzVs;
+
+#pragma link C++ class std::map< std::string, float> >+; 
+#pragma link C++ class std::pair<std::string, float> >; 
+#pragma link C++ class std::pair<const std::string, float> >; 
+#pragma link C++ class reco::Candidate::LorentzVector +; 
+#pragma link C++ class std::vector< <reco::Candidate::LorentzVector> >+; 
+
+#pragma link C++ class LorentzV+; 
+#pragma link C++ class LorentzVs+; 
+
+
+#endif
 //________________________________________________________________________________________
 METAnalyzerPAT::METAnalyzerPAT(const edm::ParameterSet& metParams, TTree* tmpAllData)
 { 
   mMETData = tmpAllData;
-
 
   debug_     = metParams.getUntrackedParameter<int>("debugMET",0);
   prefix_    = metParams.getUntrackedParameter<std::string>("prefixMET","Calo");
@@ -81,11 +99,13 @@ bool METAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
   const pat::MET& theMET = metHandle->front();
   if(theMET.genMET()!=NULL) {
     const reco::GenMET* myGenMet = theMET.genMET();
+    genMETP4    = myGenMet->p4();
     m_METGen[0] = myGenMet->px();
     m_METGen[1] = myGenMet->py();
     m_METGen[2] = myGenMet->pz();
   }
   else{
+    genMETP4.SetPxPyPzE(-99999999,-99999999,-99999999,-99999999);
     m_METGen[0] = -99999999;
     m_METGen[1] = -99999999;
     m_METGen[2] = -99999999;
@@ -157,7 +177,7 @@ void METAnalyzerPAT::bookTTree() {
   mMETData->Branch("nFull"+prefix_+"MET",   &nFullMET,   "nFull"+prefix_+"MET/I");
   mMETData->Branch("nUncorr"+prefix_+"MET", &nUncorrMET, "nUncorr"+prefix_+"MET/I");
 
-  mMETData->Branch(prefix_+"METP4",   &mep4,  prefix_+"METP4/D");
+  mMETData->Branch(prefix_+"METP4",   &mep4);//,  prefix_+"METP4/D");
 
   mMETData->Branch(prefix_+"MET_Fullcorr_nocc",             &m_MET_Fullcorr_nocc,             prefix_+"MET_Fullcorr_nocc/D");
   mMETData->Branch(prefix_+"METpt_Fullcorr_nocc",           &m_METpt_Fullcorr_nocc,           prefix_+"METpt_Fullcorr_nocc/D");
@@ -180,8 +200,8 @@ void METAnalyzerPAT::bookTTree() {
   mMETData->Branch(prefix_+"METphi_JEScorr_nocc",   &m_METphi_JEScorr_nocc,    prefix_+"METphi_JEScorr_nocc/D");
   mMETData->Branch(prefix_+"METsumEt_JEScorr_nocc",  &m_METsumEt_JEScorr_nocc, prefix_+"METsumEt_JEScorr_nocc/D");
   
-  //mMETData->Branch(prefix_+"GenMET", &m_METGen, prefix_+"GenMET[3]/D",6400);
   mMETData->Branch(prefix_+"GenMET", &m_METGen, prefix_+"GenMET[3]/D");
+  mMETData->Branch(prefix_+"GenMETP4", &genMETP4);//, prefix_+"GenMET[3]/D");
   
   
   edm::LogInfo("AnalysisNtuplePAT::METAnalyzerPAT") << "MET Ntuple variables " << variables.str();

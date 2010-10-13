@@ -84,21 +84,16 @@ private:
   // Plots
   TTree * mTriggerData;      /// Will contain the additional di-jet specific data
 
-  int m_nHLT;
-  int m_nL1Technical;
-  int m_nL1Physics;
-  int m_HLTArray[200];
-  int m_L1TechnicalArray[nMaxL1Tech];
-  int m_L1PhysicsArray[nMaxL1Algo];
+  int i_nHLT;
+  int i_nL1Technical;
+  int i_nL1Physics;
+  std::vector<int> vi_HLTArray;
+  std::vector<int> vi_L1TechnicalArray;
+  std::vector<int> vi_L1PhysicsArray;
 
-  std::string m_HLTNames[200];
-  std::string m_L1TechnicalNames[nMaxL1Tech];
-  std::string m_L1PhysicsNames[nMaxL1Algo];
-
-  //boost::shared_ptr<std::map<std::string, bool> >  l1triggered (new std::map<std::string, bool>() );
-  //boost::shared_ptr<std::map<std::string, int> >   l1prescaled (new std::map<std::string, int>() );
-  //boost::shared_ptr<std::map<std::string, bool> >  hlttriggered (new std::map<std::string, bool>() );
-  //boost::shared_ptr<std::map<std::string, int> >   hltprescaled (new std::map<std::string, int>() );
+  std::vector<std::string> vs_HLTNames;
+  std::vector<std::string> vs_L1TechnicalNames;
+  std::vector<std::string> vs_L1PhysicsNames;
 
   std::map<std::string, bool> l1triggered;
   std::map<std::string, int>  l1prescaled;
@@ -114,11 +109,6 @@ private:
 
   bool m_HLTMinBias;
 
-  bool m_L1Muon1;
-  bool m_L1Muon2;
-  bool m_L1Muon3;
-  bool m_L1Muon4;
-
   bool trigger_result;
 
   // Data tags
@@ -133,6 +123,7 @@ private:
   unsigned int  nWasRun_;              // # where at least one HLT was run
   unsigned int  nAccept_;              // # of accepted events
   unsigned int  nErrors_;              // # where at least one HLT had error
+
   std::vector<unsigned int> hlWasRun_; // # where HLT[i] was run
   std::vector<unsigned int> hlAccept_; // # of events accepted by HLT[i]
   std::vector<unsigned int> hlErrors_; // # of events with error in HLT[i]

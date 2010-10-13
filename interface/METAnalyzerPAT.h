@@ -80,6 +80,7 @@ class METAnalyzerPAT {
   //boost::shared_ptr<std::map<std::string, float> > corrSumET ( new std::map<std::string, float>() );
 
   reco::Candidate::LorentzVector mep4;
+  reco::Candidate::LorentzVector genMETP4;
   std::map<std::string, float> corrX;
   std::map<std::string, float> corrY;
   std::map<std::string, float> corrSumET;
