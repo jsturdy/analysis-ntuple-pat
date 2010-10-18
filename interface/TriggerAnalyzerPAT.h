@@ -64,7 +64,7 @@ class TriggerAnalyzerPAT {
 
   /// Print a summary of counts for all selectors
   void printHLTreport(void); // georgia
- 
+  void beginRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
   /// Define all plots
   void bookTTree();
@@ -76,24 +76,10 @@ private:
   bool doMCData_;                 /// switch to turn off generator level information
   bool getHLTfromConfig_; 
 
-  static const int nMaxL1Tech = 64;
-  static const int nMaxL1Algo = 128;
-
   char logmessage[128];
 
   // Plots
   TTree * mTriggerData;      /// Will contain the additional di-jet specific data
-
-  int i_nHLT;
-  int i_nL1Technical;
-  int i_nL1Physics;
-  std::vector<int> vi_HLTArray;
-  std::vector<int> vi_L1TechnicalArray;
-  std::vector<int> vi_L1PhysicsArray;
-
-  std::vector<std::string> vs_HLTNames;
-  std::vector<std::string> vs_L1TechnicalNames;
-  std::vector<std::string> vs_L1PhysicsNames;
 
   std::map<std::string, bool> l1triggered;
   std::map<std::string, int>  l1prescaled;
@@ -117,21 +103,18 @@ private:
   std::vector<std::string> pathNames_;
 
   edm::TriggerNames triggerNames_;     // TriggerNames class
+  HLTConfigProvider hltConfig;
 
-  unsigned int  nEvents_;              // number of events processed
-
-  unsigned int  nWasRun_;              // # where at least one HLT was run
-  unsigned int  nAccept_;              // # of accepted events
-  unsigned int  nErrors_;              // # where at least one HLT had error
-
-  std::vector<unsigned int> hlWasRun_; // # where HLT[i] was run
-  std::vector<unsigned int> hlAccept_; // # of events accepted by HLT[i]
-  std::vector<unsigned int> hlErrors_; // # of events with error in HLT[i]
-  bool init_;                          // vectors initialised or not
-  
   int debug_;
 
   double localPi;
+
+  void maintenance() {
+    l1triggered.clear();
+    l1prescaled.clear();
+    hlttriggered.clear();
+    hltprescaled.clear();
+  }
 };
 
 #endif

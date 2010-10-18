@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.9 2010/07/08 03:22:30 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.10 2010/10/13 16:46:09 sturdy Exp $
 //
 //
 
@@ -26,20 +26,32 @@ Description: Collects variables related to jets, performs dijet preselection
 #include <sstream>
 
 #ifdef __CINT__ 
+//
+//typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> LorentzV;
+//typedef std::vector<LorentzV>                                   LorentzVs;
+//
+//#pragma link C++ typedef LorentzV;
+//#pragma link C++ typedef LorentzVs;
+//
+//#pragma link C++ class std::map <std::string, std::vector<float> >+; 
+//#pragma link C++ class std::pair<std::string, std::vector<float> >; 
+//#pragma link C++ class std::pair<const std::string, std::vector<float> >; 
+//#pragma link C++ class std::vector< <reco::Candidate::LorentzVector> >+; 
+//
+//#pragma link C++ class LorentzV+; 
+//#pragma link C++ class LorentzVs+; 
+//
+//#pragma link C++ typedef BTAGINFO;
+//#pragma link C++ typedef MYJETID;
+//#pragma link C++ typedef MYMHT;
 
-typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> LorentzV;
-typedef std::vector<LorentzV>                                   LorentzVs;
-
-#pragma link C++ typedef LorentzV;
-#pragma link C++ typedef LorentzVs;
-
-#pragma link C++ class std::map <std::string, std::vector<float> >+; 
-#pragma link C++ class std::pair<std::string, std::vector<float> >; 
-#pragma link C++ class std::pair<const std::string, std::vector<float> >; 
-#pragma link C++ class std::vector< <reco::Candidate::LorentzVector> >+; 
-
-#pragma link C++ class LorentzV+; 
-#pragma link C++ class LorentzVs+; 
+#pragma link C++ struct MYMHT;
+#pragma link C++ struct MYJETID;
+#pragma link C++ struct BTAGINFO;
+#pragma link C++ class JetAnalyzerPAT+;
+//#pragma link C++ class BTAGINFO+;
+//#pragma link C++ class MYJETID+;
+//#pragma link C++ class MYMHT+;
 
 #endif
 //________________________________________________________________________________________
@@ -114,6 +126,32 @@ JetAnalyzerPAT::JetAnalyzerPAT(const edm::ParameterSet& jetParams, TTree* tmpAll
 
   localPi = acos(-1.0);
 
+  //if (useCaloJets_ ) {
+  //  caloJetIDMinimal = new JetIDSelectorFunctor( JetIDSelectionFunctor::PURE09,
+  //		      JetIDSelectionFunctor::MINIMAL );
+  //  
+  //  caloJetIDLoose = new JetIDSelectorFunctor( JetIDSelectionFunctor::PURE09,
+  //		    JetIDSelectionFunctor::LOOSE );
+  //  
+  //  caloJetIDTight = new JetIDSelectorFunctor( JetIDSelectionFunctor::PURE09,
+  //		    JetIDSelectionFunctor::TIGHT );
+  //  
+  //  retmin = caloJetIDMinimal.getBitTemplate();
+  //  retloo = caloJetIDLoose.getBitTemplate();
+  //  rettig = caloJetIDTight.getBitTemplate();
+  //}
+  //if (usePFJets_) {
+  //  pfJetIDLoose = new PFJetIDSelectorFunctor( PFJetIDSelectionFunctor::FIRSTDATA,
+  //		  PFJetIDSelectionFunctor::LOOSE );
+  //  
+  //  pfJetIDTight = new PFJetIDSelectorFunctor( PFJetIDSelectionFunctor::FIRSTDATA,
+  //		  PFJetIDSelectionFunctor::TIGHT );
+  //  
+  //  //retmin = pfJetIDMinimal.getBitTemplate();
+  //  retloo = pfJetIDLoose.getBitTemplate();
+  //  rettig = pfJetIDTight.getBitTemplate();
+  //}
+
   // Initialise plots [should improve in the future]
   bookTTree();
 }
@@ -162,13 +200,19 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
   int mjet = 0;
   double jetsumpx = 0;
   double jetsumpy = 0;
+  double jetsumpz = 0;
+  double jetsume  = 0;
   double jetsumpt = 0;
 
   double gensumpx = 0;
   double gensumpy = 0;
+  double gensumpz = 0;
+  double gensume  = 0;
   double gensumpt = 0;
 
   if ( i_NJets >50 ) i_NJets = 50;
+  maintenance(i_NJets);
+  /////////
 
   for (int k=0;k<i_NJets;k++){
     const pat::Jet& theJet    = (*jetHandle)[k];
@@ -180,14 +224,18 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	
 	//This will help compute a baseline HT and MHT which can later be corrected for jetID
 	jetsumpt += theJet.pt();
+	jetsume  += theJet.energy();
 	jetsumpx += theJet.momentum().X();
 	jetsumpy += theJet.momentum().Y();
+	jetsumpz += theJet.momentum().Z();
 	
 	//if (doMCData_) {
 	if(theJet.genJet()!= 0) {
 	  gensumpt += theJet.genJet()->pt();
+	  gensume  += theJet.genJet()->energy();
 	  gensumpx += theJet.genJet()->momentum().X();
 	  gensumpy += theJet.genJet()->momentum().Y();
+	  gensumpz += theJet.genJet()->momentum().Z();
 	//}
 	}
       }
@@ -235,7 +283,8 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 	if (debug_) std::cout<<"\n\nGetting corrections for calo jets\n\n"<<std::endl;
 
-	if (useCaloJets_) {
+	//if (useCaloJets_) {
+	if (theJet.hasCorrFactors()) {
 	  //JES corrections for the RAW uncorrected jet (RAW)
 	  map_s_vd_correctionFactor["raw"].push_back(uncorrJet.corrFactor("RAW"));
 	  //JES corrections for the Offset (L1Offset)
@@ -286,31 +335,58 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	}
 
 	v_JetP4.push_back(theJet.p4());
-	v_JetRawP4.push_back(uncorrJet.p4());
-	vd_JetCharge.push_back(theJet.jetCharge());
-	vi_JetNConst.push_back(theJet.nConstituents());
+	vd_JetPx.push_back(theJet.px());
+	vd_JetPy.push_back(theJet.py());
+	vd_JetPz.push_back(theJet.pz());
+	vd_JetE .push_back(theJet.energy());
+
+	v_RawJetP4.push_back(uncorrJet.p4());
+	vd_RawJetPx.push_back(uncorrJet.px());
+	vd_RawJetPy.push_back(uncorrJet.py());
+	vd_RawJetPz.push_back(uncorrJet.pz());
+	vd_RawJetE .push_back(uncorrJet.energy());
 
 	//Jet eta/phi moments
 	vd_JetEtaEtaMoment.push_back(theJet.etaetaMoment());
 	vd_JetEtaPhiMoment.push_back(theJet.etaphiMoment());
 	vd_JetPhiPhiMoment.push_back(theJet.phiphiMoment());
 
+	//MYJETID thejetid;
+	//
+	//thejetid.JetCharge = theJet.jetCharge();
+	//thejetid.JetNConst = theJet.nConstituents();
+	vd_JetCharge.push_back(theJet.jetCharge());
+	vi_JetNConst.push_back(theJet.nConstituents());
+
 	//Calo jet type specific
 	if (debug_) 
 	  std::cout<<"\n\nSetting up jetid\n\n"<<std::endl;
-	if (useCaloJets_ ) {
+	if (useCaloJets_ || useJPTJets_) {
 	  JetIDSelectionFunctor jetIDMinimal( JetIDSelectionFunctor::PURE09,
-					      JetIDSelectionFunctor::MINIMAL );
+	  				      JetIDSelectionFunctor::MINIMAL );
 	  
 	  JetIDSelectionFunctor jetIDLoose( JetIDSelectionFunctor::PURE09,
-					    JetIDSelectionFunctor::LOOSE );
+	  				    JetIDSelectionFunctor::LOOSE );
 	  
 	  JetIDSelectionFunctor jetIDTight( JetIDSelectionFunctor::PURE09,
-					    JetIDSelectionFunctor::TIGHT );
+	  				    JetIDSelectionFunctor::TIGHT );
 	  
-	  pat::strbitset retmin = jetIDMinimal.getBitTemplate();
-	  pat::strbitset retloo = jetIDLoose.getBitTemplate();
-	  pat::strbitset rettig = jetIDTight.getBitTemplate();
+	  retmin = jetIDMinimal.getBitTemplate();
+	  retloo = jetIDLoose.getBitTemplate();
+	  rettig = jetIDTight.getBitTemplate();
+	  
+	  //retmin.set(false);
+	  //thejetid.JetIDMinimal = jetIDMinimal(theJet, retmin);
+	  //retloo.set(false);
+	  //thejetid.JetIDLoose = jetIDLoose(theJet, retloo);
+	  //rettig.set(false);
+	  //thejetid.JetIDTight = jetIDTight(theJet, rettig);
+	  //
+	  //thejetid.JetFem  = theJet.emEnergyFraction();
+	  //thejetid.JetFhad = theJet.energyFractionHadronic();
+	  //thejetid.JetN90  = theJet.jetID().n90Hits;
+	  //thejetid.JetfHPD = theJet.jetID().fHPD;
+	  //thejetid.JetfRBX = theJet.jetID().fRBX;
 	  
 	  retmin.set(false);
 	  vb_JetIDMinimal.push_back(jetIDMinimal(theJet, retmin));
@@ -321,11 +397,9 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  
 	  vd_JetFem.push_back(theJet.emEnergyFraction());
 	  vd_JetFhad.push_back(theJet.energyFractionHadronic());
-	}
-	
-	if (debug_ > 5) 
-	  std::cout<<"\n\nDone with jetid for calo jets\n\n"<<std::endl;
-	if (useCaloJets_ || useJPTJets_) {
+	  
+	  if (debug_ > 5) 
+	    std::cout<<"\n\nDone with jetid for calo jets\n\n"<<std::endl;
 	  if (debug_ > 5)
 	    std::cout<<"\n\naccessing jetid information for fhpd, frbx, and n90hits\n\n"<<std::endl;
 	  vd_JetN90 .push_back(theJet.jetID().n90Hits);
@@ -333,12 +407,22 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  vd_JetfRBX.push_back(theJet.jetID().fRBX);
 	}
 
-	if (useJPTJets_) {
-	  if (debug_ > 5) std::cout<<"electron multiplicity"<<std::endl;
-	  vd_JetElecMult.push_back(theJet.elecMultiplicity());
+	if (useJPTJets_ ) {
+	  //thejetid.JetElecMult = theJet.elecMultiplicity();
+	  vd_JetElecMult      .push_back(theJet.elecMultiplicity());
 	}
-
 	if (useJPTJets_ || usePFJets_) {
+	  //thejetid.JetChargedFem  = theJet.chargedEmEnergyFraction();
+	  //thejetid.JetNeutralFem  = theJet.neutralEmEnergyFraction();
+	  //thejetid.JetChargedFhad = theJet.chargedHadronEnergyFraction();
+	  //thejetid.JetNeutralFhad = theJet.neutralHadronEnergyFraction();
+	  //thejetid.JetChargedMult = theJet.chargedMultiplicity();
+	  //thejetid.JetMuonMult    = theJet.muonMultiplicity();
+	  //thejetid.JetFem  = theJet.neutralEmEnergyFraction()+
+	  //  theJet.chargedEmEnergyFraction();
+	  //thejetid.JetFhad = theJet.neutralHadronEnergyFraction()+
+	  //  theJet.chargedHadronEnergyFraction();
+	  
 	  if (debug_ > 5) std::cout<<"charged em fraction"<<std::endl;
 	  vd_JetChargedFem .push_back(theJet.chargedEmEnergyFraction());
 	  if (debug_ > 5) std::cout<<"neutral em fraction"<<std::endl;
@@ -355,47 +439,85 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  
 	  if (debug_ > 5) std::cout<<"em fraction"<<std::endl;
 	  vd_JetFem .push_back(theJet.neutralEmEnergyFraction()+
-			       theJet.chargedEmEnergyFraction());
+	  		       theJet.chargedEmEnergyFraction());
 	  if (debug_ > 5) std::cout<<"hadron fraction"<<std::endl;
 	  vd_JetFhad.push_back(theJet.neutralHadronEnergyFraction()+
-			       theJet.chargedHadronEnergyFraction());
+	  		       theJet.chargedHadronEnergyFraction());
 	}
 
 	//PF jet type specific variables
 	if (usePFJets_) {
 	  PFJetIDSelectionFunctor jetIDLoose( PFJetIDSelectionFunctor::FIRSTDATA,
-					      PFJetIDSelectionFunctor::LOOSE );
+	  				      PFJetIDSelectionFunctor::LOOSE );
 	  
 	  PFJetIDSelectionFunctor jetIDTight( PFJetIDSelectionFunctor::FIRSTDATA,
-					      PFJetIDSelectionFunctor::TIGHT );
+	  				      PFJetIDSelectionFunctor::TIGHT );
 	  
-	  pat::strbitset ret = jetIDLoose.getBitTemplate();
+	  retloo = jetIDLoose.getBitTemplate();
+	  rettig = jetIDTight.getBitTemplate();
 	
-	  ret.set(false);
-	  vb_JetIDLoose.push_back(jetIDLoose(theJet, ret));
-	  ret.set(false);
-	  vb_JetIDTight.push_back(jetIDTight(theJet, ret));
+	  //retloo.set(false);
+	  //thejetid.JetIDLoose = jetIDLoose(theJet, retloo);
+	  //rettig.set(false);
+	  //thejetid.JetIDTight = jetIDTight(theJet, rettig);
+	  //
+	  //thejetid.JetHFFem  = theJet.HFEMEnergyFraction();
+	  //thejetid.JetHFFhad = theJet.HFHadronEnergyFraction();
+	  //
+	  //thejetid.JetNeutralMult = theJet.neutralMultiplicity();
+	  //
+	  //thejetid.JetChargedHadMult = theJet.chargedHadronMultiplicity();
+	  //thejetid.JetNeutralHadMult = theJet.neutralHadronMultiplicity();
+	  //thejetid.JetPhotonMult     = theJet.photonMultiplicity();
+	  //thejetid.JetElecMult       = theJet.electronMultiplicity();
+	  //
+	  //thejetid.JetChargedFmu  = theJet.muonEnergyFraction();
+	  //thejetid.JetChargedFele = theJet.electronEnergy() / theJet.energy();
+	  //thejetid.JetChargedFpho = theJet.photonEnergyFraction();
 
-	  vd_JetChargedFmu .push_back(theJet.muonEnergyFraction());
-	  vd_JetChargedFele.push_back(theJet.electronEnergy() / theJet.energy());
-	  vd_JetChargedFpho.push_back(theJet.photonEnergyFraction());
-
+	  retloo.set(false);
+	  vb_JetIDLoose.push_back(jetIDLoose(theJet, retloo));
+	  rettig.set(false);
+	  vb_JetIDTight.push_back(jetIDTight(theJet, rettig));
+	  
 	  vd_JetHFFem .push_back(theJet.HFEMEnergyFraction());
 	  vd_JetHFFhad.push_back(theJet.HFHadronEnergyFraction());
 	  
 	  if (debug_ > 5) std::cout<<"neutral multiplicity"<<std::endl;
 	  vd_JetNeutralMult.push_back(theJet.neutralMultiplicity());
-
+	  
 	  vd_JetChargedHadMult.push_back(theJet.chargedHadronMultiplicity());
 	  vd_JetNeutralHadMult.push_back(theJet.neutralHadronMultiplicity());
 	  vd_JetPhotonMult    .push_back(theJet.photonMultiplicity());
 	  vd_JetElecMult      .push_back(theJet.electronMultiplicity());
+	  
+	  vd_JetChargedFmu .push_back(theJet.muonEnergyFraction());
+	  vd_JetChargedFele.push_back(theJet.electronEnergy() / theJet.energy());
+	  vd_JetChargedFpho.push_back(theJet.photonEnergyFraction());
+
  	}
 	
+	//vjid_JetID.push_back(thejetid);
 	//get jet flavour information
 	vi_JetPartonFlavour  .push_back(theJet.partonFlavour());
 
-	//get b-tagging information
+	////get b-tagging information
+	//BTAGINFO thebjetinfo;
+	//
+	//thebjetinfo.JetBTag_TCHE           = theJet.bDiscriminator("trackCountingHighEffBJetTags");
+	//thebjetinfo.JetBTag_TCHP           = theJet.bDiscriminator("trackCountingHighPurBJetTags");
+	//thebjetinfo.JetBTag_jetProb        = theJet.bDiscriminator("jetProbabilityBJetTags");
+	//thebjetinfo.JetBTag_jetBProb       = theJet.bDiscriminator("jetBProbabilityBJetTags");
+	//thebjetinfo.JetBTag_SSVHE          = theJet.bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
+	//thebjetinfo.JetBTag_SSVHP          = theJet.bDiscriminator("simpleSecondaryVertexHighPurBJetTags");
+	//thebjetinfo.JetBTag_CSV            = theJet.bDiscriminator("combinedSecondaryVertexBJetTags");
+	//thebjetinfo.JetBTag_CSVMVA         = theJet.bDiscriminator("combinedSecondaryVertexMVABJetTags");
+	//thebjetinfo.JetBTag_SoftLepton     = theJet.bDiscriminator("softMuonBJetTags");
+	//thebjetinfo.JetBTag_SoftLeptonByIP = theJet.bDiscriminator("softMuonByIP3dBJetTags");
+	//thebjetinfo.JetBTag_SoftLeptonByPt = theJet.bDiscriminator("softMuonByPtBJetTags");
+	//
+	//vbtag_JetBtag.push_back(thebjetinfo);
+
 	vd_JetBTag_TCHE          .push_back(theJet.bDiscriminator("trackCountingHighEffBJetTags"));
 	vd_JetBTag_TCHP          .push_back(theJet.bDiscriminator("trackCountingHighPurBJetTags"));
 	vd_JetBTag_jetProb       .push_back(theJet.bDiscriminator("jetProbabilityBJetTags"));
@@ -414,11 +536,19 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  reco::Candidate::LorentzVector genp4;
 	  genp4.SetPxPyPzE(theJet.genJet()->px(),theJet.genJet()->py(),theJet.genJet()->pz(),theJet.genJet()->energy());
 	  v_GenJetP4.push_back(genp4);
+	  vd_GenJetPx.push_back(theJet.genJet()->px());
+	  vd_GenJetPy.push_back(theJet.genJet()->py());
+	  vd_GenJetPz.push_back(theJet.genJet()->pz());
+	  vd_GenJetE .push_back(theJet.genJet()->energy());
 	}
 	else {
 	  reco::Candidate::LorentzVector genp4;
 	  genp4.SetPxPyPzE(-999.,-999.,-999.,-999);
 	  v_GenJetP4.push_back(genp4);
+	  vd_GenJetPx.push_back(-999.);
+	  vd_GenJetPy.push_back(-999.);
+	  vd_GenJetPz.push_back(-999.);
+	  vd_GenJetE .push_back(-999.);
 	}
 
 	if(theJet.genParton() != 0){
@@ -426,10 +556,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  vd_JetPartonPx    .push_back(theJet.genParton()->px());
 	  vd_JetPartonPy    .push_back(theJet.genParton()->py());
 	  vd_JetPartonPz    .push_back(theJet.genParton()->pz());
-	  vd_JetPartonEt    .push_back(theJet.genParton()->et());
-	  vd_JetPartonPhi   .push_back(theJet.genParton()->phi());
-	  vd_JetPartonEta   .push_back(theJet.genParton()->eta());
-	  vd_JetPartonEnergy.push_back(theJet.genParton()->energy());
+	  vd_JetPartonE     .push_back(theJet.genParton()->energy());
 	  vi_JetPartonMother.push_back(theJet.genParton()->mother()->pdgId());
 	}
 	else{
@@ -437,10 +564,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  vd_JetPartonPx    .push_back(999.);
 	  vd_JetPartonPy    .push_back(999.);
 	  vd_JetPartonPz    .push_back(999.);
-	  vd_JetPartonEt    .push_back(999.);
-	  vd_JetPartonPhi   .push_back(999.);
-	  vd_JetPartonEta   .push_back(999.);
-	  vd_JetPartonEnergy.push_back(999.);
+	  vd_JetPartonE     .push_back(999.);
 	  vi_JetPartonMother.push_back(999.);
 	}
 	++mjet;
@@ -449,14 +573,30 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
   
   i_NJets  =  mjet;
+  JetMHt.Ht     =  jetsumpt;
+  JetMHt.MHx    = -jetsumpx;
+  JetMHt.MHy    = -jetsumpy;
+  JetMHt.MHz    = -jetsumpz;
+  JetMHt.MHE    = -jetsume;
+  d_MHt    = -sqrt(jetsumpx*jetsumpx+jetsumpy*jetsumpy);
   d_Ht     =  jetsumpt;
   d_MHx    = -jetsumpx;
   d_MHy    = -jetsumpy;
+  d_MHz    = -jetsumpz;
+  d_MHE    = -jetsume;
   d_MHt    = -sqrt(jetsumpx*jetsumpx+jetsumpy*jetsumpy);
   
+  GenMHt.Ht  =  gensumpt;
+  GenMHt.MHx = -gensumpx;
+  GenMHt.MHy = -gensumpy;
+  GenMHt.MHz = -gensumpz;
+  GenMHt.MHE = -gensume;
+  GenMHt.MHt = -sqrt(gensumpx*gensumpx+gensumpy*gensumpy);
   d_GenHt  =  gensumpt;
   d_GenMHx = -gensumpx;
   d_GenMHy = -gensumpy;
+  d_GenMHz = -gensumpz;
+  d_GenMHE = -gensume;
   d_GenMHt = -sqrt(gensumpx*gensumpx+gensumpy*gensumpy);
   
   jet_result = bool_JetPreselection;
@@ -473,28 +613,36 @@ void JetAnalyzerPAT::bookTTree() {
   
 
   mJetData->Branch(prefix_+"NJets",   &i_NJets,   prefix_+"NJets/I");  
+  //mJetData->Branch(prefix_+"JetMHt",  &JetMHt);
   mJetData->Branch(prefix_+"Ht",      &d_Ht,      prefix_+"Ht/D");
   mJetData->Branch(prefix_+"MHx",     &d_MHx,     prefix_+"MHx/D");
   mJetData->Branch(prefix_+"MHy",     &d_MHy,     prefix_+"MHy/D");
+  mJetData->Branch(prefix_+"MHz",     &d_MHz,     prefix_+"MHz/D");
+  mJetData->Branch(prefix_+"MHE",     &d_MHE,     prefix_+"MHE/D");
   mJetData->Branch(prefix_+"MHt",     &d_MHt,     prefix_+"MHt/D");
   
   mJetData->Branch(prefix_+"JetP4",     &v_JetP4);
-  mJetData->Branch(prefix_+"JetRawP4",  &v_JetRawP4);
+  mJetData->Branch(prefix_+"RawJetP4",  &v_RawJetP4);
+  //mJetData->Branch(prefix_+"JetPx",  &vd_JetPx);
+  //mJetData->Branch(prefix_+"JetPy",  &vd_JetPy);
+  //mJetData->Branch(prefix_+"JetPz",  &vd_JetPz);
+  //mJetData->Branch(prefix_+"JetE",   &vd_JetE);
+  
+  //mJetData->Branch(prefix_+"RawJetPx",  &vd_RawJetPx);
+  //mJetData->Branch(prefix_+"RawJetPy",  &vd_RawJetPy);
+  //mJetData->Branch(prefix_+"RawJetPz",  &vd_RawJetPz);
+  //mJetData->Branch(prefix_+"RawJetE",   &vd_RawJetE);
+  //
   mJetData->Branch(prefix_+"JetEtaEtaMoment",  &vd_JetEtaEtaMoment);
   mJetData->Branch(prefix_+"JetEtaPhiMoment",  &vd_JetEtaPhiMoment);
   mJetData->Branch(prefix_+"JetPhiPhiMoment",  &vd_JetPhiPhiMoment);
-  mJetData->Branch(prefix_+"JetFem",    &vd_JetFem);
-  mJetData->Branch(prefix_+"JetFhad",   &vd_JetFhad);
-  mJetData->Branch(prefix_+"JetCharge", &vd_JetCharge);
-  mJetData->Branch(prefix_+"JetNConst", &vi_JetNConst);
   //mJetData->Branch(prefix_+"JetHemi", &vi_JetHemi, prefix_+"JetHemi["+prefix_+"NJets]/I");
   mJetData->Branch(prefix_+"JetCorrFactor",   &map_s_vd_correctionFactor);
   mJetData->Branch(prefix_+"JetPreselection", &bool_JetPreselection, prefix_+"JetPreselection/O");
-  mJetData->Branch(prefix_+"JetIDMinimal", &vb_JetIDMinimal);
-  mJetData->Branch(prefix_+"JetIDLoose",   &vb_JetIDLoose);
-  mJetData->Branch(prefix_+"JetIDTight",   &vb_JetIDTight);
+
   
   //b-tagging information
+  //mJetData->Branch(prefix_+"JetBTAGINFO",            &vbtag_JetBtag);
   mJetData->Branch(prefix_+"JetBTag_TCHE",            &vd_JetBTag_TCHE);
   mJetData->Branch(prefix_+"JetBTag_TCHP",            &vd_JetBTag_TCHP);
   mJetData->Branch(prefix_+"JetBTag_jetProb",         &vd_JetBTag_jetProb);
@@ -508,21 +656,38 @@ void JetAnalyzerPAT::bookTTree() {
   mJetData->Branch(prefix_+"JetBTag_SoftLeptonByPt",  &vd_JetBTag_SoftLeptonByPt);
   
   //information about associated gen jets
+  //mJetData->Branch(prefix_+"GenMHt",  &GenMHt);
   mJetData->Branch(prefix_+"GenHt",    &d_GenHt,     prefix_+"GenHt/D");
+  mJetData->Branch(prefix_+"GenMHx",   &d_GenMHx,    prefix_+"GenMHx/D");
+  mJetData->Branch(prefix_+"GenMHy",   &d_GenMHy,    prefix_+"GenMHy/D");
+  mJetData->Branch(prefix_+"GenMHz",   &d_GenMHz,    prefix_+"GenMHz/D");
+  mJetData->Branch(prefix_+"GenMHE",   &d_GenMHE,    prefix_+"GenMHE/D");
   mJetData->Branch(prefix_+"GenMHt",   &d_GenMHt,    prefix_+"GenMHt/D");
-    
+  //  
+  mJetData->Branch(prefix_+"GenJetP4",&v_GenJetP4);
+  //mJetData->Branch(prefix_+"GenJetPx",  &vd_GenJetPx);
+  //mJetData->Branch(prefix_+"GenJetPy",  &vd_GenJetPy);
+  //mJetData->Branch(prefix_+"GenJetPz",  &vd_GenJetPz);
+  //mJetData->Branch(prefix_+"GenJetE",   &vd_GenJetE);
+  //
   //information about associated partons
   mJetData->Branch(prefix_+"JetPartonId",         &vi_JetPartonId);
   mJetData->Branch(prefix_+"JetPartonMother",     &vi_JetPartonMother);
   mJetData->Branch(prefix_+"JetPartonPx",         &vd_JetPartonPx);
   mJetData->Branch(prefix_+"JetPartonPy",         &vd_JetPartonPy);
   mJetData->Branch(prefix_+"JetPartonPz",         &vd_JetPartonPz);
-  mJetData->Branch(prefix_+"JetPartonEt",         &vd_JetPartonEt);
-  mJetData->Branch(prefix_+"JetPartonE" ,         &vd_JetPartonEnergy);
-  mJetData->Branch(prefix_+"JetPartonPhi",        &vd_JetPartonPhi);
-  mJetData->Branch(prefix_+"JetPartonEta",        &vd_JetPartonEta);
+  mJetData->Branch(prefix_+"JetPartonE",          &vd_JetPartonE);
   mJetData->Branch(prefix_+"JetPartonFlavour",    &vi_JetPartonFlavour);
     
+  
+  //mJetData->Branch(prefix_+"JetIDInfo",    &vjid_JetID);
+  mJetData->Branch(prefix_+"JetFem",    &vd_JetFem);
+  mJetData->Branch(prefix_+"JetFhad",   &vd_JetFhad);
+  mJetData->Branch(prefix_+"JetCharge", &vd_JetCharge);
+  mJetData->Branch(prefix_+"JetNConst", &vi_JetNConst);
+  mJetData->Branch(prefix_+"JetIDMinimal", &vb_JetIDMinimal);
+  mJetData->Branch(prefix_+"JetIDLoose",   &vb_JetIDLoose);
+  mJetData->Branch(prefix_+"JetIDTight",   &vb_JetIDTight);
   
   if (useJPTJets_ ) {
     if (debug_ > 5) std::cout<<"Saving JPT specific information"<<std::endl;
@@ -560,7 +725,7 @@ void JetAnalyzerPAT::bookTTree() {
   }
   
   if (useCaloJets_ || useJPTJets_) {
-    if (debug_ > 5) std::cout<<"Saving Calo/JPT specific information"<<std::endl;
+    //if (debug_ > 5) std::cout<<"Saving Calo/JPT specific information"<<std::endl;
     mJetData->Branch(prefix_+"JetfHPD", &vd_JetfHPD);
     mJetData->Branch(prefix_+"JetfRBX", &vd_JetfRBX);
     mJetData->Branch(prefix_+"Jetn90",  &vd_JetN90);

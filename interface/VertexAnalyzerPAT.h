@@ -80,22 +80,53 @@ class VertexAnalyzerPAT {
   double m_Beamspot_EmittanceY;
   double m_Beamspot_BetaStar;
 
-  int    m_nVtx;
-  double m_VtxNTrks[10];
-  double m_VtxNRawTrks[10];
-  double m_VtxChi2[10];
-  double m_VtxNdof[10];
-  double m_VtxIsValid[10];
-  double m_VtxSumTrkPt[10];
-  double m_VtxNormalizedChi2[10];
-  double m_VtxX[10];
-  double m_VtxY[10];
-  double m_VtxZ[10];
-  double m_VtxdX[10];
-  double m_VtxdY[10];
-  double m_VtxdZ[10];
-  double m_Vtxd0[10];
+  int                 i_nVtx;
+  std::vector<double> vd_VtxNTrks;
+  std::vector<double> vd_VtxNRawTrks;
+  std::vector<double> vd_VtxChi2;
+  std::vector<double> vd_VtxNdof;
+  std::vector<double> vd_VtxIsValid;
+  std::vector<double> vd_VtxSumTrkPt;
+  std::vector<double> vd_VtxNormalizedChi2;
+  std::vector<double> vd_VtxX;
+  std::vector<double> vd_VtxY;
+  std::vector<double> vd_VtxZ;
+  std::vector<double> vd_VtxdX;
+  std::vector<double> vd_VtxdY;
+  std::vector<double> vd_VtxdZ;
+  std::vector<double> vd_Vtxd0;
 
+  void maintenance(const int& nVtx) {
+    vd_VtxNTrks.clear();
+    vd_VtxNRawTrks.clear();
+    vd_VtxChi2.clear();
+    vd_VtxNdof.clear();
+    vd_VtxIsValid.clear();
+    vd_VtxSumTrkPt.clear();
+    vd_VtxNormalizedChi2.clear();
+    vd_VtxX.clear();
+    vd_VtxY.clear();
+    vd_VtxZ.clear();
+    vd_VtxdX.clear();
+    vd_VtxdY.clear();
+    vd_VtxdZ.clear();
+    vd_Vtxd0.clear();
+
+    //vd_VtxNTrks.reserve(nVtx);
+    //vd_VtxNRawTrks.reserve(nVtx);
+    //vd_VtxChi2.reserve(nVtx);
+    //vd_VtxNdof.reserve(nVtx);
+    //vd_VtxIsValid.reserve(nVtx);
+    //vd_VtxSumTrkPt.reserve(nVtx);
+    //vd_VtxNormalizedChi2.reserve(nVtx);
+    //vd_VtxX.reserve(nVtx);
+    //vd_VtxY.reserve(nVtx);
+    //vd_VtxZ.reserve(nVtx);
+    //vd_VtxdX.reserve(nVtx);
+    //vd_VtxdY.reserve(nVtx);
+    //vd_VtxdZ.reserve(nVtx);
+    //vd_Vtxd0.reserve(nVtx);
+  }
 };
 
 #endif

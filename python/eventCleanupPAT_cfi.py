@@ -24,16 +24,16 @@ primaryVertexFilter2 = cms.EDFilter("GoodVertexFilter",
     maxd0 = cms.double(2)
 )
 
-#-- L1 Tech Trig Filtering --------------------------------------------------#
-from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskAlgoTrigConfig_cff import *
-from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff import *
-from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
-
-l1TechFilter = hltLevel1GTSeed.clone(
-    L1TechTriggerSeeding = cms.bool(True),
-    #L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
-    L1SeedsLogicalExpression = cms.string('0 AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
-)
+##-- L1 Tech Trig Filtering --------------------------------------------------#
+#from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskAlgoTrigConfig_cff import *
+#from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff import *
+#from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
+#
+#l1TechFilter = hltLevel1GTSeed.clone(
+#    L1TechTriggerSeeding = cms.bool(True),
+#    #L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
+#    L1SeedsLogicalExpression = cms.string('0 AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
+#)
 
 
 #-- HLT PhysicsDelcared Filter ----------------------------------------------#
@@ -47,14 +47,13 @@ physicsDeclared = hltPhysicsDeclared.clone(
 useHBHEfilter = False
 
 #Reject events with HBHE noise
-if useHBHEfilter == True:
-    from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import *
-    hbheNoise = HBHENoiseFilter.clone()
+#if useHBHEfilter == True:
+from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import *
+hbheNoise = HBHENoiseFilter.clone()
     
 # Instead of rejecting the event, add a flag indicating the HBHE noise
-
-from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
-hbheNoiseFlag = HBHENoiseFilterResultProducer.clone()
+#from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
+#hbheNoiseFlag = HBHENoiseFilterResultProducer.clone()
 
 
 ##-- HLT Trigger Filter ------------------------------------------------------#
@@ -83,12 +82,12 @@ hbheNoiseFlag = HBHENoiseFilterResultProducer.clone()
 cleanupFilterMC = cms.Sequence(
     removePKAM          +
     primaryVertexFilter +
-#    hbheNoise           +
-    hbheNoiseFlag
+    hbheNoise           #+
+#    hbheNoiseFlag
 )
 
 cleanupFilterData = cms.Sequence(
-    l1TechFilter        +
+    #l1TechFilter        +
     physicsDeclared     +
     cleanupFilterMC
 )

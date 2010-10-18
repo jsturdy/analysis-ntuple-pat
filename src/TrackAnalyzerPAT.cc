@@ -13,7 +13,7 @@ Description: Collects variables related to tracks
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: TrackAnalyzerPAT.cc,v 1.4 2010/07/05 09:28:12 sturdy Exp $
+// $Id: TrackAnalyzerPAT.cc,v 1.5 2010/07/08 03:22:30 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/TrackAnalyzerPAT.h"
@@ -108,7 +108,7 @@ void TrackAnalyzerPAT::bookTTree() {
   // 1. Event variables
   variables << "weight:process";
 
-  //mTrackData->Branch("MPTP3",  &v_MPTP3,  "MPTP3");
+  ////mTrackData->Branch("MPTP3",  &v_MPTP3,  "MPTP3");
   mTrackData->Branch("MPTPhi", &m_MPTPhi, "MPTPhi/D");
   mTrackData->Branch("MPTPx",  &m_MPTPx,  "MPTPx/D");
   mTrackData->Branch("MPTPy",  &m_MPTPy,  "MPTPy/D");

@@ -50,6 +50,16 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             prefixJets = cms.untracked.string("PF")
         )
     ),
+    pf2patJetParameters       = cms.untracked.PSet(
+        jetAnalyzerPAT.clone(
+            jetMinPt  = cms.untracked.double(8.),
+            doMCJets  = doMC,
+            usePFJets   = cms.untracked.bool(True),
+            debugJets = debugLevel,
+            jetTag     = cms.untracked.InputTag("selectedPatJetsPF"),
+            prefixJets = cms.untracked.string("PF2PAT")
+        )
+    ),
                                   
     trackJetParameters    = cms.untracked.PSet(
         jetAnalyzerPAT.clone(
@@ -85,9 +95,9 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
     pfleptonParameters     = cms.untracked.PSet(
         leptonAnalyzerPAT.clone(
             doMCLeps  = doMC,
-            elecTag   = cms.untracked.InputTag("cleanPatElectronsPF"),
-            muonTag   = cms.untracked.InputTag("cleanPatMuonsPF"),
-            #tauTag   = cms.untracked.InputTag("cleanPatTausPF"),
+            elecTag   = cms.untracked.InputTag("selectedPatElectronsPF"),
+            muonTag   = cms.untracked.InputTag("selectedPatMuonsPF"),
+            #tauTag   = cms.untracked.InputTag("selectedPatTausPF"),
             prefixLeps = cms.untracked.string("PF")
         )
     ),
@@ -108,14 +118,13 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             prefixMET = cms.untracked.string("CaloTypeI")
         )
     ),
-    #calometTypeIIParameters        = cms.untracked.PSet(
-    #    metAnalyzerPAT.clone(
-    #        doMCMET   = doMC,
-    #        genMETTag = cms.untracked.InputTag("genMetCalo"),
-    #        metTag    = cms.untracked.InputTag("patMETsAK5CaloTypeII"),
-    #        prefixMET = cms.untracked.string("CaloTypeII")
-    #    )
-    #),
+    calometTypeIIParameters        = cms.untracked.PSet(
+        metAnalyzerPAT.clone(
+            doMCMET   = cms.untracked.bool(False),
+            metTag    = cms.untracked.InputTag("patMETsAK5CaloTypeII"),
+            prefixMET = cms.untracked.string("CaloTypeII")
+        )
+    ),
 
     pfmetParameters        = cms.untracked.PSet(
         metAnalyzerPAT.clone(
@@ -128,6 +137,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
 
     tcmetParameters        = cms.untracked.PSet(
         metAnalyzerPAT.clone(
+            doMCMET   = cms.untracked.bool(False),
             metTag    = cms.untracked.InputTag("patMETsTC"),
             prefixMET = cms.untracked.string("TC")
         )

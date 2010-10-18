@@ -110,6 +110,14 @@ class METAnalyzerPAT {
   double m_METsignificance_JEScorr_nocc;
 
   double localPi;
+  
+  void maintenance() {
+    //mep4.clear();
+    //genMETP4.clear();
+    corrX.clear();
+    corrY.clear();
+    corrSumET.clear();
+  }
 };
 
 #endif

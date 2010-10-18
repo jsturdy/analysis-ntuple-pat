@@ -13,7 +13,7 @@ Description: Collects variables related to vertices, performs a primary vertex c
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: VertexAnalyzerPAT.cc,v 1.6 2010/06/21 22:45:38 sturdy Exp $
+// $Id: VertexAnalyzerPAT.cc,v 1.7 2010/07/05 09:28:12 sturdy Exp $
 //
 //
 
@@ -51,7 +51,7 @@ VertexAnalyzerPAT::~VertexAnalyzerPAT() {
 
 //________________________________________________________________________________________
 // Method called to for each event
-bool VertexAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool VertexAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 {
   using namespace reco;
   using namespace edm;
@@ -65,7 +65,7 @@ bool VertexAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   //          Beamspot             //
   ///////////////////////////////////
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(_beamspotTag,recoBeamSpotHandle);
+  ev.getByLabel(_beamspotTag,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;   
 
   m_Beamspot_x0      = bs.x0();
@@ -96,7 +96,7 @@ bool VertexAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
 
   edm::LogVerbatim("VertexAnalyzerPAT") << "Vertex results for InputTag" << _vtxTag;
   Handle<VertexCollection> vertices;
-  iEvent.getByLabel(_vtxTag, vertices);
+  ev.getByLabel(_vtxTag, vertices);
 
   if ( !vertices.isValid() ) {
     edm::LogWarning("VertexAnalyzerPAT") << "No Vertex results for InputTag" << _vtxTag;
@@ -107,48 +107,51 @@ bool VertexAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   int numVtx   = 0;
   int tmpNtrks = 0;
   if (tmpnVtx > 10) tmpnVtx = 10;
+  maintenance(tmpnVtx);
+  vd_VtxSumTrkPt.resize(tmpnVtx);
   for (int i=0; i< tmpnVtx; i++){  
     const reco::Vertex& pVertex = (*vertices)[i];
 
     if(pVertex.isValid()) {
-      m_VtxNormalizedChi2[numVtx] = pVertex.normalizedChi2();
-      m_VtxIsValid[numVtx]        = pVertex.isValid();
-      m_VtxNRawTrks[numVtx]       = pVertex.tracksSize();
-      m_VtxChi2[numVtx]           = pVertex.chi2();
-      m_VtxNdof[numVtx]           = pVertex.ndof();
-      m_VtxX[numVtx]              = pVertex.x();
-      m_VtxY[numVtx]              = pVertex.y();
-      m_VtxZ[numVtx]              = pVertex.z();
-      m_VtxdX[numVtx]             = pVertex.xError();
-      m_VtxdY[numVtx]             = pVertex.yError();
-      m_VtxdZ[numVtx]             = pVertex.zError();
-      m_Vtxd0[numVtx]             = pVertex.position().rho();
+      vd_VtxNormalizedChi2.push_back(pVertex.normalizedChi2());
+      vd_VtxIsValid       .push_back(pVertex.isValid());
+      vd_VtxNRawTrks      .push_back(pVertex.tracksSize());
+      vd_VtxChi2          .push_back(pVertex.chi2());
+      vd_VtxNdof          .push_back(pVertex.ndof());
+      vd_VtxX             .push_back(pVertex.x());
+      vd_VtxY             .push_back(pVertex.y());
+      vd_VtxZ             .push_back(pVertex.z());
+      vd_VtxdX            .push_back(pVertex.xError());
+      vd_VtxdY            .push_back(pVertex.yError());
+      vd_VtxdZ            .push_back(pVertex.zError());
+      vd_Vtxd0            .push_back(pVertex.position().rho());
             
       int cur_index = 0;
+      vd_VtxSumTrkPt.at(numVtx) = 0.;
       for (Vertex::trackRef_iterator vertex_curTrack = pVertex.tracks_begin(); 
 	   vertex_curTrack!=pVertex.tracks_end(); 
 	   vertex_curTrack++) {
 
-	m_VtxSumTrkPt[numVtx] += (*vertex_curTrack)->pt();
+	vd_VtxSumTrkPt.at(numVtx) += (*vertex_curTrack)->pt();
 
 	if (pVertex.trackWeight(*vertex_curTrack) > 0.5) 
 	  ++tmpNtrks;
 
 	++cur_index;
       }
-      m_VtxNTrks[numVtx] = tmpNtrks;
+      vd_VtxNTrks.push_back(tmpNtrks);
       ++numVtx;
     }
   }
 
-  m_nVtx = numVtx;
-  if (m_nVtx>=_minNVtx)
-    //if (m_VtxNTrks[0]>=_minVtxTrks)
-    //if (m_VtxSumTrkPt[0]>=_minVtxSumTrkPt)
-    if (m_VtxNdof[0]>=_minVtxNdof)
-      if(m_VtxChi2[0]<=_maxVtxChi2)
-	if (m_VtxZ[0]<=_maxVtxZ)
-	  if (m_Vtxd0[0]<=_maxVtxd0)
+  i_nVtx = numVtx;
+  if (i_nVtx>=_minNVtx)
+    //if (vd_VtxNTrks.at(0)>=_minVtxTrks)
+    //if (vd_VtxSumTrkPt.at(0)>=_minVtxSumTrkPt)
+    if (vd_VtxNdof.at(0)>=_minVtxNdof)
+      if(vd_VtxChi2.at(0)<=_maxVtxChi2)
+	if (vd_VtxZ.at(0)<=_maxVtxZ)
+	  if (vd_Vtxd0.at(0)<=_maxVtxd0)
 	  vertexDecision = true;
   
   //mVertexData->Fill();
@@ -191,21 +194,21 @@ void VertexAnalyzerPAT::bookTTree() {
 
 
   //Vertex parameters
-  mVertexData->Branch("nVtx",               &m_nVtx,             "nVtx/I");
-  mVertexData->Branch("VertexChi2",          m_VtxChi2,          "VertexChi2[nVtx]/D");
-  mVertexData->Branch("VertexNdof",          m_VtxNdof,          "VertexNdof[nVtx]/D");
-  mVertexData->Branch("VertexNTrks",         m_VtxNTrks,         "VertexNTrks[nVtx]/D");
-  mVertexData->Branch("VertexNRawTrks",      m_VtxNRawTrks,      "VertexNRawTrks[nVtx]/D");
-  mVertexData->Branch("VertexIsValid",       m_VtxIsValid,       "VertexIsValid[nVtx]/D");
-  mVertexData->Branch("VertexNormalizedChi2",m_VtxNormalizedChi2,"VertexNormalizedChi2[nVtx]/D");
-
-  mVertexData->Branch("VertexX", m_VtxX, "VertexX[nVtx]/D");
-  mVertexData->Branch("VertexY", m_VtxY, "VertexY[nVtx]/D");
-  mVertexData->Branch("VertexZ", m_VtxZ, "VertexZ[nVtx]/D");
-  mVertexData->Branch("Vertexd0",m_Vtxd0,"Vertexd0[nVtx]/D");
-  mVertexData->Branch("VertexdX",m_VtxdX,"VertexdX[nVtx]/D");
-  mVertexData->Branch("VertexdY",m_VtxdY,"VertexdY[nVtx]/D");
-  mVertexData->Branch("VertexdZ",m_VtxdZ,"VertexdZ[nVtx]/D");
+  mVertexData->Branch("nVtx",                &i_nVtx,             "nVtx/I");
+  mVertexData->Branch("VertexChi2",          &vd_VtxChi2);
+  mVertexData->Branch("VertexNdof",          &vd_VtxNdof);
+  mVertexData->Branch("VertexNTrks",         &vd_VtxNTrks);
+  mVertexData->Branch("VertexNRawTrks",      &vd_VtxNRawTrks);
+  mVertexData->Branch("VertexIsValid",       &vd_VtxIsValid);
+  mVertexData->Branch("VertexNormalizedChi2",&vd_VtxNormalizedChi2);
+  
+  mVertexData->Branch("VertexX", &vd_VtxX);
+  mVertexData->Branch("VertexY", &vd_VtxY);
+  mVertexData->Branch("VertexZ", &vd_VtxZ);
+  mVertexData->Branch("Vertexd0",&vd_Vtxd0);
+  mVertexData->Branch("VertexdX",&vd_VtxdX);
+  mVertexData->Branch("VertexdY",&vd_VtxdY);
+  mVertexData->Branch("VertexdZ",&vd_VtxdZ);
   
   edm::LogInfo("VertexAnalyzerPAT") << "Ntuple variables " << variables.str();
   
