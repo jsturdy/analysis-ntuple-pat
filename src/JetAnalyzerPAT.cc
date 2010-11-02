@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.10 2010/10/13 16:46:09 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.11 2010/10/18 14:34:46 sturdy Exp $
 //
 //
 
@@ -335,16 +335,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	}
 
 	v_JetP4.push_back(theJet.p4());
-	vd_JetPx.push_back(theJet.px());
-	vd_JetPy.push_back(theJet.py());
-	vd_JetPz.push_back(theJet.pz());
-	vd_JetE .push_back(theJet.energy());
-
 	v_RawJetP4.push_back(uncorrJet.p4());
-	vd_RawJetPx.push_back(uncorrJet.px());
-	vd_RawJetPy.push_back(uncorrJet.py());
-	vd_RawJetPz.push_back(uncorrJet.pz());
-	vd_RawJetE .push_back(uncorrJet.energy());
 
 	//Jet eta/phi moments
 	vd_JetEtaEtaMoment.push_back(theJet.etaetaMoment());
@@ -536,35 +527,25 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  reco::Candidate::LorentzVector genp4;
 	  genp4.SetPxPyPzE(theJet.genJet()->px(),theJet.genJet()->py(),theJet.genJet()->pz(),theJet.genJet()->energy());
 	  v_GenJetP4.push_back(genp4);
-	  vd_GenJetPx.push_back(theJet.genJet()->px());
-	  vd_GenJetPy.push_back(theJet.genJet()->py());
-	  vd_GenJetPz.push_back(theJet.genJet()->pz());
-	  vd_GenJetE .push_back(theJet.genJet()->energy());
 	}
 	else {
 	  reco::Candidate::LorentzVector genp4;
 	  genp4.SetPxPyPzE(-999.,-999.,-999.,-999);
 	  v_GenJetP4.push_back(genp4);
-	  vd_GenJetPx.push_back(-999.);
-	  vd_GenJetPy.push_back(-999.);
-	  vd_GenJetPz.push_back(-999.);
-	  vd_GenJetE .push_back(-999.);
 	}
 
 	if(theJet.genParton() != 0){
+	  reco::Candidate::LorentzVector genp4;
+	  genp4.SetPxPyPzE(theJet.genParton()->px(),theJet.genParton()->py(),theJet.genParton()->pz(),theJet.genParton()->energy());
+	  v_JetPartonP4.push_back(genp4);
 	  vi_JetPartonId    .push_back(theJet.genParton()->pdgId());
-	  vd_JetPartonPx    .push_back(theJet.genParton()->px());
-	  vd_JetPartonPy    .push_back(theJet.genParton()->py());
-	  vd_JetPartonPz    .push_back(theJet.genParton()->pz());
-	  vd_JetPartonE     .push_back(theJet.genParton()->energy());
 	  vi_JetPartonMother.push_back(theJet.genParton()->mother()->pdgId());
 	}
 	else{
+	  reco::Candidate::LorentzVector genp4;
+	  genp4.SetPxPyPzE(-999.,-999.,-999.,-999);
+	  v_JetPartonP4.push_back(genp4);
 	  vi_JetPartonId    .push_back(999.);
-	  vd_JetPartonPx    .push_back(999.);
-	  vd_JetPartonPy    .push_back(999.);
-	  vd_JetPartonPz    .push_back(999.);
-	  vd_JetPartonE     .push_back(999.);
 	  vi_JetPartonMother.push_back(999.);
 	}
 	++mjet;
@@ -573,31 +554,12 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
   
   i_NJets  =  mjet;
-  JetMHt.Ht     =  jetsumpt;
-  JetMHt.MHx    = -jetsumpx;
-  JetMHt.MHy    = -jetsumpy;
-  JetMHt.MHz    = -jetsumpz;
-  JetMHt.MHE    = -jetsume;
-  d_MHt    = -sqrt(jetsumpx*jetsumpx+jetsumpy*jetsumpy);
+
   d_Ht     =  jetsumpt;
-  d_MHx    = -jetsumpx;
-  d_MHy    = -jetsumpy;
-  d_MHz    = -jetsumpz;
-  d_MHE    = -jetsume;
-  d_MHt    = -sqrt(jetsumpx*jetsumpx+jetsumpy*jetsumpy);
+  MHtP4.SetPxPyPzE(-jetsumpx, -jetsumpy, -jetsumpz, -jetsume);
   
-  GenMHt.Ht  =  gensumpt;
-  GenMHt.MHx = -gensumpx;
-  GenMHt.MHy = -gensumpy;
-  GenMHt.MHz = -gensumpz;
-  GenMHt.MHE = -gensume;
-  GenMHt.MHt = -sqrt(gensumpx*gensumpx+gensumpy*gensumpy);
   d_GenHt  =  gensumpt;
-  d_GenMHx = -gensumpx;
-  d_GenMHy = -gensumpy;
-  d_GenMHz = -gensumpz;
-  d_GenMHE = -gensume;
-  d_GenMHt = -sqrt(gensumpx*gensumpx+gensumpy*gensumpy);
+  GenMHtP4.SetPxPyPzE(-gensumpx, -gensumpy, -gensumpz, -gensume);
   
   jet_result = bool_JetPreselection;
   if (debug_ > 5)
@@ -614,25 +576,12 @@ void JetAnalyzerPAT::bookTTree() {
 
   mJetData->Branch(prefix_+"NJets",   &i_NJets,   prefix_+"NJets/I");  
   //mJetData->Branch(prefix_+"JetMHt",  &JetMHt);
-  mJetData->Branch(prefix_+"Ht",      &d_Ht,      prefix_+"Ht/D");
-  mJetData->Branch(prefix_+"MHx",     &d_MHx,     prefix_+"MHx/D");
-  mJetData->Branch(prefix_+"MHy",     &d_MHy,     prefix_+"MHy/D");
-  mJetData->Branch(prefix_+"MHz",     &d_MHz,     prefix_+"MHz/D");
-  mJetData->Branch(prefix_+"MHE",     &d_MHE,     prefix_+"MHE/D");
-  mJetData->Branch(prefix_+"MHt",     &d_MHt,     prefix_+"MHt/D");
+  mJetData->Branch(prefix_+"Ht",    &d_Ht,      prefix_+"Ht/D");
+  mJetData->Branch(prefix_+"MHtP4", &MHtP4);
   
   mJetData->Branch(prefix_+"JetP4",     &v_JetP4);
   mJetData->Branch(prefix_+"RawJetP4",  &v_RawJetP4);
-  //mJetData->Branch(prefix_+"JetPx",  &vd_JetPx);
-  //mJetData->Branch(prefix_+"JetPy",  &vd_JetPy);
-  //mJetData->Branch(prefix_+"JetPz",  &vd_JetPz);
-  //mJetData->Branch(prefix_+"JetE",   &vd_JetE);
   
-  //mJetData->Branch(prefix_+"RawJetPx",  &vd_RawJetPx);
-  //mJetData->Branch(prefix_+"RawJetPy",  &vd_RawJetPy);
-  //mJetData->Branch(prefix_+"RawJetPz",  &vd_RawJetPz);
-  //mJetData->Branch(prefix_+"RawJetE",   &vd_RawJetE);
-  //
   mJetData->Branch(prefix_+"JetEtaEtaMoment",  &vd_JetEtaEtaMoment);
   mJetData->Branch(prefix_+"JetEtaPhiMoment",  &vd_JetEtaPhiMoment);
   mJetData->Branch(prefix_+"JetPhiPhiMoment",  &vd_JetPhiPhiMoment);
@@ -658,25 +607,14 @@ void JetAnalyzerPAT::bookTTree() {
   //information about associated gen jets
   //mJetData->Branch(prefix_+"GenMHt",  &GenMHt);
   mJetData->Branch(prefix_+"GenHt",    &d_GenHt,     prefix_+"GenHt/D");
-  mJetData->Branch(prefix_+"GenMHx",   &d_GenMHx,    prefix_+"GenMHx/D");
-  mJetData->Branch(prefix_+"GenMHy",   &d_GenMHy,    prefix_+"GenMHy/D");
-  mJetData->Branch(prefix_+"GenMHz",   &d_GenMHz,    prefix_+"GenMHz/D");
-  mJetData->Branch(prefix_+"GenMHE",   &d_GenMHE,    prefix_+"GenMHE/D");
-  mJetData->Branch(prefix_+"GenMHt",   &d_GenMHt,    prefix_+"GenMHt/D");
+  mJetData->Branch(prefix_+"GenMHtP4", &GenMHtP4);
   //  
   mJetData->Branch(prefix_+"GenJetP4",&v_GenJetP4);
-  //mJetData->Branch(prefix_+"GenJetPx",  &vd_GenJetPx);
-  //mJetData->Branch(prefix_+"GenJetPy",  &vd_GenJetPy);
-  //mJetData->Branch(prefix_+"GenJetPz",  &vd_GenJetPz);
-  //mJetData->Branch(prefix_+"GenJetE",   &vd_GenJetE);
   //
   //information about associated partons
+  mJetData->Branch(prefix_+"JetPartonP4",&v_JetPartonP4);
   mJetData->Branch(prefix_+"JetPartonId",         &vi_JetPartonId);
   mJetData->Branch(prefix_+"JetPartonMother",     &vi_JetPartonMother);
-  mJetData->Branch(prefix_+"JetPartonPx",         &vd_JetPartonPx);
-  mJetData->Branch(prefix_+"JetPartonPy",         &vd_JetPartonPy);
-  mJetData->Branch(prefix_+"JetPartonPz",         &vd_JetPartonPz);
-  mJetData->Branch(prefix_+"JetPartonE",          &vd_JetPartonE);
   mJetData->Branch(prefix_+"JetPartonFlavour",    &vi_JetPartonFlavour);
     
   

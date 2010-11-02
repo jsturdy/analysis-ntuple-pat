@@ -78,7 +78,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             doMCLeps  = doMC,
             elecTag   = cms.untracked.InputTag("cleanPatElectrons"),
             muonTag   = cms.untracked.InputTag("cleanPatMuons"),
-            #tauTag   = cms.untracked.InputTag("cleanPatTaus"),
+            tauTag    = cms.untracked.InputTag("cleanPatTaus"),
             prefixLeps = cms.untracked.string("")
         )
     ),
@@ -97,7 +97,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             doMCLeps  = doMC,
             elecTag   = cms.untracked.InputTag("selectedPatElectronsPF"),
             muonTag   = cms.untracked.InputTag("selectedPatMuonsPF"),
-            #tauTag   = cms.untracked.InputTag("selectedPatTausPF"),
+            tauTag    = cms.untracked.InputTag("selectedPatTausPF"),
             prefixLeps = cms.untracked.string("PF")
         )
     ),

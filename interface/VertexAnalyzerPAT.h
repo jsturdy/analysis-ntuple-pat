@@ -59,22 +59,22 @@ class VertexAnalyzerPAT {
   bool   vertexDecision;
   
   double m_Beamspot_x0;
-  double m_Beamspot_x0Error;
   double m_Beamspot_y0;
-  double m_Beamspot_y0Error;
   double m_Beamspot_z0;
-  double m_Beamspot_z0Error;
+  double m_Beamspot_x0Err;
+  double m_Beamspot_y0Err;
+  double m_Beamspot_z0Err;
   double m_Beamspot_WidthX;
-  double m_Beamspot_WidthXError;
   double m_Beamspot_WidthY;
-  double m_Beamspot_WidthYError;
+  double m_Beamspot_WidthXErr;
+  double m_Beamspot_WidthYErr;
 
-  double m_Beamspot_SigmaZ0;
-  double m_Beamspot_SigmaZ0Error;
   double m_Beamspot_dxdz;
-  double m_Beamspot_dxdzError;
   double m_Beamspot_dydz;
-  double m_Beamspot_dydzError;
+  double m_Beamspot_dxdzErr;
+  double m_Beamspot_dydzErr;
+  double m_Beamspot_SigmaZ0;
+  double m_Beamspot_SigmaZ0Err;
 
   double m_Beamspot_EmittanceX;
   double m_Beamspot_EmittanceY;
@@ -111,21 +111,6 @@ class VertexAnalyzerPAT {
     vd_VtxdY.clear();
     vd_VtxdZ.clear();
     vd_Vtxd0.clear();
-
-    //vd_VtxNTrks.reserve(nVtx);
-    //vd_VtxNRawTrks.reserve(nVtx);
-    //vd_VtxChi2.reserve(nVtx);
-    //vd_VtxNdof.reserve(nVtx);
-    //vd_VtxIsValid.reserve(nVtx);
-    //vd_VtxSumTrkPt.reserve(nVtx);
-    //vd_VtxNormalizedChi2.reserve(nVtx);
-    //vd_VtxX.reserve(nVtx);
-    //vd_VtxY.reserve(nVtx);
-    //vd_VtxZ.reserve(nVtx);
-    //vd_VtxdX.reserve(nVtx);
-    //vd_VtxdY.reserve(nVtx);
-    //vd_VtxdZ.reserve(nVtx);
-    //vd_Vtxd0.reserve(nVtx);
   }
 };
 

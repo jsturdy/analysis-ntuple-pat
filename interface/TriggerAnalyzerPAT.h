@@ -17,18 +17,12 @@
 
 // Framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include "FWCore/Framework/interface/EDAnalyzer.h"
-//#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-// SUSY include files
-//#include "SusyAnalysis/EventSelector/interface/SusyEventSelector.h"
-//#include "SusyAnalysis/EventSelector/interface/SelectorSequence.h"
 
 //#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/Common/interface/TriggerResults.h"

@@ -13,7 +13,7 @@ Description: Collects variables related to vertices, performs a primary vertex c
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: VertexAnalyzerPAT.cc,v 1.7 2010/07/05 09:28:12 sturdy Exp $
+// $Id: VertexAnalyzerPAT.cc,v 1.8 2010/10/18 14:34:47 sturdy Exp $
 //
 //
 
@@ -68,25 +68,25 @@ bool VertexAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   ev.getByLabel(_beamspotTag,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;   
 
-  m_Beamspot_x0      = bs.x0();
-  m_Beamspot_x0Error = bs.x0Error();
-  m_Beamspot_y0      = bs.y0();
-  m_Beamspot_y0Error = bs.y0Error();
-  m_Beamspot_z0      = bs.z0();
-  m_Beamspot_z0Error = bs.z0Error();
+  m_Beamspot_x0    = bs.x0();
+  m_Beamspot_y0    = bs.y0();
+  m_Beamspot_z0    = bs.z0();
+  m_Beamspot_x0Err = bs.x0Error();
+  m_Beamspot_y0Err = bs.y0Error();
+  m_Beamspot_z0Err = bs.z0Error();
 
-  m_Beamspot_WidthX      = bs.BeamWidthX();
-  m_Beamspot_WidthXError = bs.BeamWidthXError();
-  m_Beamspot_WidthY      = bs.BeamWidthY();
-  m_Beamspot_WidthYError = bs.BeamWidthYError();
+  m_Beamspot_WidthX    = bs.BeamWidthX();
+  m_Beamspot_WidthY    = bs.BeamWidthY();
+  m_Beamspot_WidthXErr = bs.BeamWidthXError();
+  m_Beamspot_WidthYErr = bs.BeamWidthYError();
 
-  m_Beamspot_SigmaZ0      = bs.sigmaZ();
-  m_Beamspot_SigmaZ0Error = bs.sigmaZ0Error();
+  m_Beamspot_dxdz    = bs.dxdz();
+  m_Beamspot_dydz    = bs.dydz();
+  m_Beamspot_dxdzErr = bs.dxdzError();
+  m_Beamspot_dydzErr = bs.dydzError();
 
-  m_Beamspot_dxdz      = bs.dxdz();
-  m_Beamspot_dxdzError = bs.dxdzError();
-  m_Beamspot_dydz      = bs.dydz();
-  m_Beamspot_dydzError = bs.dydzError();
+  m_Beamspot_SigmaZ0    = bs.sigmaZ();
+  m_Beamspot_SigmaZ0Err = bs.sigmaZ0Error();
 
   m_Beamspot_EmittanceX = bs.emittanceX();
   m_Beamspot_EmittanceY = bs.emittanceY();
@@ -170,23 +170,23 @@ void VertexAnalyzerPAT::bookTTree() {
   variables << "weight:process";
 
   //Beam spot parameters
-  mVertexData->Branch("beamspotX0",                &m_Beamspot_x0,            "beamspotX0/D");
-  mVertexData->Branch("beamspotY0",                &m_Beamspot_y0,            "beamspotY0/D");
-  mVertexData->Branch("beamspotZ0",                &m_Beamspot_z0,            "beamspotZ0/D");
-  mVertexData->Branch("beamspotWidthX",            &m_Beamspot_WidthX,        "beamspotWidthX/D");
-  mVertexData->Branch("beamspotWidthY",            &m_Beamspot_WidthY,        "beamspotWidthY/D");
-  mVertexData->Branch("beamspotX0Error",           &m_Beamspot_x0Error,       "beamspotX0Error/D");
-  mVertexData->Branch("beamspotY0Error",           &m_Beamspot_y0Error,       "beamspotY0Error/D");
-  mVertexData->Branch("beamspotZ0Error",           &m_Beamspot_z0Error,       "beamspotZ0Error/D");
-  mVertexData->Branch("beamspotWidthXError",       &m_Beamspot_WidthXError,   "beamspotWidthXError/D");
-  mVertexData->Branch("beamspotWidthYError",       &m_Beamspot_WidthYError,   "beamspotWidthYError/D");
+  mVertexData->Branch("beamspotX0",        &m_Beamspot_x0,        "beamspotX0/D");
+  mVertexData->Branch("beamspotY0",        &m_Beamspot_y0,        "beamspotY0/D");
+  mVertexData->Branch("beamspotZ0",        &m_Beamspot_z0,        "beamspotZ0/D");
+  mVertexData->Branch("beamspotX0Err",     &m_Beamspot_x0Err,     "beamspotX0Err/D");
+  mVertexData->Branch("beamspotY0Err",     &m_Beamspot_y0Err,     "beamspotY0Err/D");
+  mVertexData->Branch("beamspotZ0Err",     &m_Beamspot_z0Err,     "beamspotZ0Err/D");
+  mVertexData->Branch("beamspotWidthX",    &m_Beamspot_WidthX,    "beamspotWidthX/D");
+  mVertexData->Branch("beamspotWidthY",    &m_Beamspot_WidthY,    "beamspotWidthY/D");
+  mVertexData->Branch("beamspotWidthXErr", &m_Beamspot_WidthXErr, "beamspotWidthXErr/D");
+  mVertexData->Branch("beamspotWidthYErr", &m_Beamspot_WidthYErr, "beamspotWidthYErr/D");
 
-  mVertexData->Branch("beamspotSigmaZ0",      &m_Beamspot_SigmaZ0,      "beamspotSigmaZ0/D");
-  mVertexData->Branch("beamspotSigmaZ0Error", &m_Beamspot_SigmaZ0Error, "beamspotSigmaZ0Error/D");
-  mVertexData->Branch("beamspotdxdz",         &m_Beamspot_dxdz,         "beamspotdxdz/D");
-  mVertexData->Branch("beamspotdxdzError",    &m_Beamspot_dxdzError,    "beamspotdxdzError/D");
-  mVertexData->Branch("beamspotdydz",         &m_Beamspot_dydz,         "beamspotdydz/D");
-  mVertexData->Branch("beamspotdydzError",    &m_Beamspot_dydzError,    "beamspotdydzError/D");
+  mVertexData->Branch("beamspotdxdz",       &m_Beamspot_dxdz,       "beamspotdxdz/D");
+  mVertexData->Branch("beamspotdydz",       &m_Beamspot_dydz,       "beamspotdydz/D");
+  mVertexData->Branch("beamspotdxdzErr",    &m_Beamspot_dxdzErr,    "beamspotdxdzErr/D");
+  mVertexData->Branch("beamspotdydzErr",    &m_Beamspot_dydzErr,    "beamspotdydzErr/D");
+  mVertexData->Branch("beamspotSigmaZ0",    &m_Beamspot_SigmaZ0,    "beamspotSigmaZ0/D");
+  mVertexData->Branch("beamspotSigmaZ0Err", &m_Beamspot_SigmaZ0Err, "beamspotSigmaZ0Err/D");
 
   mVertexData->Branch("beamspotEmittanceX",      &m_Beamspot_EmittanceX,  "beamspotEmittanceX/D");
   mVertexData->Branch("beamspotEmittanceY",      &m_Beamspot_EmittanceY,  "beamspotEmittanceY/D");

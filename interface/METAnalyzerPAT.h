@@ -26,10 +26,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-// SUSY include files
-//#include "SusyAnalysis/EventSelector/interface/SusyEventSelector.h"
-//#include "SusyAnalysis/EventSelector/interface/SelectorSequence.h"
-
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/GenMET.h"
@@ -112,8 +108,6 @@ class METAnalyzerPAT {
   double localPi;
   
   void maintenance() {
-    //mep4.clear();
-    //genMETP4.clear();
     corrX.clear();
     corrY.clear();
     corrSumET.clear();

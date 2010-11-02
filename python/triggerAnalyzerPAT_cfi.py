@@ -7,5 +7,5 @@ triggerAnalyzerPAT = cms.untracked.PSet(
     getHLTfromConfig = cms.untracked.bool(False),
     hlTriggerResults = cms.untracked.InputTag('TriggerResults','','REDIGI'),
     pathNames      = cms.untracked.vstring('HLT_Jet180','HLT_DiJetAve130','HLT_MET60','HLT_HT200','HLT_HT300_MHT100','HLT_Mu9'),
-    debugTriggers  = cms.untracked.int32(1)
+    debugTriggers  = cms.untracked.int32(0)
 )
