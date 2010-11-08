@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: LeptonAnalyzerPAT.cc,v 1.10 2010/10/18 14:34:46 sturdy Exp $
+// $Id: LeptonAnalyzerPAT.cc,v 1.11 2010/11/02 13:55:17 sturdy Exp $
 //
 //
 
@@ -52,9 +52,9 @@ LeptonAnalyzerPAT::LeptonAnalyzerPAT(const edm::ParameterSet& leptonParams, TTre
   tauMinEt_  = leptonParams.getUntrackedParameter<double>("tauMinEt",5.);
   tauRelIso_ = leptonParams.getUntrackedParameter<double>("tauRelIso",0.5);
 
-  doMCData_   = leptonParams.getUntrackedParameter<bool>("doMCLeps",false);
-  if (doMCData_) 
-    genTag_   = leptonParams.getUntrackedParameter<edm::InputTag>("genLepTag");
+  //doMCData_   = leptonParams.getUntrackedParameter<bool>("doMCLeps",false);
+  //if (doMCData_) 
+  genTag_   = leptonParams.getUntrackedParameter<edm::InputTag>("genLepTag");
   debug_   = leptonParams.getUntrackedParameter<int>("debugLeps",0);
   prefix_  = leptonParams.getUntrackedParameter<std::string>("prefixLeps","");
  
@@ -91,7 +91,9 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   std::ostringstream dbg;
 
   // GEN INFO do only if running on MC data
-  if(doMCData_) {
+  doMCData_ = ev.isRealData();
+
+  if(!doMCData_) {
     //get pthat of process
     d_Pthat = -999.;
     
@@ -235,28 +237,59 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       vd_ElecVx   .push_back(theElectron.vx());
       vd_ElecVy   .push_back(theElectron.vy());
       vd_ElecVz   .push_back(theElectron.vz());
-      vd_ElecD0   .push_back(theElectron.gsfTrack()->d0());
-      vd_ElecD0Err.push_back(theElectron.gsfTrack()->d0Error());
-      vd_ElecDz   .push_back(theElectron.gsfTrack()->dz());
 
-      vd_ElecChargeMode      .push_back(theElectron.gsfTrack()->chargeMode());	
-      vd_ElecPtTrkMode       .push_back(theElectron.gsfTrack()->ptMode());
-      vd_ElecQOverPErrTrkMode.push_back(theElectron.gsfTrack()->qoverpModeError());
-      vd_ElecCharge          .push_back(theElectron.gsfTrack()->charge());
-      vd_ElecPtTrk           .push_back(theElectron.gsfTrack()->pt());
-      vd_ElecQOverPErrTrk    .push_back(theElectron.gsfTrack()->qoverpError());
-      vd_ElecNormChi2        .push_back(theElectron.gsfTrack()->normalizedChi2());
-      vd_ElecLostHits        .push_back(theElectron.gsfTrack()->lost());
-      vd_ElecValidHits       .push_back(theElectron.gsfTrack()->found());
-    
-      vd_ElecEtaTrk.push_back(theElectron.trackMomentumAtVtx().Eta());
-      vd_ElecPhiTrk.push_back(theElectron.trackMomentumAtVtx().Phi());
+      if (theElectron.gsfTrack().isNonnull()) {
+	vd_ElecD0   .push_back(theElectron.gsfTrack()->d0());
+	vd_ElecD0Err.push_back(theElectron.gsfTrack()->d0Error());
+	vd_ElecDz   .push_back(theElectron.gsfTrack()->dz());
+	
+	vd_ElecChargeMode      .push_back(theElectron.gsfTrack()->chargeMode());	
+	vd_ElecPtTrkMode       .push_back(theElectron.gsfTrack()->ptMode());
+	vd_ElecQOverPErrTrkMode.push_back(theElectron.gsfTrack()->qoverpModeError());
+	vd_ElecCharge          .push_back(theElectron.gsfTrack()->charge());
+	vd_ElecPtTrk           .push_back(theElectron.gsfTrack()->pt());
+	vd_ElecQOverPErrTrk    .push_back(theElectron.gsfTrack()->qoverpError());
+	vd_ElecNormChi2        .push_back(theElectron.gsfTrack()->normalizedChi2());
+	vd_ElecLostHits        .push_back(theElectron.gsfTrack()->lost());
+	vd_ElecValidHits       .push_back(theElectron.gsfTrack()->found());
+
+	vd_ElecEtaTrk.push_back(theElectron.trackMomentumAtVtx().Eta());
+	vd_ElecPhiTrk.push_back(theElectron.trackMomentumAtVtx().Phi());
+	vd_ElecPinTrk.push_back(sqrt(theElectron.trackMomentumAtVtx().Mag2()));
+	vd_ElecPoutTrk.push_back(sqrt(theElectron.trackMomentumOut().Mag2()));
+      }
+
+      else {
+	vd_ElecD0   .push_back(-9999);
+	vd_ElecD0Err.push_back(-9999);
+	vd_ElecDz   .push_back(-9999);
+	
+	vd_ElecChargeMode      .push_back(-9999);
+	vd_ElecPtTrkMode       .push_back(-9999);
+	vd_ElecQOverPErrTrkMode.push_back(-9999);
+	vd_ElecCharge          .push_back(-9999);
+	vd_ElecPtTrk           .push_back(-9999);
+	vd_ElecQOverPErrTrk    .push_back(-9999);
+	vd_ElecNormChi2        .push_back(-9999);
+	vd_ElecLostHits        .push_back(-9999);
+	vd_ElecValidHits       .push_back(-9999);
+
+	vd_ElecEtaTrk .push_back(-9999);
+	vd_ElecPhiTrk .push_back(-9999);
+	vd_ElecPinTrk .push_back(-9999);
+	vd_ElecPoutTrk.push_back(-9999);
+      }
       
-      vd_ElecWidthClusterEta.push_back(theElectron.superCluster()->etaWidth());
-      vd_ElecWidthClusterPhi.push_back(theElectron.superCluster()->phiWidth());
       
-      vd_ElecPinTrk.push_back(sqrt(theElectron.trackMomentumAtVtx().Mag2()));
-      vd_ElecPoutTrk.push_back(sqrt(theElectron.trackMomentumOut().Mag2()));
+      if (theElectron.superCluster().isNonnull()) {
+	vd_ElecWidthClusterEta.push_back(theElectron.superCluster()->etaWidth());
+	vd_ElecWidthClusterPhi.push_back(theElectron.superCluster()->phiWidth());
+      }
+      
+      else {
+	vd_ElecWidthClusterEta.push_back(-9999);
+	vd_ElecWidthClusterPhi.push_back(-9999);
+      }
 
       //get associated gen particle information
       const reco::Candidate* candElec = theElectron.genLepton();
@@ -379,13 +412,16 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	vd_MuonCombD0Err.push_back(theMuon.combinedMuon()->d0Error());
 	vd_MuonCombDz   .push_back(theMuon.combinedMuon()->dz());
 
-      } else {
-	vd_MuonCombVx   .push_back(999.);
-	vd_MuonCombVy   .push_back(999.);
-	vd_MuonCombVz   .push_back(999.);
-	vd_MuonCombD0   .push_back(999.);
-	vd_MuonCombD0Err.push_back(999.);
-	vd_MuonCombDz   .push_back(999.);
+      }
+      else {
+	vd_MuonCombChi2 .push_back(-9999.);
+	vd_MuonCombNdof .push_back(-9999.);
+	vd_MuonCombVx   .push_back(-9999.);
+	vd_MuonCombVy   .push_back(-9999.);
+	vd_MuonCombVz   .push_back(-9999.);
+	vd_MuonCombD0   .push_back(-9999.);
+	vd_MuonCombD0Err.push_back(-9999.);
+	vd_MuonCombDz   .push_back(-9999.);
       }
 
       //Standalone muon information
@@ -402,16 +438,16 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	vd_MuonStandQOverPErr.push_back(theMuon.standAloneMuon()->qoverpError());
       } 
       else{
-	vd_MuonStandValidHits.push_back(999.);
-	vd_MuonStandLostHits.push_back(999.);
-	vd_MuonStandPt.push_back(999.);
-	vd_MuonStandPz.push_back(999.);
-	vd_MuonStandP.push_back(999.);
-	vd_MuonStandEta.push_back(999.);
-	vd_MuonStandPhi.push_back(999.);
-	vd_MuonStandChi.push_back(999.);
-	vd_MuonStandCharge.push_back(999.);
-	vd_MuonStandQOverPErr.push_back(999.);
+	vd_MuonStandValidHits.push_back(-9999.);
+	vd_MuonStandLostHits.push_back(-9999.);
+	vd_MuonStandPt.push_back(-9999.);
+	vd_MuonStandPz.push_back(-9999.);
+	vd_MuonStandP.push_back(-9999.);
+	vd_MuonStandEta.push_back(-9999.);
+	vd_MuonStandPhi.push_back(-9999.);
+	vd_MuonStandChi.push_back(-9999.);
+	vd_MuonStandCharge.push_back(-9999.);
+	vd_MuonStandQOverPErr.push_back(-9999.);
       }
 
       //Muon tracking information
@@ -434,21 +470,21 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 
       }
       else{
-	vd_MuonTrkChiNorm.push_back(999.);
-	vd_MuonTrkValidHits.push_back(999);
-	vd_MuonTrkLostHits.push_back(999);
-	vd_MuonTrkD0   .push_back(999);
-	vd_MuonTrkD0Err.push_back(999);
-	vd_MuonTrkPt   .push_back(999);
-	vd_MuonTrkPz   .push_back(999);
-	vd_MuonTrkP    .push_back(999);
-	vd_MuonTrkEta  .push_back(999);
-	vd_MuonTrkPhi  .push_back(999);
-	vd_MuonTrkChi  .push_back(999);
-	vd_MuonTrkCharge.push_back(999);
-	vd_MuonTrkQOverPErr.push_back(999);
-	//  vd_MuonTrkOuterZ.push_back(999.);
-	//  vd_MuonTrkOuterR.push_back(999.);
+	vd_MuonTrkChiNorm.push_back(-9999.);
+	vd_MuonTrkValidHits.push_back(-9999);
+	vd_MuonTrkLostHits.push_back(-9999);
+	vd_MuonTrkD0   .push_back(-9999);
+	vd_MuonTrkD0Err.push_back(-9999);
+	vd_MuonTrkPt   .push_back(-9999);
+	vd_MuonTrkPz   .push_back(-9999);
+	vd_MuonTrkP    .push_back(-9999);
+	vd_MuonTrkEta  .push_back(-9999);
+	vd_MuonTrkPhi  .push_back(-9999);
+	vd_MuonTrkChi  .push_back(-9999);
+	vd_MuonTrkCharge.push_back(-9999);
+	vd_MuonTrkQOverPErr.push_back(-9999);
+	//  vd_MuonTrkOuterZ.push_back(-9999.);
+	//  vd_MuonTrkOuterR.push_back(-9999.);
       }
 
       //Muon gen particle association variables
@@ -530,12 +566,18 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       vd_TauVx     .push_back(theTau.vx());
       vd_TauVy     .push_back(theTau.vy());
       vd_TauVz     .push_back(theTau.vz());
-      vd_TauD0     .push_back(theTau.leadTrack()->d0());
-      vd_TauD0Err  .push_back(theTau.leadTrack()->d0Error());
-      vd_TauDz     .push_back(theTau.leadTrack()->dz());
 
-      if (debug_) edm::LogVerbatim("LeptonEvent")<<logmessage<<std::endl;
-      
+      if (theTau.leadTrack().isNonnull()) {
+      	vd_TauD0     .push_back(theTau.leadTrack()->d0());
+      	vd_TauD0Err  .push_back(theTau.leadTrack()->d0Error());
+      	vd_TauDz     .push_back(theTau.leadTrack()->dz());
+      }
+      else {
+	edm::LogWarning("LeptonEvent") << "Tau leadTrack is Null";
+      	vd_TauD0     .push_back(-9999);
+      	vd_TauD0Err  .push_back(-9999);
+      	vd_TauDz     .push_back(-9999);
+      }
       vf_TauIdElec       .push_back(theTau.tauID("againstElectron"));
       vf_TauIdMuon       .push_back(theTau.tauID("againstMuon"));
       vf_TauIdIso        .push_back(theTau.tauID("byIsolation"));
@@ -566,8 +608,8 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	genp4.SetPxPyPzE(-999.,-999.,-999.,-999.);
 	v_gentauP4.push_back(genp4);
       }
+
       const reco::Candidate* candTauJet = theTau.genJet();
-      
       if (candTauJet) {
 	reco::Candidate::LorentzVector genjetp4;
 	genjetp4.SetPxPyPzE(candTauJet->px(),candTauJet->py(),candTauJet->pz(),candTauJet->energy());
@@ -619,6 +661,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	genjetp4.SetPxPyPzE(-999.,-999.,-999.,-999.);
 	v_gentaujetP4.push_back(genjetp4);
       }
+
       double tauIsoReq = (vd_TauTrkIso.at(tau)+vd_TauECalIso.at(tau)+vd_TauHCalIso.at(tau))/theTau.pt();
       if ( tauIsoReq  > tauRelIso_) bool_TauVeto = bool_TauVeto || true;
       if ( theTau.pt() > tauMaxEt_ ) bool_TauVeto = bool_TauVeto || true;
@@ -824,7 +867,7 @@ void LeptonAnalyzerPAT::bookTTree() {
   
   
   //generator level information
-  if (doMCData_) {
+  if (!doMCData_) {
     //generator leptons (electrons and muons and taus
     mLeptonData->Branch(prefix_+"genP4",       &v_genP4);
     mLeptonData->Branch(prefix_+"genN",        &i_length,        prefix_+"genN/I");

@@ -14,7 +14,7 @@ Implementation:Uses the EventSelector interface for event selection and TFileSer
 //
 // Original Author:  Markus Stoye, (modified by Jared Sturdy from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: AnalysisNtuplePAT.cc,v 1.5 2010/07/08 03:22:30 sturdy Exp $
+// $Id: AnalysisNtuplePAT.cc,v 1.6 2010/10/18 14:34:46 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/AnalysisNtuplePAT.h"
@@ -38,18 +38,18 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
   calojetinfo   = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("caloJetParameters"), mAllData);
   jptjetinfo    = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("jptJetParameters"), mAllData);
   pfjetinfo     = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfJetParameters"), mAllData);
-  //pf2patjetinfo = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pf2patJetParameters"), mAllData);
+  pf2patjetinfo = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pf2patJetParameters"), mAllData);
   trackjetinfo  = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackJetParameters"), mAllData);
 
   calometinfo          = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometParameters"), mAllData);
-  //calomettypeiiinfo    = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometTypeIIParameters"), mAllData);
+  calomettypeiiinfo    = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometTypeIIParameters"), mAllData);
 
   pfmetinfo   = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfmetParameters"), mAllData);
 
   tcmetinfo      = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("tcmetParameters"), mAllData);
 
   photons   = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("photonParameters"), mAllData);
-  //pfphotons = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfphotonParameters"), mAllData);
+  pfphotons = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfphotonParameters"), mAllData);
 
   leptons   = new LeptonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("leptonParameters"), mAllData);
   pfleptons = new LeptonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfleptonParameters"), mAllData);
@@ -134,17 +134,17 @@ AnalysisNtuplePAT::analyze(const edm::Event& ev, const edm::EventSetup& sp)
   if (debug_) 
     std::cout<<"Getting the pf jet result"<<std::endl;
   bool mypfjetresult    = pfjetinfo->filter(ev, sp);
-  //if (debug_) 
-  //  std::cout<<"Getting the pf2pat jet result"<<std::endl;
-  //bool mypf2patjetresult    = pf2patjetinfo->filter(ev, sp);
+  if (debug_) 
+    std::cout<<"Getting the pf2pat jet result"<<std::endl;
+  bool mypf2patjetresult    = pf2patjetinfo->filter(ev, sp);
   if (debug_)
-    std::cout<<"Getting the calo jet result"<<std::endl;
+    std::cout<<"Getting the track jet result"<<std::endl;
   bool mytrackjetresult = trackjetinfo->filter(ev, sp);
 
   if (debug_) 
     std::cout<<"Getting the calo met result"<<std::endl;
   bool mycalometresult          = calometinfo->filter(ev, sp);
-  //bool mycalomettypeiiresult    = calomettypeiiinfo->filter(ev, sp);
+  bool mycalomettypeiiresult    = calomettypeiiinfo->filter(ev, sp);
 
   if (debug_) 
     std::cout<<"Getting the pf met result"<<std::endl;
@@ -157,9 +157,9 @@ AnalysisNtuplePAT::analyze(const edm::Event& ev, const edm::EventSetup& sp)
   if (debug_) 
     std::cout<<"Getting the reco photon result"<<std::endl;
   bool myphotonresult   = photons->filter(ev, sp);
-  //if (debug_)
-  //  std::cout<<"Getting the pf photon result"<<std::endl;
-  //bool mypfphotonresult = pfphotons->filter(ev, sp);
+  if (debug_)
+    std::cout<<"Getting the pf photon result"<<std::endl;
+  bool mypfphotonresult = pfphotons->filter(ev, sp);
 
   if (debug_) 
     std::cout<<"Getting the reco lepton result"<<std::endl;
@@ -190,7 +190,7 @@ AnalysisNtuplePAT::analyze(const edm::Event& ev, const edm::EventSetup& sp)
   if (mypfleptonresult) ++passPFLeptons[0];
 
   if (myphotonresult)   ++passPhotons[0];
-  //if (mypfphotonresult) ++passPFPhotons[0];
+  if (mypfphotonresult) ++passPFPhotons[0];
 
   if (myvertexresult)  ++passVertex[0];
   if (mytrackresult)   ++passTracks[0];

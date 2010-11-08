@@ -13,7 +13,7 @@ Description: Collects variables related to tracks
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: TrackAnalyzerPAT.cc,v 1.5 2010/07/08 03:22:30 sturdy Exp $
+// $Id: TrackAnalyzerPAT.cc,v 1.6 2010/10/18 14:34:46 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/TrackAnalyzerPAT.h"
@@ -25,9 +25,9 @@ TrackAnalyzerPAT::TrackAnalyzerPAT(const edm::ParameterSet& trackParams, TTree* 
   mTrackData = tmpAllData;
 
   debug_   = trackParams.getUntrackedParameter<int>("debugTracks",0);
-  doMCData_  = trackParams.getUntrackedParameter<bool>("doMCTracks",false);
-  if (doMCData_)
-    trackTag_  = trackParams.getUntrackedParameter<edm::InputTag>("trackTag");
+  //doMCData_  = trackParams.getUntrackedParameter<bool>("doMCTracks",false);
+  //if (doMCData_)
+  trackTag_  = trackParams.getUntrackedParameter<edm::InputTag>("trackTag");
  
   localPi = acos(-1.0);
 
@@ -44,10 +44,12 @@ TrackAnalyzerPAT::~TrackAnalyzerPAT() {
 
 //________________________________________________________________________________________
 // Method called to for each event
-bool TrackAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool TrackAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 {
   using namespace reco;
   using namespace edm;
+
+  doMCData_ = ev.isRealData();
 
   track_result = true;
   edm::LogVerbatim("TrackEvent") << " Start  " << std::endl;
@@ -61,7 +63,7 @@ bool TrackAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& i
     std::cout<<"Getting the tracks"<<std::endl;
 
   edm::Handle<View<reco::Track> >  myTracks;
-  iEvent.getByLabel(trackTag_,myTracks);
+  ev.getByLabel(trackTag_,myTracks);
   if (!myTracks.isValid()) {
     edm::LogVerbatim("TrackEvent") << " Unable to find reco::Tracks with label  "<<trackTag_ << std::endl;
     if (debug_)

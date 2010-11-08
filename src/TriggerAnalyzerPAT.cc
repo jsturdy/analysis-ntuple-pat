@@ -13,7 +13,7 @@ Description: Collects the trigger results and performs a basic trigger selection
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: TriggerAnalyzerPAT.cc,v 1.8 2010/10/13 16:46:09 sturdy Exp $
+// $Id: TriggerAnalyzerPAT.cc,v 1.9 2010/10/18 14:34:47 sturdy Exp $
 //
 //
 //#include "SusyAnalysis/EventSelector/interface/BJetEventSelector.h"
@@ -118,7 +118,7 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
    *
    ******************************************************************/
   //L1 trigger results
-  if (debug_)
+  if (debug_>5)
     std::cout<<"Getting the L1 trigger results"<<std::endl;
 
   edm::Handle<L1GlobalTriggerReadoutRecord> l1GtHandle;
@@ -134,7 +134,7 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   edm::ESHandle<L1GtPrescaleFactors> psTech;
   es.get<L1GtPrescaleFactorsTechTrigRcd>().get(psTech);
 
-  if (debug_)
+  if (debug_>5)
     std::cout<<"Getting the L1 trigger map"<<std::endl;
   //const AlgorithmMap& algoMap = L1menu->gtAlgorithmMap();
   //const AlgorithmMap& techMap = L1menu->gtTechnicalTriggerMap();
@@ -157,7 +157,7 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   const std::vector<int>&  vTechInt  = psTech->gtPrescaleFactors().at(l1GtHandle->gtFdlWord(nBx).gtPrescaleFactorIndexTech());
 
   int l1phys = 0;
-  if (debug_)
+  if (debug_>5)
     std::cout<<"Getting the L1 Physics trigger results"<<std::endl;
   for( AlgorithmMap::const_iterator it = algoMap.begin(); it != algoMap.end(); ++it) {
     std::string l1AlgName = (it->second).algoName();
@@ -165,23 +165,23 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
     int  l1AlgPre = vAlgoInt.at(it->second.algoBitNumber());
     l1triggered[l1AlgName] = l1AlgBit;
     l1prescaled[l1AlgName] = l1AlgPre;
-    if (debug_)
+    if (debug_>5)
       std::cout<<"L1AlgoBit named: "<<l1AlgName<<" with bit: "<<l1AlgBit<<" and prescale: "<<l1AlgPre<<std::endl;
     ++l1phys;
   }
   
   int l1tech  = 0;
-  if (debug_)
+  if (debug_>5)
     std::cout<<"Getting the L1 Technical trigger results"<<std::endl;
   for( AlgorithmMap::const_iterator it = techMap.begin(); it != techMap.end(); ++it) {
-    if (debug_)
+    if (debug_>5)
       std::cout<<"Accessing L1 Technical trigger results"<<std::endl;
     std::string l1TechName = (it->second).algoName();
     bool l1TechBit = vTechBool.at(it->second.algoBitNumber());
     int  l1TechPre = vTechInt.at(it->second.algoBitNumber());
     l1triggered[l1TechName] = l1TechBit;
     l1prescaled[l1TechName] = l1TechPre;
-    if (debug_)
+    if (debug_>5)
       std::cout<<"L1TechBit named: "<<l1TechName<<" with bit: "<<l1TechBit<<" and prescale: "<<l1TechPre<<std::endl;
     ++l1tech;
   }
@@ -199,7 +199,8 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
     //ev.getByLabel(hlTriggerResults_, hltHandle);
     Handle<trigger::TriggerEvent> hltEventHandle;
     ev.getByLabel("hltTriggerSummaryAOD", hltEventHandle);
-    
+    if (debug_>5)
+      std::cout<<hltEventHandle.provenance()->processName()<<std::endl;
     hlTriggerResults_ = InputTag("TriggerResults","",hltEventHandle.provenance()->processName());
     
   }
@@ -225,7 +226,7 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
     hlttriggered[tmpName] = trgResult;
     hltprescaled[tmpName] = trgPrescale;
 
-    if (debug_) 
+    if (debug_>5) 
       std::cout<<"HLT trigger named: "<<tmpName<<" has result "<<trgResult<<std::endl;
     if (tmpName == "HLT_Jet180")       m_HLT1JET    = trgResult;
     if (tmpName == "HLT_DiJetAve130")  m_HLT2JET    = trgResult;
@@ -236,7 +237,7 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
     if (tmpName == "HLT_L1_BscMinBiasOR_BptxPlusORMinus")          m_HLTMinBias = trgResult; 
   }
 
-  if (debug_)
+  if (debug_>5)
     std::cout<<"Done analyzing triggers"<<std::endl;
   return trigger_result;
 }

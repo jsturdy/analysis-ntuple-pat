@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.11 2010/10/18 14:34:46 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.12 2010/11/02 13:55:17 sturdy Exp $
 //
 //
 
@@ -26,24 +26,6 @@ Description: Collects variables related to jets, performs dijet preselection
 #include <sstream>
 
 #ifdef __CINT__ 
-//
-//typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> LorentzV;
-//typedef std::vector<LorentzV>                                   LorentzVs;
-//
-//#pragma link C++ typedef LorentzV;
-//#pragma link C++ typedef LorentzVs;
-//
-//#pragma link C++ class std::map <std::string, std::vector<float> >+; 
-//#pragma link C++ class std::pair<std::string, std::vector<float> >; 
-//#pragma link C++ class std::pair<const std::string, std::vector<float> >; 
-//#pragma link C++ class std::vector< <reco::Candidate::LorentzVector> >+; 
-//
-//#pragma link C++ class LorentzV+; 
-//#pragma link C++ class LorentzVs+; 
-//
-//#pragma link C++ typedef BTAGINFO;
-//#pragma link C++ typedef MYJETID;
-//#pragma link C++ typedef MYMHT;
 
 #pragma link C++ struct MYMHT;
 #pragma link C++ struct MYJETID;
@@ -71,23 +53,6 @@ JetAnalyzerPAT::JetAnalyzerPAT(const edm::ParameterSet& jetParams, TTree* tmpAll
   htMaxEta_ = jetParams.getUntrackedParameter<double >("htMaxEta",jetMaxEta_);
   htMinPt_  = jetParams.getUntrackedParameter<double >("htMinPt", jetMinPt_);
 
-  //Individual jet requirements
-  //selJetMaxEta_ = jetParams.getUntrackedParameter<std::vector<double > >("selJetMaxEta");
-  //selJetMinPt_  = jetParams.getUntrackedParameter<std::vector<double > >("selJetMinPt");
-  //selJetMaxEMF_ = jetParams.getUntrackedParameter<std::vector<double > >("selJetMaxEMF");
-  //selJetMinEMF_ = jetParams.getUntrackedParameter<std::vector<double > >("selJetMinEMF");
-  //
-  //if (debug_) {
-  //  std::cout<<"size of dijet vector "<<selJetMaxEta_.size()<<std::endl;
-  //  for (int nj = 0; nj < int(selJetMaxEta_.size()); ++nj) {
-  //    printf("jet %2d, eta max %2.2f, min pt %2.2f, max emf %2.2f, min emf %2.2f\n",nj,selJetMaxEta_.at(nj), selJetMinPt_.at(nj),selJetMaxEMF_.at(nj), selJetMinEMF_.at(nj));
-  //  }
-  //}
-  
-  doMCData_     = jetParams.getUntrackedParameter<bool>("doMCJets",false);
-  if (doMCData_) 
-    genJetTag_    = jetParams.getUntrackedParameter<edm::InputTag>("genJetTag");
- 
   // get the data tags
   usePFJets_    = jetParams.getUntrackedParameter<bool>("usePFJets",   false);
   useJPTJets_   = jetParams.getUntrackedParameter<bool>("useJPTJets",  false);
@@ -96,61 +61,7 @@ JetAnalyzerPAT::JetAnalyzerPAT(const edm::ParameterSet& jetParams, TTree* tmpAll
 
   jetTag_     = jetParams.getUntrackedParameter<edm::InputTag>("jetTag");
 
-  //calo jet id
-  jetMaxHPD_ = jetParams.getUntrackedParameter<double>("jetMaxHPD",1.01);
-  jetMinHPD_ = jetParams.getUntrackedParameter<double>("jetMinHPD",0.00);
-  jetMaxRBX_ = jetParams.getUntrackedParameter<double>("jetMaxRBX",1.01);
-  jetMinRBX_ = jetParams.getUntrackedParameter<double>("jetMinRBX",0.00);
-  jetMaxN90_ = jetParams.getUntrackedParameter<double>("jetMaxN90",100.);
-  jetMinN90_ = jetParams.getUntrackedParameter<double>("jetMinN90",1.);
-
-  //PF jet id
-  jetMaxCHF_ = jetParams.getUntrackedParameter<double>("jetMaxCHF",1.01);
-  jetMinCHF_ = jetParams.getUntrackedParameter<double>("jetMinCHF",0.00);
-  jetMaxNHF_ = jetParams.getUntrackedParameter<double>("jetMaxNHF",1.01);
-  jetMinNHF_ = jetParams.getUntrackedParameter<double>("jetMinNHF",0.00);
-  jetMaxCEF_ = jetParams.getUntrackedParameter<double>("jetMaxCEF",1.01);
-  jetMinCEF_ = jetParams.getUntrackedParameter<double>("jetMinCEF",0.00);
-  jetMaxNEF_ = jetParams.getUntrackedParameter<double>("jetMaxNEF",1.01);
-  jetMinNEF_ = jetParams.getUntrackedParameter<double>("jetMinNEF",0.00);
-  jetMaxCMF_ = jetParams.getUntrackedParameter<double>("jetMaxCMF",1.01);
-  jetMinCMF_ = jetParams.getUntrackedParameter<double>("jetMinCMF",0.00);
-
-  jetMaxCMult_  = jetParams.getUntrackedParameter<double>("jetMaxCMult",9999.);
-  jetMinCMult_  = jetParams.getUntrackedParameter<double>("jetMinCMult",0.);
-  jetMaxNMult_  = jetParams.getUntrackedParameter<double>("jetMaxNMult",9999.);
-  jetMinNMult_  = jetParams.getUntrackedParameter<double>("jetMinNMult",0.);
-  jetMaxMuMult_ = jetParams.getUntrackedParameter<double>("jetMaxMuMult",9999.);
-  jetMinMuMult_ = jetParams.getUntrackedParameter<double>("jetMinMuMult",0.);
-
-
   localPi = acos(-1.0);
-
-  //if (useCaloJets_ ) {
-  //  caloJetIDMinimal = new JetIDSelectorFunctor( JetIDSelectionFunctor::PURE09,
-  //		      JetIDSelectionFunctor::MINIMAL );
-  //  
-  //  caloJetIDLoose = new JetIDSelectorFunctor( JetIDSelectionFunctor::PURE09,
-  //		    JetIDSelectionFunctor::LOOSE );
-  //  
-  //  caloJetIDTight = new JetIDSelectorFunctor( JetIDSelectionFunctor::PURE09,
-  //		    JetIDSelectionFunctor::TIGHT );
-  //  
-  //  retmin = caloJetIDMinimal.getBitTemplate();
-  //  retloo = caloJetIDLoose.getBitTemplate();
-  //  rettig = caloJetIDTight.getBitTemplate();
-  //}
-  //if (usePFJets_) {
-  //  pfJetIDLoose = new PFJetIDSelectorFunctor( PFJetIDSelectionFunctor::FIRSTDATA,
-  //		  PFJetIDSelectionFunctor::LOOSE );
-  //  
-  //  pfJetIDTight = new PFJetIDSelectorFunctor( PFJetIDSelectionFunctor::FIRSTDATA,
-  //		  PFJetIDSelectionFunctor::TIGHT );
-  //  
-  //  //retmin = pfJetIDMinimal.getBitTemplate();
-  //  retloo = pfJetIDLoose.getBitTemplate();
-  //  rettig = pfJetIDTight.getBitTemplate();
-  //}
 
   // Initialise plots [should improve in the future]
   bookTTree();
@@ -165,18 +76,19 @@ JetAnalyzerPAT::~JetAnalyzerPAT() {
 
 //________________________________________________________________________________________
 // Method called to for each event
-bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 {
   using namespace reco;
   using namespace edm;
 
+  doMCData_ = ev.isRealData();
 
   bool_JetPreselection = false;
   bool jet_result = true;
   edm::LogVerbatim("DiJetEvent::JetAnalyzerPAT") << " Start  " << std::endl;
 
   edm::Handle< std::vector<pat::Jet> > jetHandle;
-  iEvent.getByLabel(jetTag_, jetHandle);
+  ev.getByLabel(jetTag_, jetHandle);
   if ( !jetHandle.isValid() ) {
     edm::LogWarning("DiJetEvent::JetAnalyzerPAT") << "No Jet results for InputTag " << jetTag_;
     return false;
@@ -185,8 +97,8 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
   //get number of jets
   i_NJets = jetHandle->size();
   edm::LogInfo("DiJetEvent::JetAnalyzerPAT") << "Processing Jets for InputTag " << jetTag_;
-  if (debug_ > 5) std::cout<< "Processing "<<jetHandle->size() <<" Jets for InputTag " << jetTag_<<std::endl;
-  if (debug_) {
+  if (debug_>5) std::cout<< "Processing "<<jetHandle->size() <<" Jets for InputTag " << jetTag_<<std::endl;
+  if (debug_>5) {
     if (i_NJets) {
       std::cout<< "isCalo " <<(*jetHandle)[0].isCaloJet()  <<" Jets for InputTag " << jetTag_<<std::endl;
       std::cout<< "isJPT "  <<(*jetHandle)[0].isJPTJet()   <<" Jets for InputTag " << jetTag_<<std::endl;
@@ -246,12 +158,12 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (theJet.pt() > jetMinPt_) {
       if (fabs(theJet.eta()) < jetMaxEta_) {
 
-	if (debug_) std::cout<<"\n\nPassed minimum jet id requirements\n\n"<<std::endl;
+	if (debug_>5) std::cout<<"\n\nPassed minimum jet id requirements\n\n"<<std::endl;
 	
 
 	if (theJet.isCaloJet()) {
 	  
-	  if (debug_) std::cout<<"\n\nGetting track information from jets\n\n"<<std::endl;
+	  if (debug_>5) std::cout<<"\n\nGetting track information from jets\n\n"<<std::endl;
 	  const reco::TrackRefVector & mrTracksInJet = theJet.associatedTracks();
 	  
 	  vd_JetTrackPt         .push_back(0);
@@ -281,7 +193,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  vd_JetTrackPhi.at(mjet)         = vd_JetTrackPhi.at(mjet)/float(vi_JetTrackNo.at(mjet));
 	}
 
-	if (debug_) std::cout<<"\n\nGetting corrections for calo jets\n\n"<<std::endl;
+	if (debug_>5) std::cout<<"\n\nGetting corrections for calo jets\n\n"<<std::endl;
 
 	//if (useCaloJets_) {
 	if (theJet.hasCorrFactors()) {
@@ -313,7 +225,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	}
 
 	else {
-	  if (debug_) std::cout<<"\n\nGetting corrections for other jets\n\n"<<std::endl;
+	  if (debug_>5) std::cout<<"\n\nGetting corrections for other jets\n\n"<<std::endl;
 
 	  map_s_vd_correctionFactor["raw"].push_back(1);
 	  map_s_vd_correctionFactor["off"].push_back(1);
@@ -350,7 +262,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	vi_JetNConst.push_back(theJet.nConstituents());
 
 	//Calo jet type specific
-	if (debug_) 
+	if (debug_>5) 
 	  std::cout<<"\n\nSetting up jetid\n\n"<<std::endl;
 	if (useCaloJets_ || useJPTJets_) {
 	  JetIDSelectionFunctor jetIDMinimal( JetIDSelectionFunctor::PURE09,
@@ -389,10 +301,6 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  vd_JetFem.push_back(theJet.emEnergyFraction());
 	  vd_JetFhad.push_back(theJet.energyFractionHadronic());
 	  
-	  if (debug_ > 5) 
-	    std::cout<<"\n\nDone with jetid for calo jets\n\n"<<std::endl;
-	  if (debug_ > 5)
-	    std::cout<<"\n\naccessing jetid information for fhpd, frbx, and n90hits\n\n"<<std::endl;
 	  vd_JetN90 .push_back(theJet.jetID().n90Hits);
 	  vd_JetfHPD.push_back(theJet.jetID().fHPD);
 	  vd_JetfRBX.push_back(theJet.jetID().fRBX);
@@ -414,24 +322,16 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  //thejetid.JetFhad = theJet.neutralHadronEnergyFraction()+
 	  //  theJet.chargedHadronEnergyFraction();
 	  
-	  if (debug_ > 5) std::cout<<"charged em fraction"<<std::endl;
 	  vd_JetChargedFem .push_back(theJet.chargedEmEnergyFraction());
-	  if (debug_ > 5) std::cout<<"neutral em fraction"<<std::endl;
 	  vd_JetNeutralFem .push_back(theJet.neutralEmEnergyFraction());
-	  if (debug_ > 5) std::cout<<"charged hadron fraction"<<std::endl;
 	  vd_JetChargedFhad.push_back(theJet.chargedHadronEnergyFraction());
-	  if (debug_ > 5) std::cout<<"neutral hadron fraction"<<std::endl;
 	  vd_JetNeutralFhad.push_back(theJet.neutralHadronEnergyFraction());
 	  
-	  if (debug_ > 5) std::cout<<"chraged multiplicity"<<std::endl;
 	  vd_JetChargedMult.push_back(theJet.chargedMultiplicity());
-	  if (debug_ > 5) std::cout<<"muon multiplicity"<<std::endl;
 	  vd_JetMuonMult   .push_back(theJet.muonMultiplicity());
 	  
-	  if (debug_ > 5) std::cout<<"em fraction"<<std::endl;
 	  vd_JetFem .push_back(theJet.neutralEmEnergyFraction()+
 	  		       theJet.chargedEmEnergyFraction());
-	  if (debug_ > 5) std::cout<<"hadron fraction"<<std::endl;
 	  vd_JetFhad.push_back(theJet.neutralHadronEnergyFraction()+
 	  		       theJet.chargedHadronEnergyFraction());
 	}
@@ -474,7 +374,6 @@ bool JetAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  vd_JetHFFem .push_back(theJet.HFEMEnergyFraction());
 	  vd_JetHFFhad.push_back(theJet.HFHadronEnergyFraction());
 	  
-	  if (debug_ > 5) std::cout<<"neutral multiplicity"<<std::endl;
 	  vd_JetNeutralMult.push_back(theJet.neutralMultiplicity());
 	  
 	  vd_JetChargedHadMult.push_back(theJet.chargedHadronMultiplicity());

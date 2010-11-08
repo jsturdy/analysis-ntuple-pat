@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: PhotonAnalyzerPAT.cc,v 1.8 2010/10/18 14:34:46 sturdy Exp $
+// $Id: PhotonAnalyzerPAT.cc,v 1.9 2010/11/02 13:55:17 sturdy Exp $
 //
 //
 
@@ -75,12 +75,14 @@ PhotonAnalyzerPAT::~PhotonAnalyzerPAT() {
 
 //________________________________________________________________________________________
 // Method called to for each event
-bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 {
   
   using namespace reco;
   using namespace edm;
 
+  doMCData_ = ev.isRealData();
+  
   bool_PhotVeto      = false;
   bool photon_result = true;
   edm::LogVerbatim("PhotonEvent") << " Start  " << std::endl;
@@ -88,10 +90,10 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
   std::ostringstream dbg;
   
   // GEN INFO do only if running on MC data
-  if (doMCData_) {
+  if (!doMCData_) {
     
     Handle<reco::GenParticleCollection>  genParticles;
-    iEvent.getByLabel(genTag_, genParticles);   
+    ev.getByLabel(genTag_, genParticles);   
     
     int pcount=0;
     maintenanceGen(genParticles->size());
@@ -135,7 +137,7 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& iEvent, const edm::EventSetup& 
 
   // get the photons
   edm::Handle< std::vector<pat::Photon> > photHandle;
-  iEvent.getByLabel(photTag_, photHandle);
+  ev.getByLabel(photTag_, photHandle);
   if ( !photHandle.isValid() ) {
     edm::LogWarning("PhotonEvent") << "No Photon results for InputTag " << photTag_;
     return false;
@@ -238,7 +240,7 @@ void PhotonAnalyzerPAT::bookTTree() {
   mPhotonData->Branch(prefix_+"PhotGenMother", &vd_PhotGenMother);
   mPhotonData->Branch(prefix_+"PhotGenP4",     &v_genphotP4);
   
-  if (doMCData_) {
+  if (!doMCData_) {
   
     //from genParticles
     mPhotonData->Branch(prefix_+"genPhotP4",       &v_genPhotP4);

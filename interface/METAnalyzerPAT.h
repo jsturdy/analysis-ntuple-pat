@@ -29,6 +29,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
 
 
@@ -66,6 +67,8 @@ class METAnalyzerPAT {
 
   // Generated MET
   double m_METGen[3];
+  double m_METGenTrue[3];
+  double m_METGenCalo[3];
 
   int nFullMET;
   int nUncorrMET;
@@ -77,6 +80,21 @@ class METAnalyzerPAT {
 
   reco::Candidate::LorentzVector mep4;
   reco::Candidate::LorentzVector genMETP4;
+  reco::Candidate::LorentzVector genTrueMETP4;
+  reco::Candidate::LorentzVector genCaloMETP4;
+
+  double genSumEt;
+  double genTrueSumEt;
+  double genCaloSumEt;
+
+  double genMetSig;
+  double genTrueMetSig;
+  double genCaloMetSig;
+
+  double genSignificance;
+  double genTrueSignificance;
+  double genCaloSignificance;
+
   std::map<std::string, float> corrX;
   std::map<std::string, float> corrY;
   std::map<std::string, float> corrSumET;
