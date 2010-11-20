@@ -187,7 +187,7 @@ class METResolutionStudy  {
   TBranch  *b_HLTPrescaled;
 
 
-  METResolutionStudy(TTree *tree=0, bool isData=false, std::string jetPrefix="PF", std::string phtPrefix="", bool debug=false);
+  METResolutionStudy(TTree *tree=0, bool isData=false, std::string jetPrefix="PF", std::string phtPrefix="", bool doTechTrigs=true, bool debug=false);
   ~METResolutionStudy();
 
   Int_t    Cut(Long64_t entry);
@@ -208,6 +208,7 @@ class METResolutionStudy  {
   std::string phtPrefix_;
     
   bool isData_;
+  bool doTechTrigs_;
   bool debug_;
 };
 
@@ -219,15 +220,17 @@ METResolutionStudy::METResolutionStudy(TTree *tree,
 				       bool isData, 
 				       std::string jetPrefix, 
 				       std::string phtPrefix,
+				       bool doTechTrigs, 
 				       bool debug ) {
   
   std::cout<<"METResolutionStudy::Constructor"<<std::endl;
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
-  isData_    = isData;
-  debug_     = debug;
-  jetPrefix_ = jetPrefix;
-  phtPrefix_ = phtPrefix;
+  isData_      = isData;
+  doTechTrigs_ = doTechTrigs;
+  debug_       = debug;
+  jetPrefix_   = jetPrefix;
+  phtPrefix_   = phtPrefix;
   
   
   if (tree == 0) {

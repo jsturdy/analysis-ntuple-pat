@@ -18,16 +18,16 @@ using namespace ROOT;
 
 int main(int argc, char* argv[])
 {
-  const int Nparam1=6;   // NUMBER OF PARAMETERS
+  const int Nparam1=7;   // NUMBER OF PARAMETERS
   for (int thearg = 0; thearg < argc; ++thearg) 
     cout << "  -  "  << argv[thearg];
   cout<<endl;
   if(argc!=Nparam1+1)
     {
       cout << "METResolution() : argc = " << argc << " is different from " << Nparam1+1<<". Exiting." <<endl;
-      cout << "Usage  : ./METResolution inputFileList(or input file name) isData scaleType jetPrefix debug outDir" << endl;
-      cout << "Example: ./METResolution ntuples.txt 0 1 Calo 0 outputdirectory" << endl;
-      cout << "Example: ./METResolution ntuple.root 0 1 PF 0 outputdir" << endl;
+      cout << "Usage  : ./METResolution inputFileList(or input file name) isData scaleType jetPrefix doTechTrigs debug outDir" << endl;
+      cout << "Example: ./METResolution ntuples.txt 0 1 Calo 0 0 outputdirectory" << endl;
+      cout << "Example: ./METResolution ntuple.root 0 1 PF 1 0 outputdir" << endl;
       exit (1);
     };
 
@@ -44,8 +44,12 @@ int main(int argc, char* argv[])
   std::string jets  = argv[4];
 
   std::stringstream ss3 ( argv[5] );
+  bool doTechTrigs = 0;
+  ss3 >> doTechTrigs;
+
+  std::stringstream ss4 ( argv[6] );
   bool debug = 0;
-  ss3 >> debug;
+  ss4 >> debug;
 
   std::string phots = "";
   std::string outDir = argv[6];
@@ -53,8 +57,9 @@ int main(int argc, char* argv[])
   //scaling recoMET to MC using 
   //0 - FastSim TuneX1
   //1 - FullSim Pythia8
-  //2 - FullSim TuneD6T
-  //3 - FullSim TuneP0
+  //2 - FullSim Pythia8 Summer10
+  //3 - FullSim TuneD6T
+  //4 - FullSim TuneP0
 
   /**************
 
@@ -95,30 +100,18 @@ int main(int argc, char* argv[])
       firstInput = outputfile.find("input");
       size_t position = outputfile.rfind("/input/inputlist");
       outputfile.erase(position,16);
-      //if (firstPAT < firstInput)
-      //outputfile.erase(outputfile.rfind("/input/inputlist_"));
-      //else
-      //#outputfile.erase(0,outputfile.find("/input/inputlist_"));
 	
-      if (debug) std::cout<<"outputfile is: "<<outputfile<<std::endl;
       while (outputfile.find('/')!=string::npos)
 	{
 	  outputfile.erase(0,outputfile.find('/')+1);
-	  if (debug) std::cout<<"outputfile is: "<<outputfile<<std::endl;
 	}
-      if (debug) std::cout<<"done looping through to find '/', outputfile is: "<<outputfile<<std::endl;
-      
       if (outputfile.find("PATtuple_V9_")!=string::npos)
 	outputfile.erase(0,outputfile.find("PATtuple_V9_")+12);
-      if (debug) std::cout<<"done searching for 'PATtuple_V9_', outputfile is: "<<outputfile<<std::endl;
       if (outputfile.find("DATA_")!=string::npos)
 	outputfile.erase(0,outputfile.find("DATA_")+5);
-      if (debug) std::cout<<"done searching for 'DATA_', outputfile is: "<<outputfile<<std::endl;
       if (outputfile.find("MC_")!=string::npos)
 	outputfile.erase(0,outputfile.find("MC_")+3);
-      if (debug) std::cout<<"done searching for 'MC_', outputfile is: "<<outputfile<<std::endl;
       outputfile = outDir + "/" + outputfile+"_out";
-      if (debug) std::cout<<"results will be written to "<<outputfile<<std::endl;
     }
     else {
       std::cout << "ERROR opening inputfiles list:" << inputfiles << std::endl;
@@ -131,7 +124,7 @@ int main(int argc, char* argv[])
   }
   TTree *treeA = chainA;
   
-  METResolutionStudy* analysis = new METResolutionStudy(treeA, isData, jets, phots, debug);
+  METResolutionStudy* analysis = new METResolutionStudy(treeA, isData, jets, phots, doTechTrigs, debug);
   analysis->Loop(outputfile, scale_type);
   std::cout<<"Done with METResolution.exe"<<std::endl;
   //delete treeA;
