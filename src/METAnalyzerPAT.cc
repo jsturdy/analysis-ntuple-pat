@@ -11,7 +11,7 @@
 //
 // Original Author:  Jared Sturdy
 //         Created:  Tue Feb 2 12:11:44 PDT 2010
-// $Id: METAnalyzerPAT.cc,v 1.9 2010/10/18 14:34:46 sturdy Exp $
+// $Id: METAnalyzerPAT.cc,v 1.10 2010/11/08 15:30:00 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/METAnalyzerPAT.h"
@@ -242,17 +242,17 @@ void METAnalyzerPAT::bookTTree() {
     //mMETData->Branch(prefix_+"GenSignificance", &genSignificance, prefix_+"GenSignificance/D");
     //mMETData->Branch(prefix_+"GenMETP4",        &genMETP4);
     
-    mMETData->Branch("GenMETTrue",              m_METGenTrue,        "GenMETTrue[3]/D");
-    mMETData->Branch("GenMetTrueSumEt",        &genTrueSumEt,        "GenTrueSumEt/D");
-    mMETData->Branch("GenMetTrueMetSig",       &genTrueMetSig,       "GenTrueMetSig/D");
-    mMETData->Branch("GenMetTrueSignificance", &genTrueSignificance, "GenTrueSignificance/D");
-    mMETData->Branch("GenMetTrueMETP4",        &genTrueMETP4);
+    mMETData->Branch("GenMETTrue",           m_METGenTrue,        "GenMETTrue[3]/D");
+    mMETData->Branch("GenTrueSumEt",        &genTrueSumEt,        "GenTrueSumEt/D");
+    mMETData->Branch("GenTrueMetSig",       &genTrueMetSig,       "GenTrueMetSig/D");
+    mMETData->Branch("GenTrueSignificance", &genTrueSignificance, "GenTrueSignificance/D");
+    mMETData->Branch("GenTrueMETP4",        &genTrueMETP4);
     
-    mMETData->Branch("GenMETCalo",              m_METGenCalo,        "GenMETCalo[3]/D");
-    mMETData->Branch("GenMetCaloSumEt",        &genCaloSumEt,        "GenTrueSumEt/D");
-    mMETData->Branch("GenMetCaloMetSig",       &genCaloMetSig,       "GenTrueMetSig/D");
-    mMETData->Branch("GenMetCaloSignificance", &genCaloSignificance, "GenCaloSignificance/D");
-    mMETData->Branch("GenMetCaloMETP4",        &genCaloMETP4);
+    mMETData->Branch("GenMETCalo",           m_METGenCalo,        "GenMETCalo[3]/D");
+    mMETData->Branch("GenCaloSumEt",        &genCaloSumEt,        "GenCaloSumEt/D");
+    mMETData->Branch("GenCaloMetSig",       &genCaloMetSig,       "GenCaloMetSig/D");
+    mMETData->Branch("GenCaloSignificance", &genCaloSignificance, "GenCaloSignificance/D");
+    mMETData->Branch("GenCaloMETP4",        &genCaloMETP4);
   }
   
   edm::LogInfo("AnalysisNtuplePAT::METAnalyzerPAT") << "MET Ntuple variables " << variables.str();
