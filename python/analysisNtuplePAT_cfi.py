@@ -104,7 +104,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
     pfphotonParameters     = cms.untracked.PSet(
         photonAnalyzerPAT.clone(
             doMCPhots = doMC,
-            photTag  = cms.untracked.InputTag("cleanPatPhotonsPF"),
+            photTag  = cms.untracked.InputTag("selectedPatPhotonsPF"),
             prefixPhots = cms.untracked.string("PF")
         )
     ),

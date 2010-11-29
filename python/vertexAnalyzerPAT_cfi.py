@@ -6,7 +6,7 @@ vertexAnalyzerPAT = cms.untracked.PSet(
     minVtxTrks = cms.untracked.int32(3),
     minVtxNdof = cms.untracked.int32(4),
     maxVtxChi2 = cms.untracked.double(999),
-    maxVtxZ    = cms.untracked.double(15.),
+    maxVtxZ    = cms.untracked.double(24.),
     maxVtxRho  = cms.untracked.double(2.),
 
     vtxTag      = cms.untracked.InputTag("offlinePrimaryVertices"),
