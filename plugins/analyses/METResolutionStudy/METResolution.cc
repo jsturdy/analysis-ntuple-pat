@@ -52,25 +52,21 @@ int main(int argc, char* argv[])
   ss4 >> debug;
 
   std::string phots = "";
-  std::string outDir = argv[6];
+  std::string outDir = argv[7];
   
-  //scaling recoMET to MC using 
-  //0 - FastSim TuneX1
+  //scaling recoSumEt to MC using 
   //1 - FullSim Pythia8
   //2 - FullSim Pythia8 Summer10
-  //3 - FullSim TuneD6T
-  //4 - FullSim TuneP0
 
   /**************
 
-    #/MinBias_TuneZ2_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
-    #/MinBias_TuneProQ20_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
-    #/MinBias_TuneProPT0_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
-    #/MinBias_TuneP0_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
-    #/MinBias_TuneDW_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
-    #/MinBias_TuneD6T_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
-    #/MinBias_TuneCW_7TeV-pythia6/Fall10-START38_V12-v2/GEN-SIM-RECO
-    #/MinBias_7TeV-pythia8/Fall10-START38_V12-v1/GEN-SIM-RECO
+    3 - #/MinBias_TuneZ2_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
+    4 - #/MinBias_TuneProQ20_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
+    5 - #/MinBias_TuneProPT0_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
+    6 - #/MinBias_TuneP0_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
+    7 - #/MinBias_TuneDW_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
+    8 - #/MinBias_TuneD6T_7TeV-pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO
+    9 - #/MinBias_TuneCW_7TeV-pythia6/Fall10-START38_V12-v2/GEN-SIM-RECO
 
   ***************/
   //int scale_type = 1;
@@ -123,7 +119,16 @@ int main(int argc, char* argv[])
     outputfile = inputfiles.erase(inputfiles.rfind('.'))+"_out";
   }
   TTree *treeA = chainA;
-  
+
+  std::cout<<"outputfile:"<<outputfile<<
+    "  -  isData: "       <<isData<<
+    "  -  scale_type: "   <<scale_type<<
+    "  -  jets: "         <<jets<<
+    "  -  phots: "        <<phots<<
+    "  -  doTechTrigs: "  <<doTechTrigs<<
+    "  -  debug: "        <<debug<<
+    "  -  outDir: "       <<outDir<<std::endl;
+    
   METResolutionStudy* analysis = new METResolutionStudy(treeA, isData, jets, phots, doTechTrigs, debug);
   analysis->Loop(outputfile, scale_type);
   std::cout<<"Done with METResolution.exe"<<std::endl;

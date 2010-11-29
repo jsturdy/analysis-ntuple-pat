@@ -7,7 +7,7 @@ import optparse
 
 def main():
     parser = optparse.OptionParser(
-        usage='Usage: %prog [-m MODE] [-i INPUTTEXT] [-f INPUTFILE] -o OUTPUTDIR -n NUMJOBS -j JETALGO -s SCALETYPE',
+        usage='Usage: %prog [-m MODE] [-i INPUTTEXT] [-f INPUTFILE] -o OUTPUTDIR -n NUMJOBS -j JETALGO -s SCALETYPE -t TECHTRIGS',
         description='Example: condorSubmit.py -i  -o rootfiles/ -j 20')
     parser.add_option( '-m', '--mode',      metavar='MODE',      action='store', help='Single file (s) or textfile (t) with list of files (default)' )
     parser.add_option( '-i', '--inputText', metavar='INPUTTEXT', action='store', help='Specifies the input text file listing the .root files. Please use the full path.  Not required for single file mode' )
@@ -15,7 +15,8 @@ def main():
     parser.add_option( '-o', '--outputDir', metavar='OUTPUTDIR', action='store', help='Specifies the output directory where the results will be stored. Please use the full path' )
     parser.add_option( '-n', '--numJobs',   metavar='NUMJOBS',   action='store', help='Specifies the number of jobs to break the submission into for list mode (default is 10)' )
     parser.add_option( '-j', '--jetAlg',    metavar='JETALGO',   action='store', help='Specifies the Jet algorithm to use (default is PF)' )
-    parser.add_option( '-s', '--scaleType', metavar='SCALETYPE', action='store', help='Specifies the MC version to which the SumET will be scaled (default is Pythia8 (value 1)' )
+    parser.add_option( '-s', '--scaleType', metavar='SCALETYPE', action='store', help='Specifies the MC version to which the SumET will be scaled (default is Fall10 Pythia8 from TH2F (value 11), other values are 12,21,22' )
+    parser.add_option( '-t', '--techTrigs', metavar='TECHTRIGS', action='store', help='Specifies whether to use technical L1 trigger bits (default is true)' )
     
     (options, args) = parser.parse_args(args=None)
     jobs = 10
@@ -23,6 +24,7 @@ def main():
     jobName = ''
     isData = 0
     scale = 1
+    doTechTrigs = 1
     if ( options.mode!='s' and options.mode!='t' and options.mode!=None ):
         print ("Incorrect submission mode specified "+options.mode+"\n")
         parser.print_help()
@@ -54,10 +56,16 @@ def main():
         print("Job is MC ")
         isData = 0
 
+    #if ( options.techTrigs==None and isData!=1 ):
+    #    print ("Trying to use technical triggers on MC\n")
+    #    parser.print_help()
+    #    sys.exit()
+
     if ( options.outputDir==None ):
         print ("No output directory specified, using JobName and current working directory")
         pwd = os.getcwd()
-        outputmain = pwd+'/'+jobName
+        #outputmain = pwd+'/'+jobName
+        outputmain = '/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/newMETCorrections/'+jobName
         
     if ( options.numJobs!=None ):
         jobs = int(options.numJobs)
@@ -65,11 +73,19 @@ def main():
         jetPrefix = options.jetAlg
     if ( options.scaleType!=None ):
         scale = options.scaleType
-        
-    os.system("mkdir -p "+outputmain+"/log/")
+
+    if ( options.techTrigs!=None ):
+        doTechTrigs = options.techTrigs
+
+    version = ["", "Fall10","Summer10","Finn"]
+    correct = ["", "th2f","tprof"]
+
     os.system("mkdir -p "+outputmain+"/input/")
+    os.system("mkdir -p "+outputmain+"/log/")
+    #os.system("mkdir -p "+outputmain+"/log/"+correct[int(scale[1])]+"/"+version[int(scale[0])])
     os.system("mkdir -p "+outputmain+"/src/")
-    os.system("mkdir -p "+outputmain+"/root/")
+    #os.system("mkdir -p "+outputmain+"/src/"+correct[int(scale[1])]+"/"+version[int(scale[0])])
+    os.system("mkdir -p "+outputmain+"/root/"+correct[int(scale[1])]+"/"+version[int(scale[0])])
 
     # output prefix
     outputPrefix = string.split(outputmain,"/")[-1]
@@ -105,17 +121,18 @@ def main():
         inputfile.close()
     
         ###Condor steps
-        outputname = "%s/src/submit_%02d.sub"%(outputmain,ijob)
+        outputname = "%s/src/%s_%s_submit_%02d.sub"%(outputmain,correct[int(scale[1])],version[int(scale[0])],ijob)
         FILE = open(outputname,"w")
         FILE.write("universe = vanilla\n")
         FILE.write("Executable = condorMETResolution.csh\n")
         FILE.write("Should_Transfer_Files = YES\n")
         FILE.write("WhenToTransferOutput = ON_EXIT\n")
-        FILE.write("Output = %s/log/job_%02d.stdout\n"%(outputmain,ijob))
-        FILE.write("Error = %s/log/job_%02d.stderr\n"%(outputmain,ijob))
-        FILE.write("Log = %s/log/job_%02d.log\n"%(outputmain,ijob))
+        FILE.write("Output = %s/log/%s_%s_job_%02d.stdout\n"%(outputmain,correct[int(scale[1])],version[int(scale[0])],ijob))
+        FILE.write("Error = %s/log/%s_%s_job_%02d.stderr\n"%(outputmain,correct[int(scale[1])],version[int(scale[0])],ijob))
+        FILE.write("Log = %s/log/%s_%s_job_%02d.log\n"%(outputmain,correct[int(scale[1])],version[int(scale[0])],ijob))
         ###FILE.write("notify_user = jared.todd.sturdy@cern.ch\n")
-        FILE.write("Arguments = $(PROCESS) %s  %d  %d  %s  %d  %s\n"%(inputfilename,int(isData),int(scale),jetPrefix,0,outputmain+"/root"))
+        #FILE.write("Arguments = $(PROCESS) %s  %d  %d  %s  %d  %d  %s\n"%(inputfilename,int(isData),int(scale),jetPrefix,int(doTechTrigs),0,outputmain+"/root"))
+        FILE.write("Arguments = $(PROCESS) %s  %d  %d  %s  %d  %d  %s/root/%s/%s\n"%(inputfilename,int(isData),int(scale),jetPrefix,0,0,outputmain,correct[int(scale[1])],version[int(scale[0])]))
         FILE.write("Queue 1\n")
         
         FILE.close()

@@ -424,7 +424,7 @@ void METResolutionCalculation(TString input_filename)
        h_type1calomet_x_v[aii]->Rebin(80);
        TF1 *myfit004 = new TF1("myfit004","gaus",-40,40);
        h_type1calomet_x_v[aii]->Fit("myfit004","L","",-40,40);     
-       double RMS_type1 = myfit004->GetParameter(2);
+       double RMS_type1 =      myfit004->GetParameter(2);
        double RMSerror_type1 = myfit004->GetParError(2);
        
        h_type1calomet_RMS_vs_calogensumet->SetBinContent(aii+1,RMS_type1);
@@ -439,7 +439,7 @@ void METResolutionCalculation(TString input_filename)
        h_type2calomet_x_v[aii]->Rebin(80);
        TF1 *myfit005 = new TF1("myfit005","gaus",-40,40);
        h_type2calomet_x_v[aii]->Fit("myfit005","L","",-40,40);     
-       double RMS_type2 = myfit005->GetParameter(2);
+       double RMS_type2 =      myfit005->GetParameter(2);
        double RMSerror_type2 = myfit005->GetParError(2);
        
        h_type2calomet_RMS_vs_calogensumet->SetBinContent(aii+1,RMS_type2);
@@ -455,7 +455,7 @@ void METResolutionCalculation(TString input_filename)
        h_pfmet_x_v[aii]->Rebin(80);
        TF1 *myfit006 = new TF1("myfit006","gaus",-40,40);
        h_pfmet_x_v[aii]->Fit("myfit006","L","",-40,40);     
-       double RMS_pf = myfit006->GetParameter(2);
+       double RMS_pf =      myfit006->GetParameter(2);
        double RMSerror_pf = myfit006->GetParError(2);
        
        h_pfmet_RMS_vs_calogensumet->SetBinContent(aii+1,RMS_pf);
@@ -470,7 +470,7 @@ void METResolutionCalculation(TString input_filename)
        h_tcmet_x_v[aii]->Rebin(80);
        TF1 *myfit007 = new TF1("myfit007","gaus",-40,40);
        h_tcmet_x_v[aii]->Fit("myfit007","L","",-40,40);     
-       double RMS_tc = myfit007->GetParameter(2);
+       double RMS_tc =      myfit007->GetParameter(2);
        double RMSerror_tc = myfit007->GetParError(2);
        
        h_tcmet_RMS_vs_calogensumet->SetBinContent(aii+1,RMS_tc);
@@ -484,7 +484,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit1 = new TF1("myfit1","gaus",-25,25);
        h_tcmet_x_v_reco[aii]->Fit("myfit1","L","",-25,25);     
        double recoRMS_tc =      myfit1->GetParameter(2);
-       double recoRMSerror_tc =      myfit1->GetParError(2);
+       double recoRMSerror_tc = myfit1->GetParError(2);
        h_tcmet_RMS_vs_recosumet->SetBinContent(aii+1,recoRMS_tc);
        h_tcmet_RMS_vs_recosumet->SetBinError(aii+1,recoRMSerror_tc);
      }
@@ -495,7 +495,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit2 = new TF1("myfit2","gaus",-25,25);
        h_pfmet_x_v_reco[aii]->Fit("myfit2","L","",-25,25);     
        double recoRMS_pf =      myfit2->GetParameter(2);
-       double recoRMSerror_pf =      myfit2->GetParError(2);
+       double recoRMSerror_pf = myfit2->GetParError(2);
        h_pfmet_RMS_vs_recosumet->SetBinContent(aii+1,recoRMS_pf);
        h_pfmet_RMS_vs_recosumet->SetBinError(aii+1,recoRMSerror_pf);
      }
@@ -506,7 +506,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit3 = new TF1("myfit3","gaus",-40,40);
        h_type1calomet_x_v_reco[aii]->Fit("myfit3","L","",-40,40);     
        double recoRMS_type1calo =      myfit3->GetParameter(2);
-       double recoRMSerror_type1calo =      myfit3->GetParError(2);
+       double recoRMSerror_type1calo = myfit3->GetParError(2);
        h_type1calomet_RMS_vs_recosumet->SetBinContent(aii+1,recoRMS_type1calo);
        h_type1calomet_RMS_vs_recosumet->SetBinError(aii+1,recoRMSerror_type1calo);
      }
@@ -517,63 +517,63 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit4 = new TF1("myfit4","gaus",-40,40);
        h_type2calomet_x_v_reco[aii]->Fit("myfit4","L","",-40,40);     
        double recoRMS_type2calo =      myfit4->GetParameter(2);
-       double recoRMSerror_type2calo =      myfit4->GetParError(2);
+       double recoRMSerror_type2calo = myfit4->GetParError(2);
        h_type2calomet_RMS_vs_recosumet->SetBinContent(aii+1,recoRMS_type2calo);
        h_type2calomet_RMS_vs_recosumet->SetBinError(aii+1,recoRMSerror_type2calo);
      }
      //
 
      cout<<"I get here,  done rebinning histos "<<endl;
-     double tcrecoRMS_pf = h_tcmet_x_v_reco_pf[aii]->GetRMS();
+     double tcrecoRMS_pf =      h_tcmet_x_v_reco_pf[aii]->GetRMS();
      double tcrecoRMSerror_pf = h_tcmet_x_v_reco_pf[aii]->GetRMSError();
      h_tcmet_RMS_vs_pfrecosumet->SetBinContent(aii+1,tcrecoRMS_pf);
      h_tcmet_RMS_vs_pfrecosumet->SetBinError(aii+1,tcrecoRMSerror_pf);
 
 
-     double type1recoRMS_pf = h_type1calomet_x_v_reco_pf[aii]->GetRMS();
+     double type1recoRMS_pf =      h_type1calomet_x_v_reco_pf[aii]->GetRMS();
      double type1recoRMSerror_pf = h_type1calomet_x_v_reco_pf[aii]->GetRMSError();
      h_type1calomet_RMS_vs_pfrecosumet->SetBinContent(aii+1,type1recoRMS_pf);
      h_type1calomet_RMS_vs_pfrecosumet->SetBinError(aii+1,type1recoRMSerror_pf);
 
-     double type2recoRMS_pf = h_type2calomet_x_v_reco_pf[aii]->GetRMS();
+     double type2recoRMS_pf =      h_type2calomet_x_v_reco_pf[aii]->GetRMS();
      double type2recoRMSerror_pf = h_type2calomet_x_v_reco_pf[aii]->GetRMSError();
      h_type2calomet_RMS_vs_pfrecosumet->SetBinContent(aii+1,type2recoRMS_pf);
      h_type2calomet_RMS_vs_pfrecosumet->SetBinError(aii+1,type2recoRMSerror_pf);
 
-     double tcrecoRMS_type1 = h_tcmet_x_v_reco_type1[aii]->GetRMS();
+     double tcrecoRMS_type1 =      h_tcmet_x_v_reco_type1[aii]->GetRMS();
      double tcrecoRMSerror_type1 = h_tcmet_x_v_reco_type1[aii]->GetRMSError();
      h_tcmet_RMS_vs_type1recosumet->SetBinContent(aii+1,tcrecoRMS_type1);
      h_tcmet_RMS_vs_type1recosumet->SetBinError(aii+1,tcrecoRMSerror_type1);
 
-     double tcrecoRMS_type2 = h_tcmet_x_v_reco_type2[aii]->GetRMS();
+     double tcrecoRMS_type2 =      h_tcmet_x_v_reco_type2[aii]->GetRMS();
      double tcrecoRMSerror_type2 = h_tcmet_x_v_reco_type2[aii]->GetRMSError();
      h_tcmet_RMS_vs_type2recosumet->SetBinContent(aii+1,tcrecoRMS_type2);
      h_tcmet_RMS_vs_type2recosumet->SetBinError(aii+1,tcrecoRMSerror_type2);
 
 
-     double type1recoRMS_tc = h_type1calomet_x_v_reco_tc[aii]->GetRMS();
+     double type1recoRMS_tc =      h_type1calomet_x_v_reco_tc[aii]->GetRMS();
      double type1recoRMSerror_tc = h_type1calomet_x_v_reco_tc[aii]->GetRMSError();
      h_type1calomet_RMS_vs_tcrecosumet->SetBinContent(aii+1,type1recoRMS_tc);
      h_type1calomet_RMS_vs_tcrecosumet->SetBinError(aii+1,type1recoRMSerror_tc);
 
-     double type2recoRMS_tc = h_type2calomet_x_v_reco_tc[aii]->GetRMS();
+     double type2recoRMS_tc =      h_type2calomet_x_v_reco_tc[aii]->GetRMS();
      double type2recoRMSerror_tc = h_type2calomet_x_v_reco_tc[aii]->GetRMSError();
      h_type2calomet_RMS_vs_tcrecosumet->SetBinContent(aii+1,type2recoRMS_tc);
      h_type2calomet_RMS_vs_tcrecosumet->SetBinError(aii+1,type2recoRMSerror_tc);
 
 
-     double pfrecoRMS_tc = h_pfmet_x_v_reco_tc[aii]->GetRMS();
+     double pfrecoRMS_tc =      h_pfmet_x_v_reco_tc[aii]->GetRMS();
      double pfrecoRMSerror_tc = h_pfmet_x_v_reco_tc[aii]->GetRMSError();
      h_pfmet_RMS_vs_tcrecosumet->SetBinContent(aii+1,pfrecoRMS_tc);
      h_pfmet_RMS_vs_tcrecosumet->SetBinError(aii+1,pfrecoRMSerror_tc);
 
 
-     double pfrecoRMS_type1 = h_pfmet_x_v_reco_type1[aii]->GetRMS();
+     double pfrecoRMS_type1 =      h_pfmet_x_v_reco_type1[aii]->GetRMS();
      double pfrecoRMSerror_type1 = h_pfmet_x_v_reco_type1[aii]->GetRMSError();
      h_pfmet_RMS_vs_type1recosumet->SetBinContent(aii+1,pfrecoRMS_type1);
      h_pfmet_RMS_vs_type1recosumet->SetBinError(aii+1,pfrecoRMSerror_type1);
 
-     double pfrecoRMS_type2 = h_pfmet_x_v_reco_type2[aii]->GetRMS();
+     double pfrecoRMS_type2 =      h_pfmet_x_v_reco_type2[aii]->GetRMS();
      double pfrecoRMSerror_type2 = h_pfmet_x_v_reco_type2[aii]->GetRMSError();
      h_pfmet_RMS_vs_type2recosumet->SetBinContent(aii+1,pfrecoRMS_type2);
      h_pfmet_RMS_vs_type2recosumet->SetBinError(aii+1,pfrecoRMSerror_type2);
@@ -581,22 +581,22 @@ void METResolutionCalculation(TString input_filename)
 
 
 
-     double RescalingRMS_tc = h_tcmet_x_v_Rescaling[aii]->GetRMS();
+     double RescalingRMS_tc =      h_tcmet_x_v_Rescaling[aii]->GetRMS();
      double RescalingRMSerror_tc = h_tcmet_x_v_Rescaling[aii]->GetRMSError();
      h_tcmet_RMS_vs_Rescalingsumet->SetBinContent(aii+1,RescalingRMS_tc);
      h_tcmet_RMS_vs_Rescalingsumet->SetBinError(aii+1,RescalingRMSerror_tc);
 
-     double RescalingRMS_pf = h_pfmet_x_v_Rescaling[aii]->GetRMS();
+     double RescalingRMS_pf =      h_pfmet_x_v_Rescaling[aii]->GetRMS();
      double RescalingRMSerror_pf = h_pfmet_x_v_Rescaling[aii]->GetRMSError();
      h_pfmet_RMS_vs_Rescalingsumet->SetBinContent(aii+1,RescalingRMS_pf);
      h_pfmet_RMS_vs_Rescalingsumet->SetBinError(aii+1,RescalingRMSerror_pf);
 
-     double RescalingRMS_type1 = h_type1calomet_x_v_Rescaling[aii]->GetRMS();
+     double RescalingRMS_type1 =      h_type1calomet_x_v_Rescaling[aii]->GetRMS();
      double RescalingRMSerror_type1 = h_type1calomet_x_v_Rescaling[aii]->GetRMSError();
      h_type1calomet_RMS_vs_Rescalingsumet->SetBinContent(aii+1,RescalingRMS_type1);
      h_type1calomet_RMS_vs_Rescalingsumet->SetBinError(aii+1,RescalingRMSerror_type1);
 
-     double RescalingRMS_type2 = h_type2calomet_x_v_Rescaling[aii]->GetRMS();
+     double RescalingRMS_type2 =      h_type2calomet_x_v_Rescaling[aii]->GetRMS();
      double RescalingRMSerror_type2 = h_type2calomet_x_v_Rescaling[aii]->GetRMSError();
      h_type2calomet_RMS_vs_Rescalingsumet->SetBinContent(aii+1,RescalingRMS_type2);
      h_type2calomet_RMS_vs_Rescalingsumet->SetBinError(aii+1,RescalingRMSerror_type2);
@@ -612,7 +612,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit5 = new TF1("myfit5","gaus",-25,25);
        h_tcmet_x_v_RescalingMETALSO[aii]->Fit("myfit5","L","",-25,25);     
        double RescalingMETALSORMS_tc =      myfit5->GetParameter(2);
-       double RescalingMETALSORMSerror_tc =      myfit5->GetParError(2);
+       double RescalingMETALSORMSerror_tc = myfit5->GetParError(2);
        h_tcmet_RMS_vs_RescalingMETALSOsumet->SetBinContent(aii+1,RescalingMETALSORMS_tc);
        h_tcmet_RMS_vs_RescalingMETALSOsumet->SetBinError(aii+1,RescalingMETALSORMSerror_tc);
      }
@@ -623,7 +623,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit6 = new TF1("myfit6","gaus",-25,25);
        h_pfmet_x_v_RescalingMETALSO[aii]->Fit("myfit6","L","",-25,25);     
        double RescalingMETALSORMS_pf =      myfit6->GetParameter(2);
-       double RescalingMETALSORMSerror_pf =      myfit6->GetParError(2);
+       double RescalingMETALSORMSerror_pf = myfit6->GetParError(2);
        h_pfmet_RMS_vs_RescalingMETALSOsumet->SetBinContent(aii+1,RescalingMETALSORMS_pf);
        h_pfmet_RMS_vs_RescalingMETALSOsumet->SetBinError(aii+1,RescalingMETALSORMSerror_pf);
      }
@@ -634,7 +634,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit7 = new TF1("myfit7","gaus",-40,40);
        h_type1calomet_x_v_RescalingMETALSO[aii]->Fit("myfit7","L","",-40,40);     
        double RescalingMETALSORMS_type1calo =      myfit7->GetParameter(2);
-       double RescalingMETALSORMSerror_type1calo =      myfit7->GetParError(2);
+       double RescalingMETALSORMSerror_type1calo = myfit7->GetParError(2);
        h_type1calomet_RMS_vs_RescalingMETALSOsumet->SetBinContent(aii+1,RescalingMETALSORMS_type1calo);
        h_type1calomet_RMS_vs_RescalingMETALSOsumet->SetBinError(aii+1,RescalingMETALSORMSerror_type1calo);
      }
@@ -645,7 +645,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit8 = new TF1("myfit8","gaus",-40,40);
        h_type2calomet_x_v_RescalingMETALSO[aii]->Fit("myfit8","L","",-40,40);     
        double RescalingMETALSORMS_type2calo =      myfit8->GetParameter(2);
-       double RescalingMETALSORMSerror_type2calo =      myfit8->GetParError(2);
+       double RescalingMETALSORMSerror_type2calo = myfit8->GetParError(2);
        h_type2calomet_RMS_vs_RescalingMETALSOsumet->SetBinContent(aii+1,RescalingMETALSORMS_type2calo);
        h_type2calomet_RMS_vs_RescalingMETALSOsumet->SetBinError(aii+1,RescalingMETALSORMSerror_type2calo);
      }
@@ -658,7 +658,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit51 = new TF1("myfit51","gaus",-25,25);
        h_tcmet_x_v_RescalingMETALSO_vs_pf[aii]->Fit("myfit51","L","",-25,25);     
        double RescalingMETALSORMS_tc_vs_pf =      myfit51->GetParameter(2);
-       double RescalingMETALSORMSerror_tc_vs_pf =      myfit51->GetParError(2);
+       double RescalingMETALSORMSerror_tc_vs_pf = myfit51->GetParError(2);
        h_tcmet_RMS_vs_RescalingMETALSOsumet_vs_pf->SetBinContent(aii+1,RescalingMETALSORMS_tc_vs_pf);
        h_tcmet_RMS_vs_RescalingMETALSOsumet_vs_pf->SetBinError(aii+1,RescalingMETALSORMSerror_tc_vs_pf);
      }
@@ -669,7 +669,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit71 = new TF1("myfit71","gaus",-40,40);
        h_type1calomet_x_v_RescalingMETALSO_vs_pf[aii]->Fit("myfit71","L","",-40,40);     
        double RescalingMETALSORMS_type1calo_vs_pf =      myfit71->GetParameter(2);
-       double RescalingMETALSORMSerror_type1calo_vs_pf =      myfit71->GetParError(2);
+       double RescalingMETALSORMSerror_type1calo_vs_pf = myfit71->GetParError(2);
        h_type1calomet_RMS_vs_RescalingMETALSOsumet_vs_pf->SetBinContent(aii+1,RescalingMETALSORMS_type1calo_vs_pf);
        h_type1calomet_RMS_vs_RescalingMETALSOsumet_vs_pf->SetBinError(aii+1,RescalingMETALSORMSerror_type1calo_vs_pf);
      }
@@ -680,7 +680,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit81 = new TF1("myfit81","gaus",-40,40);
        h_type2calomet_x_v_RescalingMETALSO_vs_pf[aii]->Fit("myfit81","L","",-40,40);     
        double RescalingMETALSORMS_type2calo_vs_pf =      myfit81->GetParameter(2);
-       double RescalingMETALSORMSerror_type2calo_vs_pf =      myfit81->GetParError(2);
+       double RescalingMETALSORMSerror_type2calo_vs_pf = myfit81->GetParError(2);
        h_type2calomet_RMS_vs_RescalingMETALSOsumet_vs_pf->SetBinContent(aii+1,RescalingMETALSORMS_type2calo_vs_pf);
        h_type2calomet_RMS_vs_RescalingMETALSOsumet_vs_pf->SetBinError(aii+1,RescalingMETALSORMSerror_type2calo_vs_pf);
      }
@@ -695,7 +695,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit511 = new TF1("myfit511","gaus",-25,25);
        h_tcmet_x_v_RescalingMETALSO_vs_uncal_pf[aii]->Fit("myfit511","L","",-25,25);     
        double RescalingMETALSORMS_tc_vs_uncal_pf =      myfit511->GetParameter(2);
-       double RescalingMETALSORMSerror_tc_vs_uncal_pf =      myfit511->GetParError(2);
+       double RescalingMETALSORMSerror_tc_vs_uncal_pf = myfit511->GetParError(2);
        h_tcmet_RMS_vs_RescalingMETALSOsumet_vs_uncal_pf->SetBinContent(aii+1,RescalingMETALSORMS_tc_vs_uncal_pf);
        h_tcmet_RMS_vs_RescalingMETALSOsumet_vs_uncal_pf->SetBinError(aii+1,RescalingMETALSORMSerror_tc_vs_uncal_pf);
      }
@@ -706,7 +706,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit711 = new TF1("myfit711","gaus",-40,40);
        h_type1calomet_x_v_RescalingMETALSO_vs_uncal_pf[aii]->Fit("myfit711","L","",-40,40);     
        double RescalingMETALSORMS_type1calo_vs_uncal_pf =      myfit711->GetParameter(2);
-       double RescalingMETALSORMSerror_type1calo_vs_uncal_pf =      myfit711->GetParError(2);
+       double RescalingMETALSORMSerror_type1calo_vs_uncal_pf = myfit711->GetParError(2);
        h_type1calomet_RMS_vs_RescalingMETALSOsumet_vs_uncal_pf->SetBinContent(aii+1,RescalingMETALSORMS_type1calo_vs_uncal_pf);
        h_type1calomet_RMS_vs_RescalingMETALSOsumet_vs_uncal_pf->SetBinError(aii+1,RescalingMETALSORMSerror_type1calo_vs_uncal_pf);
      }
@@ -717,7 +717,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit811 = new TF1("myfit811","gaus",-40,40);
        h_type2calomet_x_v_RescalingMETALSO_vs_uncal_pf[aii]->Fit("myfit811","L","",-40,40);     
        double RescalingMETALSORMS_type2calo_vs_uncal_pf =      myfit811->GetParameter(2);
-       double RescalingMETALSORMSerror_type2calo_vs_uncal_pf =      myfit811->GetParError(2);
+       double RescalingMETALSORMSerror_type2calo_vs_uncal_pf = myfit811->GetParError(2);
        h_type2calomet_RMS_vs_RescalingMETALSOsumet_vs_uncal_pf->SetBinContent(aii+1,RescalingMETALSORMS_type2calo_vs_uncal_pf);
        h_type2calomet_RMS_vs_RescalingMETALSOsumet_vs_uncal_pf->SetBinError(aii+1,RescalingMETALSORMSerror_type2calo_vs_uncal_pf);
      }
@@ -729,7 +729,7 @@ void METResolutionCalculation(TString input_filename)
        TF1 *myfit911 = new TF1("myfit911","gaus",-40,40);
        h_pfmet_x_v_RescalingMETALSO_vs_uncal_pf[aii]->Fit("myfit911","L","",-40,40);     
        double RescalingMETALSORMS_pf_vs_uncal_pf =      myfit911->GetParameter(2);
-       double RescalingMETALSORMSerror_pf_vs_uncal_pf =      myfit911->GetParError(2);
+       double RescalingMETALSORMSerror_pf_vs_uncal_pf = myfit911->GetParError(2);
        h_pfmet_RMS_vs_RescalingMETALSOsumet_vs_uncal_pf->SetBinContent(aii+1,RescalingMETALSORMS_pf_vs_uncal_pf);
        h_pfmet_RMS_vs_RescalingMETALSOsumet_vs_uncal_pf->SetBinError(aii+1,RescalingMETALSORMSerror_pf_vs_uncal_pf);
      }
