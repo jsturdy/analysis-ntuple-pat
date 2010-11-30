@@ -128,6 +128,7 @@ private:
   METAnalyzerPAT        * calomettypeiiinfo;
 
   METAnalyzerPAT        * pfmetinfo;
+  METAnalyzerPAT        * pfmettypeiinfo;
 
   METAnalyzerPAT        * tcmetinfo;
 
