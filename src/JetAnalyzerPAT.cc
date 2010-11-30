@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.13 2010/11/08 15:30:00 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.14 2010/11/30 11:44:41 sturdy Exp $
 //
 //
 
@@ -138,7 +138,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
     //const pat::Jet& corrJet = theJet.correctedJet(corrLevel);
     
     //const pat::Jet& uncorrJet = (theJet.isCaloJet()) ? theJet.correctedJet("RAW"): theJet;
-    const pat::Jet& uncorrJet = (*jetHandle)[k].correctedJet("RAW");
+    const pat::Jet& uncorrJet = (*jetHandle)[k].correctedJet("Uncorrected");
 
     /******************Construct the HT/MHT from the jet collection***************************/
     if (theJet.pt() > htMinPt_) {
