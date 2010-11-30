@@ -135,6 +135,15 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
         )
     ),
 
+    pfmetTypeIParameters        = cms.untracked.PSet(
+        metAnalyzerPAT.clone(
+            doMCMET   = doMC,
+            genMETTag = cms.untracked.InputTag("genMetTrue"),
+            metTag    = cms.untracked.InputTag("patMETsPFTypeI"),
+            prefixMET = cms.untracked.string("PFTypeI")
+        )
+    ),
+
     tcmetParameters        = cms.untracked.PSet(
         metAnalyzerPAT.clone(
             doMCMET   = cms.untracked.bool(False),
