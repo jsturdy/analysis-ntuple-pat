@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.12 2010/11/02 13:55:17 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.13 2010/11/08 15:30:00 sturdy Exp $
 //
 //
 
@@ -126,9 +126,19 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   maintenance(i_NJets);
   /////////
 
+  std::string corrLevel;
+  if (doMCData_)
+    corrLevel = "L2L3Residual";
+  else
+    corrLevel = "L3Absolute";
+  
   for (int k=0;k<i_NJets;k++){
-    const pat::Jet& theJet    = (*jetHandle)[k];
-    const pat::Jet& uncorrJet = (theJet.isCaloJet()) ? theJet.correctedJet("RAW"): theJet;
+    //const pat::Jet& theJet    = (*jetHandle)[k];
+    const pat::Jet& theJet    = (*jetHandle)[k].correctedJet(corrLevel);
+    //const pat::Jet& corrJet = theJet.correctedJet(corrLevel);
+    
+    //const pat::Jet& uncorrJet = (theJet.isCaloJet()) ? theJet.correctedJet("RAW"): theJet;
+    const pat::Jet& uncorrJet = (*jetHandle)[k].correctedJet("RAW");
 
     /******************Construct the HT/MHT from the jet collection***************************/
     if (theJet.pt() > htMinPt_) {
@@ -157,6 +167,8 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
     /******************Now collect all the Jet related variables***************************/
     if (theJet.pt() > jetMinPt_) {
       if (fabs(theJet.eta()) < jetMaxEta_) {
+    //if (uncorrJet.pt() > jetMinPt_) {
+    //  if (fabs(uncorrJet.eta()) < jetMaxEta_) {
 
 	if (debug_>5) std::cout<<"\n\nPassed minimum jet id requirements\n\n"<<std::endl;
 	
@@ -196,32 +208,32 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	if (debug_>5) std::cout<<"\n\nGetting corrections for calo jets\n\n"<<std::endl;
 
 	//if (useCaloJets_) {
-	if (theJet.hasCorrFactors()) {
+	if (theJet.jecSetsAvailable()) {
 	  //JES corrections for the RAW uncorrected jet (RAW)
-	  map_s_vd_correctionFactor["raw"].push_back(uncorrJet.corrFactor("RAW"));
+	  map_s_vd_correctionFactor["raw"].push_back(uncorrJet.jecFactor("Uncorrected"));
 	  //JES corrections for the Offset (L1Offset)
-	  map_s_vd_correctionFactor["off"].push_back(uncorrJet.corrFactor("OFF"));
+	  map_s_vd_correctionFactor["off"].push_back(uncorrJet.jecFactor("L1Offset"));
 	  //JES corrections for the Relative vs eta (L2Relative)
-	  map_s_vd_correctionFactor["rel"].push_back(uncorrJet.corrFactor("REL"));
+	  map_s_vd_correctionFactor["rel"].push_back(uncorrJet.jecFactor("L2Relative"));
 	  //JES corrections for the Absolute vs pT (L3Absolute)
-	  map_s_vd_correctionFactor["abs"].push_back(uncorrJet.corrFactor("ABS"));
+	  map_s_vd_correctionFactor["abs"].push_back(uncorrJet.jecFactor("L3Absolute"));
 	  //JES corrections for the EM fraction (L4Emf)
-	  map_s_vd_correctionFactor["emf"].push_back(uncorrJet.corrFactor("EMF"));
+	  map_s_vd_correctionFactor["emf"].push_back(uncorrJet.jecFactor("L4Emf"));
 	  //JES corrections for the Hadrons (L5Flavour)
-	  map_s_vd_correctionFactor["had:glu"].push_back(uncorrJet.corrFactor("HAD", "GLU"));
-	  map_s_vd_correctionFactor["had:uds"].push_back(uncorrJet.corrFactor("HAD", "UDS"));
-	  map_s_vd_correctionFactor["had:c"].push_back(uncorrJet.corrFactor("HAD", "C"));
-	  map_s_vd_correctionFactor["had:b"].push_back(uncorrJet.corrFactor("HAD", "B"));
+	  map_s_vd_correctionFactor["had:glu"].push_back(uncorrJet.jecFactor("L5Flavor", "gluon"));
+	  map_s_vd_correctionFactor["had:uds"].push_back(uncorrJet.jecFactor("L5Flavor", "uds"));
+	  map_s_vd_correctionFactor["had:c"].push_back(uncorrJet.jecFactor("L5Flavor", "c"));
+	  map_s_vd_correctionFactor["had:b"].push_back(uncorrJet.jecFactor("L5Flavor", "b"));
 	  //JES corrections for the Underlying Event (L6UE)
-	  map_s_vd_correctionFactor["ue:glu"].push_back(uncorrJet.corrFactor("UE", "GLU"));
-	  map_s_vd_correctionFactor["ue:uds"].push_back(uncorrJet.corrFactor("UE", "UDS"));
-	  map_s_vd_correctionFactor["ue:c"].push_back(uncorrJet.corrFactor("UE", "C"));
-	  map_s_vd_correctionFactor["ue:b"].push_back(uncorrJet.corrFactor("UE", "B"));
+	  map_s_vd_correctionFactor["ue:glu"].push_back(uncorrJet.jecFactor("L6UE", "gluon"));
+	  map_s_vd_correctionFactor["ue:uds"].push_back(uncorrJet.jecFactor("L6UE", "uds"));
+	  map_s_vd_correctionFactor["ue:c"].push_back(uncorrJet.jecFactor("L6UE", "c"));
+	  map_s_vd_correctionFactor["ue:b"].push_back(uncorrJet.jecFactor("L6UE", "b"));
 	  //JES corrections for the Partons (L7Parton)
-	  map_s_vd_correctionFactor["part:glu"].push_back(uncorrJet.corrFactor("PART", "GLU"));
-	  map_s_vd_correctionFactor["part:uds"].push_back(uncorrJet.corrFactor("PART", "UDS"));
-	  map_s_vd_correctionFactor["part:c"].push_back(uncorrJet.corrFactor("PART", "C"));
-	  map_s_vd_correctionFactor["part:b"].push_back(uncorrJet.corrFactor("PART", "B"));
+	  map_s_vd_correctionFactor["part:glu"].push_back(uncorrJet.jecFactor("L7Parton", "gluon"));
+	  map_s_vd_correctionFactor["part:uds"].push_back(uncorrJet.jecFactor("L7Parton", "uds"));
+	  map_s_vd_correctionFactor["part:c"].push_back(uncorrJet.jecFactor("L7Parton", "c"));
+	  map_s_vd_correctionFactor["part:b"].push_back(uncorrJet.jecFactor("L7Parton", "b"));
 	}
 
 	else {
