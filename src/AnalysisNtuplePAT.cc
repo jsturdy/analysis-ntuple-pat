@@ -14,7 +14,7 @@ Implementation:Uses the EventSelector interface for event selection and TFileSer
 //
 // Original Author:  Markus Stoye, (modified by Jared Sturdy from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: AnalysisNtuplePAT.cc,v 1.8 2010/11/30 11:43:48 sturdy Exp $
+// $Id: AnalysisNtuplePAT.cc,v 1.9 2010/11/30 11:47:22 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/AnalysisNtuplePAT.h"
@@ -41,8 +41,8 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
   pf2patjetinfo = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pf2patJetParameters"), mAllData);
   trackjetinfo  = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackJetParameters"), mAllData);
 
-  calometinfo          = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometParameters"), mAllData);
-  calomettypeiiinfo    = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometTypeIIParameters"), mAllData);
+  calometinfo       = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometParameters"), mAllData);
+  calomettypeiiinfo = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometTypeIIParameters"), mAllData);
 
   pfmetinfo      = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfmetParameters"), mAllData);
   pfmettypeiinfo = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfmetTypeIParameters"), mAllData);
@@ -123,6 +123,8 @@ AnalysisNtuplePAT::analyze(const edm::Event& ev, const edm::EventSetup& sp)
   m_StoreN        = ev.eventAuxiliary().storeNumber();
   m_LumiSection   = ev.luminosityBlock();
   m_BunchCrossing = ev.bunchCrossing();
+
+  m_IsData        = ev.isRealData();
 
   //Run filters
 
@@ -301,12 +303,13 @@ AnalysisNtuplePAT::initPlots() {
   mAllData = fs->make<TTree>( "AllData", "data after preselection" );
   mAllData->SetAutoSave(10);
 
-  mAllData->Branch("Run",           &m_Run,           "Run/int");
-  mAllData->Branch("Event",         &m_Event,         "Event/int");
-  mAllData->Branch("OrbitN",        &m_OrbitN,        "OrbitN/int");
-  mAllData->Branch("StoreN",        &m_StoreN,        "StoreN/int");
-  mAllData->Branch("LumiSection",   &m_LumiSection,   "LumiSection/int");
-  mAllData->Branch("BunchCrossing", &m_BunchCrossing, "BunchCrossing/int");
+  mAllData->Branch("Run",           &m_Run,           "Run/I");
+  mAllData->Branch("Event",         &m_Event,         "Event/I");
+  mAllData->Branch("OrbitN",        &m_OrbitN,        "OrbitN/I");
+  mAllData->Branch("StoreN",        &m_StoreN,        "StoreN/I");
+  mAllData->Branch("LumiSection",   &m_LumiSection,   "LumiSection/I");
+  mAllData->Branch("BunchCrossing", &m_BunchCrossing, "BunchCrossing/I");
+  mAllData->Branch("IsData",        &m_IsData,        "IsData/O");
 
 
     

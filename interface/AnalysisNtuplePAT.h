@@ -85,6 +85,8 @@ private:
   int m_LumiSection;
   int m_BunchCrossing;
 
+  bool m_IsData;
+
   int    mGlobalDecision;
 
   unsigned int  nEvents_;              // number of events processed
