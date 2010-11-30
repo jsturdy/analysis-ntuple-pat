@@ -38,5 +38,5 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
 
-<flags CXXFLAGS="-O0 -g3 -fno-inline"/>
+#<flags CXXFLAGS="-O0 -g3 -fno-inline"/>
 <flags EDM_PLUGIN="1"/>
