@@ -1,0 +1,17 @@
+######            pt   operation     eta  operation
+cut_jet1          150  >             2.5  <
+cut_jet2          150  >             2.5  <
+cut_jetall        50   <             5.0  <
+###cuts to create HT object
+cut_ht_jet        50   >             3.0  <
+###cuts to create MHT object
+cut_mht_jet       30   >             5.0  <
+###### single cut value (pt)
+cut_met           250  >
+cut_mht           250  >
+cut_ht            300  >
+####              dphi angle
+cut_jet1metdphi   0.5  >
+cut_jet2metdphi   0.5  >
+cut_dphistar      0.5  >
+cut_jet12dphi     -1   >

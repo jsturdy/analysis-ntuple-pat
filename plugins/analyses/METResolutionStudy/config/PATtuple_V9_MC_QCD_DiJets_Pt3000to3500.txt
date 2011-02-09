@@ -1,0 +1,4 @@
+dcache:/pnfs/cms/WAX/resilient/sturdy07/PAT_38X/MC/QCD_DiJet/Pt3000to3500/PATtuple_V9_MC_QCD_DiJets_Pt3000to3500_73_2_csX.root
+dcache:/pnfs/cms/WAX/resilient/sturdy07/PAT_38X/MC/QCD_DiJet/Pt3000to3500/PATtuple_V9_MC_QCD_DiJets_Pt3000to3500_74_2_XGF.root
+dcache:/pnfs/cms/WAX/resilient/sturdy07/PAT_38X/MC/QCD_DiJet/Pt3000to3500/PATtuple_V9_MC_QCD_DiJets_Pt3000to3500_75_2_mhH.root
+dcache:/pnfs/cms/WAX/resilient/sturdy07/PAT_38X/MC/QCD_DiJet/Pt3000to3500/PATtuple_V9_MC_QCD_DiJets_Pt3000to3500_76_2_Dba.root

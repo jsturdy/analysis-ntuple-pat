@@ -1,0 +1,38 @@
+###dijet triggers###
+136410   HLT_DiJetAve15U
+141500   HLT_DiJetAve30U
+999999   HLT_DiJetAve50U        
+!dijet
+
+###single jet triggers###
+#134509   HLT_Jet15U        
+#135617   HLT_Jet30U        
+141956   HLT_Jet50U        
+#143205   HLT_Jet70U        
+147196   HLT_Jet100U        
+148819   HLT_Jet100U_v2        
+#   HLT_Jet100U_v3
+999999   HLT_Jet140U_v3        
+!singlejet
+
+###met triggers###
+145176   HLT_MET45        
+999999   HLT_MET100        
+!met
+
+###muon triggers###
+132440   HLT_Mu7        
+999999   HLT_Mu9        
+!muon
+
+###electron triggers###
+132440   HLT_Ele10_SW_EleId_L1R        
+134209   HLT_Ele15_LW_L1R        
+136314   HLT_Ele15_SW_CaloEleId_L1R        
+138561   HLT_Ele15_SW_EleId_L1R        
+140100   HLT_Ele15_SW_L1R        
+142350   HLT_Ele15_SiStrip_L1R        
+145475   HLT_Ele20_SW_L1R        
+147618   HLT_Ele20_SiStrip_L1R        
+999999   HLT_Ele25_SW_L1R        
+!electron
