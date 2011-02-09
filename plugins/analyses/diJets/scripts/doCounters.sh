@@ -1,0 +1,36 @@
+#!/bin/bash
+
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt0to15.txt           > & ./counting/pt0to15.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt15to20.txt          > & ./counting/pt15to20.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt20to30.txt          > & ./counting/pt20to30.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt30to50.txt          > & ./counting/pt30to50.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt50to80.txt          > & ./counting/pt50to80.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt80to120.txt         > & ./counting/pt80to120.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt120to170.txt        > & ./counting/pt120to170.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt170to230.txt        > & ./counting/pt170to230.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt230to300.txt        > & ./counting/pt230to300.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt300to380.txt        > & ./counting/pt300to380.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt380to470.txt        > & ./counting/pt380to470.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt470to600.txt        > & ./counting/pt470to600.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt600to800.txt        > & ./counting/pt600to800.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt800to1000.txt       > & ./counting/pt800to1000.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt1000to1400.txt      > & ./counting/pt1000to1400.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt1400to1800.txt      > & ./counting/pt1400to1800.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt1800to2200.txt      > & ./counting/pt1800to2200.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt2200to2600.txt      > & ./counting/pt2200to2600.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt2600to3000.txt      > & ./counting/pt2600to3000.out &
+./countEvents.exe config/PATtuple_V9_MC_QCD_DiJets_Pt3000to3500.txt      > & ./counting/pt3000to3500.out &
+./countEvents.exe config/PATtuple_V9_MC_387_QCD_pt50to100-madgraph.txt   > & ./counting/pt50to100madgraph.out &
+./countEvents.exe config/PATtuple_V9_MC_387_QCD_pt100to250-madgraph.txt  > & ./counting/pt100to250madgraph.out &
+./countEvents.exe config/PATtuple_V9_MC_387_QCD_pt250to500-madgraph.txt  > & ./counting/pt250to500madgraph.out &
+./countEvents.exe config/PATtuple_V9_MC_387_QCD_pt500to1000-madgraph.txt > & ./counting/pt500to1000madgraph.out &
+./countEvents.exe config/PATtuple_V9_MC_387_SUSY_LM0.txt                 > & ./counting/susylm0.out &
+./countEvents.exe config/PATtuple_V9_MC_387_SUSY_LM13.txt                > & ./counting/susylm1.out &
+./countEvents.exe config/PATtuple_V9_MC_387_SUSY_LM1.txt                 > & ./counting/susylm13.out &
+./countEvents.exe config/PATtuple_V9_MC_387_TTbarJets-madgraph.txt       > & ./counting/ttbar.out &
+#./countEvents.exe config/PATtuple_V9_MC_387_Wenu.txt                     > & ./counting/wenu.out &
+./countEvents.exe config/PATtuple_V9_MC_387_WJets-madgraph.txt           > & ./counting/wjets.out &
+#./countEvents.exe config/PATtuple_V9_MC_387_Wmunu.txt                    > & ./counting/wmunu.out &
+./countEvents.exe config/PATtuple_V9_MC_387_ZInvisibleJets-madgraph.txt  > & ./counting/zinv.out &
+./countEvents.exe config/PATtuple_V9_MC_387_ZJets-madgraph.txt           > & ./counting/zjets.out &
+#./countEvents.exe config/PATtuple_V9_MC_387_Zmumu.txt                    > & ./counting/zmumu.out &
