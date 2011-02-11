@@ -8,24 +8,100 @@
 #define NUMHISTOS   26
 #define NUMTESTHIST 13
 
-void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lum, double xs, double eff, double numGen, double cutJet1, double cutJet2, double cutMET)
+DiJetStudy::DiJetStudy(TTree *tree, std::string* sampleList, std::string* triggerList, std::string* cutFile, const bool &isData, const std::string &jetPrefix, const std::string &metPrefix, const std::string &lepPrefix, const std::string &phtPrefix, const std::string &sampleKey)
+  :ntupleAnalysisPAT(tree, sampleList, triggerList, cutFile, isData, jetPrefix, metPrefix, lepPrefix, phtPrefix, sampleKey)
 {
+  std::cout<<"Executing DiJetStudy::DiJetStudy()"<<std::endl;
+  sampleList_ = sampleList;
+  sampleInfo sampVals = ReadInEfficiencies(sampleList_,sampleKey);
+
+  if (isData) {
+    sampVals.xs      = 1.;
+    sampVals.eff     = 1.;
+    sampVals.numGen  = 1.;
+  }
+  
+  sampVals.lumi = 35.;
+  sampVals.scale = 1.;
+
+  if (!isData)
+    sampVals.scale = sampVals.lumi * sampVals.xs * sampVals.eff / sampVals.numGen;
+
+  scale_            = sampVals.scale;
+  luminosity_       = sampVals.lumi;
+  cross_section_    = sampVals.xs;
+  efficiency_       = sampVals.eff;
+  generated_events_ = sampVals.numGen;
+  
+
+  //Read in the trigger information
+  triggerList_ = triggerList;
+  ReadInTriggers();
+  //read in the cuts
+  cutFile_     = cutFile;
+  ReadInCuts();
+  setCuts();
+
+  
+}
+DiJetStudy::~DiJetStudy()
+{
+}
+
+void DiJetStudy::printOutEventInfo()
+{
+  if (isData_) {
+    std::cout<<"Event info for Run: "<<std::setw(8)<<Run
+	     <<" Lumi Section: "<<std::setw(5)<<LumiSection
+	     <<" Event: "<<std::setw(12)<<Event<<std::endl;
+    std::cout<<"NJets = "<<std::setw(5)<<NJets<<std::endl;
+    std::cout<<"\nLeading Jet:"<<std::endl;
+    std::cout<<"\tPt: " <<std::setw(5)<<JetP4->at(0).Pt();
+    std::cout<<"  -  Eta: "<<std::setw(5)<<JetP4->at(0).Eta();
+    std::cout<<"  -  Phi: "<<std::setw(5)<<JetP4->at(0).Phi()<<std::endl;
+    std::cout<<"\nSecond Jet:"<<std::endl;
+    std::cout<<"\tPt: " <<std::setw(5)<<JetP4->at(1).Pt();
+    std::cout<<"  -  Eta: "<<std::setw(5)<<JetP4->at(1).Eta();
+    std::cout<<"  -  Phi: "<<std::setw(5)<<JetP4->at(1).Phi()<<std::endl;
+    std::cout<<"\nMET: "   <<std::setw(5)<<METP4->Pt();
+    std::cout<<"  -  SumEt: " <<std::setw(5)<<METsumEt_Fullcorr<<std::endl;
+  }
+}
+//void DiJetStudy::Loop(std::string outputfile, double lum, double xs, double eff, double numGen, double cutJet1, double cutJet2, double cutMET)
+//void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, const double &cutJet2, const double &cutMET)
+void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, const double &cutJet2, const double &cutMET, const bool& strictDiJets)
+//void DiJetStudy::Loop(const std::string &outputfile,  const double lum,  const double scale, const double &cutJet1, const double &cutJet2, const double &cutMET)
+{
+  printf("converted args: %s  pT1: %4.6f  pT2: %4.6f  MET: %4.6f\n",
+	 outputfile.c_str(), cutJet1, cutJet2, cutMET);
+  //printf("converted args: %s  pT1: %4.6f  pT2: %4.6f  MET: %4.6f  lum: %4.6f,  xs: %4.6f,  eff: %4.6f  num: %4.6f\n",
+	 // outputfile.c_str(), cutJet1, cutJet2, cutMET, lum, xs, eff, numGen);
+  //printf("received args: %s  pT1: %4.6f  pT2: %4.6f  MET: %4.6f  lum: %4.6f,  scale: %4.6f\n",outputfile.c_str(), cutJet1, cutJet2, cutMET, lum, scale);
+  
+  //gROOT->ProcessLine(".L /uscms_data/d2/sturdy07/SUSY/CMSSW_3_8_7/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/ntuplePragmas.so");
+  gROOT->ProcessLine(".L ntuplePragmas.so");
+  std::string analysisVer = "met";
   jet1_minpt = cutJet1;
   jet2_minpt = cutJet2;
   cut_met    = cutMET;
 
   outfilename_ = outputfile;
   
-  luminosity_    = lum;
-  cross_section_ = xs;
-  efficiency_    = eff;
-  generated_events_ = numGen;
+  //luminosity_       = lum;
+  //cross_section_    = xs;
+  //efficiency_       = eff;
+  //generated_events_ = numGen;
+  //
+  //scale_       = luminosity_ * cross_section_ * efficiency_ / generated_events_;
+  std::cout<<"Scale factor is: "<<scale_<<std::endl;
 
-  printf("version: %s  pT1: %d  pT2: %d  MET: %d  lum: %f,  xs: %f,  eff: %f\n",outfilename_.c_str(), jet1_minpt, jet2_minpt, lum, xs, eff);
+  printf("converted args: %s  pT1: %4.6f  pT2: %4.6f  MET: %4.6f  lum: %4.6f,  xs: %4.6f,  eff: %4.6f  num: %4.6f  scale: %4.6f\n",
+	 outfilename_.c_str(), jet1_minpt, jet2_minpt, cut_met, luminosity_, cross_section_, efficiency_, generated_events_, scale_);
+  //printf("converted args: %s  pT1: %4.6f  pT2: %4.6f  MET: %4.6f  lum: %4.6f,  scale: %4.6f\n",outfilename_.c_str(), jet1_minpt, jet2_minpt, cut_met, luminosity_, scale_);
   if (fChain == 0) return;
 
   char tmpfile[128];
-  sprintf(tmpfile,"%s",outfilename_.c_str());
+  sprintf(tmpfile,"%s.root",outfilename_.c_str());
   TFile *file = new TFile(tmpfile,"RECREATE");
   file->cd();
    
@@ -111,56 +187,9 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     lepPrefix_+" E_{T}^{#mu}"
   };
 
-  //test histograms for describing backgrounds
-  TH1D *th_metoversumet[4], *th_metovermht[4], *th_metovermeff[4], *th_metoverht[4];
-  TH1D *th_htovermht[4],    *th_htovermeff[4], *th_htoversumet[4];
-  TH1D *th_mhtovermeff[4],  *th_mhtoversumet[4];
-  TH1D *th_sumetovermeff[4];
-  TH1D *th_dphi1overdphi2[4], *th_dphi2overdphi12[4], *th_dphi1overdphi12[4];
-
-  TH2D *th_metvssumet[4], *th_metvsmht[4], *th_metvsmeff[4],  *th_metvsht[4];
-  TH2D *th_htvsmht[4],    *th_htvsmeff[4], *th_htvssumet[4];
-  TH2D *th_mhtvsmeff[4],  *th_mhtvssumet[4];
-  TH2D *th_sumetvsmeff[4];
-  TH2D *th_dphi1vsdphi2[4], *th_dphi2vsdphi12[4],   *th_dphi1vsdphi12[4];
-
-  char testhisttitle[NUMTESTHIST][2][128];
-  std::string testhistname[NUMTESTHIST][2] = {
-    {"q01_metoversumet",         "q01_metvssumet"   },//0
-    {"q02_metovermht",	         "q02_metvsmht"     },//1
-    {"q03_metoverht",	         "q03_metvsht"      },//2
-    {"q04_metovermeff",	         "q04_metvsmeff"    },//3
-    {"q11_htovermht",	         "q11_htvsmht"      },//4
-    {"q12_htovermeff",	         "q12_htvsmeff"     },//5
-    {"q13_htoversumet",	         "q13_htvssumet"    },//6
-    {"q21_mhtovermeff",	         "q21_mhtvsmeff"    },//7
-    {"q22_mhtoversumet",         "q22_mhtvssumet"   },//8
-    {"q31_sumetovermeff",	 "q31_sumetvsmeff"  },//9
-    {"q41_dphi1overdphi2",       "q41_dphi1vsdphi2" },//10
-    {"q42_dphi1overdphi12",      "q42_dphi1vsdphi12"},//11
-    {"q43_dphi2overdphi12",      "q43_dphi2vsdphi12"} //12
-  };
   
-  char testplottitle[NUMTESTHIST][2][128];
-  std::string testplotname[NUMTESTHIST][2] = {
-    {"#frac{#slash E_{T}}{#Sigma E_{T}}",    "#slash E_{T} vs. #Sigma E_{T}"   },
-    {"#frac{#slash E_{T}}{#slash H_{T}}",    "#slash E_{T} vs. #slash H_{T}"   },
-    {"#frac{#slash E_{T}}{H_{T}}",	     "#slash E_{T} vs. H_{T}"          },
-    {"#frac{#slash E_{T}}{M_{eff}}",	     "#slash E_{T} vs. M_{eff}"        },
-    {"#frac{H_{T}}{#slash H_{T}}",	     "H_{T} vs. #slash H_{T}"          },
-    {"#frac{H_{T}}{M_{eff}}",	             "H_{T} vs. M_{eff}"               },
-    {"#frac{H_{T}}{#Sigma E_{T}}",	     "H_{T} vs. #Sigma E_{T}"          },
-    {"#frac{#slash H_{T}}{M_{eff}}",	     "#slash H_{T} vs. M_{eff}"        },
-    {"#frac{#slash H_{T}}{#Sigma E_{T}}",    "#slash H_{T} vs. #Sigma E_{T}"   },
-    {"#frac{#Sigma E_{T}}{M_{eff}}",	     "#Sigma E_{T} vs. M_{eff}"        },
-    {"#frac{#Delta#phi(J_{1},#slash E_{T})}{#Delta#phi(J_{2},#slash E_{T})}", "#Delta#phi(J_{1},#slash E_{T}) vs. #Delta#phi(J_{2},#slash E_{T})" },
-    {"#frac{#Delta#phi(J_{1},#slash E_{T})}{#Delta#phi(J_{1},J_{2})}",        "#Delta#phi(J_{1},#slash E_{T}) vs. #Delta#phi(J_{1},J_{2})"        },
-    {"#frac{#Delta#phi(J_{2},#slash E_{T})}{#Delta#phi(J_{1},J_{2})}",        "#Delta#phi(J_{2},#slash E_{T}) vs. #Delta#phi(J_{1},J_{2})"        }
-  };
-
-
-  string histpre[4] = {"h_pre_cuts_","h_individual_cuts_","h_N1_cuts_","h_post_cuts_"};
-  //std::string histpre[4] = {"h_pre_cuts_","h_previous_cuts_","h_N1_cuts_","h_post_cuts_"};
+  //std::string histpre[4] = {"h_pre_cuts_","h_individual_cuts_","h_N1_cuts_","h_post_cuts_"};
+  std::string histpre[4] = {"h_pre_cuts_","h_previous_cuts_","h_N1_cuts_","h_post_cuts_"};
   
   double bins[4][NUMHISTOS] = {
     //pre cuts
@@ -222,12 +251,12 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       sprintf(histtitle[hh],"%s%s",histpre[tt].c_str(),histname[hh].c_str());
       sprintf(plottitle[hh],"%s",plotname[hh].c_str());
     }
-    for (int hh = 0; hh < NUMTESTHIST; ++hh) {
-      sprintf(testhisttitle[hh][0],"%s%s",histpre[tt].c_str(),testhistname[hh][0].c_str());
-      sprintf(testplottitle[hh][0],"%s",  testplotname[hh][0].c_str());
-      sprintf(testhisttitle[hh][1],"%s%s",histpre[tt].c_str(),testhistname[hh][1].c_str());
-      sprintf(testplottitle[hh][1],"%s",  testplotname[hh][1].c_str());
-    }
+    //for (int hh = 0; hh < NUMTESTHIST; ++hh) {
+    //  sprintf(testhisttitle[hh][0],"%s%s",histpre[tt].c_str(),testhistname[hh][0].c_str());
+    //  sprintf(testplottitle[hh][0],"%s",  testplotname[hh][0].c_str());
+    //  sprintf(testhisttitle[hh][1],"%s%s",histpre[tt].c_str(),testhistname[hh][1].c_str());
+    //  sprintf(testplottitle[hh][1],"%s",  testplotname[hh][1].c_str());
+    //}
     
     binsize = 25.;
     if (tt > 1)
@@ -240,46 +269,19 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 
     binsize = 25.; // bins of 25 GeV
     h_MET[tt]     = new TH1D(histtitle[3],plottitle[3],static_cast<int>(bins[tt][3]/binsize),0.,bins[tt][3]);
-    th_metoversumet[tt] = new TH1D(testhisttitle[0][0],testplottitle[0][0],100,0,10.);                                                          
-    th_metvssumet[tt]   = new TH2D(testhisttitle[0][1],testplottitle[0][1],static_cast<int>(bins[tt][3]/binsize),0.,bins[tt][3],2500/50,0,2500);
-    th_metovermht[tt]   = new TH1D(testhisttitle[1][0],testplottitle[1][0],100,0,10.);                                                          
-    th_metvsmht[tt]     = new TH2D(testhisttitle[1][1],testplottitle[1][1],static_cast<int>(bins[tt][3]/binsize),0.,bins[tt][3],static_cast<int>(bins[tt][5]/binsize),0.,bins[tt][5]); 
-    th_metovermeff[tt]  = new TH1D(testhisttitle[2][0],testplottitle[2][0],100,0,10.);                                                           
-    th_metvsmeff[tt]    = new TH2D(testhisttitle[2][1],testplottitle[2][1],static_cast<int>(bins[tt][3]/binsize),0.,bins[tt][3],static_cast<int>(bins[tt][6]/50),0.,bins[tt][6]);
-    th_metoverht[tt]    = new TH1D(testhisttitle[3][0],testplottitle[3][0],100,0,10.);                                                          
-    th_metvsht[tt]      = new TH2D(testhisttitle[3][1],testplottitle[3][1],static_cast<int>(bins[tt][3]/binsize),0.,bins[tt][3],static_cast<int>(bins[tt][4]/50),0.,bins[tt][4]);
-    
+
     h_MHT[tt]     = new TH1D(histtitle[5],plottitle[5],static_cast<int>(bins[tt][5]/binsize),0.,bins[tt][5]);
-    th_mhtovermeff[tt]  = new TH1D(testhisttitle[7][0],testplottitle[7][0],100,0,10.);                                                          
-    th_mhtvsmeff[tt]    = new TH2D(testhisttitle[7][1],testplottitle[7][1],static_cast<int>(bins[tt][5]/binsize),0.,bins[tt][5],static_cast<int>(bins[tt][6]/50),0.,bins[tt][6]);
-    th_mhtoversumet[tt] = new TH1D(testhisttitle[8][0],testplottitle[8][0],100,0,10.);                                                          
-    th_mhtvssumet[tt]   = new TH2D(testhisttitle[8][1],testplottitle[8][1],static_cast<int>(bins[tt][5]/binsize),0.,bins[tt][5],2500/50,0,2500);
 
     binsize = 50.; // bins of 50 GeV
     //binsize = 100.; // bins of 100 GeV
     h_HT[tt]      = new TH1D(histtitle[4],plottitle[4],static_cast<int>(bins[tt][4]/binsize),0.,bins[tt][4]);
-    th_htovermht[tt]   = new TH1D(testhisttitle[4][0],testplottitle[4][0],100,0,10.);                                                          
-    th_htvsmht[tt]     = new TH2D(testhisttitle[4][1],testplottitle[4][1],static_cast<int>(bins[tt][4]/binsize),0.,bins[tt][4],static_cast<int>(bins[tt][5]/25),0.,bins[tt][5]);
-    th_htovermeff[tt]  = new TH1D(testhisttitle[5][0],testplottitle[5][0],100,0,10.);                                                          
-    th_htvsmeff[tt]    = new TH2D(testhisttitle[5][1],testplottitle[5][1],static_cast<int>(bins[tt][4]/binsize),0.,bins[tt][4],static_cast<int>(bins[tt][6]/binsize),0.,bins[tt][6]);
-    th_htoversumet[tt] = new TH1D(testhisttitle[6][0],testplottitle[6][0],100,0,10.);                                                          
-    th_htvssumet[tt]   = new TH2D(testhisttitle[6][1],testplottitle[6][1],static_cast<int>(bins[tt][4]/binsize),0.,bins[tt][4],2500/50,0,2500);
 
     h_Meff[tt]    = new TH1D(histtitle[6],plottitle[6],static_cast<int>(bins[tt][6]/binsize),0.,bins[tt][6]);
-    th_sumetovermeff[tt] = new TH1D(testhisttitle[9][0],testplottitle[9][0],100,0,10.);                                                         
-    th_sumetvsmeff[tt]   = new TH2D(testhisttitle[9][1],testplottitle[9][1],2500/50,0,2500,static_cast<int>(bins[tt][6]/binsize),0.,bins[tt][6]);
-    
+
     // fixed number of bins
     h_jet1metdphi[tt] = new TH1D(histtitle[7],plottitle[7],50,0.,bins[tt][7]);
     h_jet2metdphi[tt] = new TH1D(histtitle[8],plottitle[8],50,0.,bins[tt][8]);
     h_jet12dphi[tt]   = new TH1D(histtitle[9],plottitle[9],50,0.,bins[tt][9]);
-
-    th_dphi1overdphi2[tt]  = new TH1D(testhisttitle[10][0],testplottitle[10][0],100,0,10.);                                                         
-    th_dphi1vsdphi2[tt]    = new TH2D(testhisttitle[10][1],testplottitle[10][1],50,0.,bins[tt][7],50,0.,bins[tt][8]);
-    th_dphi1overdphi12[tt] = new TH1D(testhisttitle[11][0],testplottitle[11][0],100,0,10.);                                                         
-    th_dphi1vsdphi12[tt]   = new TH2D(testhisttitle[11][1],testplottitle[11][1],50,0.,bins[tt][7],50,0.,bins[tt][9]);
-    th_dphi2overdphi12[tt] = new TH1D(testhisttitle[12][0],testplottitle[12][0],100,0,10.);                                                         
-    th_dphi2vsdphi12[tt]   = new TH2D(testhisttitle[12][1],testplottitle[12][1],50,0.,bins[tt][8],50,0.,bins[tt][9]);
 
     h_dphistar[tt]    = new TH1D(histtitle[10],plottitle[10],25,0.,bins[tt][10]);
 
@@ -372,34 +374,6 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_muonEta[step]  ->Sumw2();
     h_Ngoodmuon[step]->Sumw2();
     h_counters[step] ->Sumw2();
-    th_dphi1overdphi2[step] ->Sumw2();
-    th_dphi1overdphi12[step]->Sumw2();
-    th_dphi2overdphi12[step]->Sumw2();
-    th_dphi1vsdphi2[step]   ->Sumw2();
-    th_dphi1vsdphi12[step]  ->Sumw2();
-    th_dphi2vsdphi12[step]  ->Sumw2();
-
-    th_metoversumet[step]   ->Sumw2();
-    th_metovermht[step]     ->Sumw2();
-    th_metovermeff[step]    ->Sumw2();
-    th_metoverht[step]      ->Sumw2();
-    th_metvssumet[step]     ->Sumw2();
-    th_metvsmht[step]       ->Sumw2();
-    th_metvsmeff[step]      ->Sumw2();
-    th_metvsht[step]        ->Sumw2();
-    th_htovermht[step]      ->Sumw2();
-    th_htovermeff[step]     ->Sumw2();
-    th_htoversumet[step]    ->Sumw2();
-    th_htvsmht[step]        ->Sumw2();
-    th_htvsmeff[step]       ->Sumw2();
-    th_htvssumet[step]      ->Sumw2();
-    th_mhtovermeff[step]    ->Sumw2();
-    th_mhtoversumet[step]   ->Sumw2();
-    th_mhtvsmeff[step]      ->Sumw2();
-    th_mhtvssumet[step]     ->Sumw2();
-    th_sumetovermeff[step]  ->Sumw2();
-    th_sumetvsmeff[step]    ->Sumw2();
-
   }
 
   for (int hist = 0; hist < 2; ++hist) {
@@ -435,8 +409,10 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   int  mhtcounter[4]      = {0};  //mht cut
 
 
+
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
+  //for (Long64_t jentry=0; jentry<100;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry); nbytes += nb;
@@ -447,19 +423,16 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_counters[2]->Fill(10.5);
     h_counters[3]->Fill(10.5);
 
-    double nJets  = NJets;
-    double nElecs = ElecN;
-    double nMuons = MuonN;
+    int nJets  = NJets;
+    int nElecs = ElecN;
+    int nMuons = MuonN;
+    int nTaus  = TauN;
+    int nPhots = PhotN;
 
-    double met    = METpt_Fullcorr_nocc;
-    double rawmet = METpt_Nocorr_nocc;
-    //TLorentzVector met
-    //double mex = MET_Fullcorr_nocc[0];
-    //double mex = MET_Fullcorr_nocc[1];
-    //double mex = MET_Fullcorr_nocc[2];
-    //met.SetPxPyPzE(mex,mey,mez,en);
-    double metphi = METphi_Fullcorr_nocc;
-    double sumEt  = METsumEt_Fullcorr_nocc;
+    double met    = METP4->Pt();
+    double rawmet = METpt_Nocorr;
+    double metphi = METP4->Phi();
+    double sumEt  = METsumEt_Fullcorr;
 
     double         ht  = computeHT(ht_jet_minpt, ht_jet_maxeta, false);
     TLorentzVector mht = computeMHT(mht_jet_minpt, mht_jet_maxeta, false);
@@ -470,12 +443,12 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     double jet2metdphi = 0.;
 
     if (nJets > 1){
-      jet1metdphi = JetPhi[0]-metphi;
-      jet12dphi   = JetPhi[0]-JetPhi[1];
-      jet2metdphi = JetPhi[1]-metphi;
+      jet1metdphi = JetP4->at(0).Phi()-metphi;
+      jet12dphi   = JetP4->at(0).Phi()-JetP4->at(1).Phi();
+      jet2metdphi = JetP4->at(1).Phi()-metphi;
     }
     
-    jet12dphi   = (jet12dphi < 0)       ? -jet12dphi            : jet12dphi;
+    jet12dphi   = (jet12dphi < 0)    ? -jet12dphi         : jet12dphi;
     jet12dphi   = (jet12dphi > M_PI) ? 2*M_PI - jet12dphi : jet12dphi;
 
     jet1metdphi = (jet1metdphi < 0)    ? -jet1metdphi         : jet1metdphi;
@@ -492,9 +465,10 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     double Minv = 0.;
 
     if (nJets > 1) {
-      LorentzV jet1, jet2, dijet;
-      jet1.SetPxPyPzE(JetPx[0],JetPy[0],JetPz[0],JetE[0]);
-      jet2.SetPxPyPzE(JetPx[1],JetPy[1],JetPz[1],JetE[1]);
+      TLorentzVector jet1, jet2;
+      TLorentzVector dijet;
+      jet1.SetPxPyPzE(JetP4->at(0).Px(),JetP4->at(0).Py(),JetP4->at(0).Pz(),JetP4->at(0).E());
+      jet2.SetPxPyPzE(JetP4->at(1).Px(),JetP4->at(1).Py(),JetP4->at(1).Pz(),JetP4->at(1).E());
       dijet = jet1 + jet2;
       MT   = dijet.Mt();
       Minv = dijet.M();
@@ -524,6 +498,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     bool nJetSelection[2]       = {false,false};
     bool Preselection[2]        = {false,false};
 
+    bool hltSingleJetTriggerSelection[2] = {false,false};
+    bool hltDiJetTriggerSelection[2]     = {false,false};
     bool hltJetTriggerSelection[2]       = {false,false};
     bool hltMETTriggerSelection[2]       = {false,false};
     bool hltMHTTriggerSelection[2]       = {false,false};
@@ -539,6 +515,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     bool jet12dphiSelection[2]  = {false,false};
       
     bool excessiveJetVeto[2]    = {true,true};
+
+    bool failedJetID[2]         = {false,false};// no jet fails jet ID with pT>30 and |eta|<5
       
     bool metSelection[2]         = {false,false};
     bool jet1metdphiSelection[2] = {false,false};
@@ -560,7 +538,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     if (nJets < 2) 
       Preselection[0] = false;
     else {
-      if (JetPt[1] < 50.)
+      if (JetP4->at(1).Pt() < 50.)
 	Preselection[0] = false;
       else if ( !(jetID(0,false) && jetID(1,false) ) )
 	Preselection[0] = false;
@@ -569,33 +547,115 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     }
 
     //Trigger selection
+    std::string dijetTriggerPath;
+    std::string singlejetTriggerPath;
+    std::string metTriggerPath;
+    std::string muonTriggerPath;
+    std::string electronTriggerPath;
+    
+    std::map<int,std::string>::iterator key = dijetTriggers.begin();
+    while (key != dijetTriggers.end() ) {
+      if (Run < key->first) {
+	dijetTriggerPath = key->second;
+	break;
+      }
+      ++key;
+    }
+    
+    key = singlejetTriggers.begin();
+    while (key != singlejetTriggers.end() ) {
+      if (Run < key->first) {
+	singlejetTriggerPath = key->second;
+	break;
+      }
+      ++key;
+    }
+
+    key = metTriggers.begin();
+    while (key != metTriggers.end() ) {
+      if (Run < key->first) {
+	metTriggerPath = key->second;
+	break;
+      }
+      ++key;
+    }
+
+    key = muonTriggers.begin();
+    while (key != muonTriggers.end() ) {
+      if (Run < key->first) {
+	muonTriggerPath = key->second;
+	break;
+      }
+      ++key;
+    }
+
+    key = electronTriggers.begin();
+    while (key != electronTriggers.end() ) {
+      if (Run < key->first) {
+	electronTriggerPath = key->second;
+	break;
+      }
+      ++key;
+    }
+
+    //std::cout<<"Using "<<dijetTriggerPath<<" as the dijet trigger"<<std::endl;
+    //std::cout<<"Using "<<singlejetTriggerPath<<" as the singlejet trigger"<<std::endl;
+    //std::cout<<"Using "<<metTriggerPath<<" as the met trigger"<<std::endl;
+    //std::cout<<"Using "<<muonTriggerPath<<" as the muon trigger"<<std::endl;
+    //std::cout<<"Using "<<electronTriggerPath<<" as the electron trigger"<<std::endl;
+
+    stringtobool::iterator trigbit = HLTTriggered->find(dijetTriggerPath);
+    if (trigbit!=HLTTriggered->end())
+      hltDiJetTriggerSelection[0] = trigbit->second;
+
+    trigbit = HLTTriggered->find(singlejetTriggerPath);
+    if (trigbit!=HLTTriggered->end())
+      hltSingleJetTriggerSelection[0] =  trigbit->second;
+
+    trigbit = HLTTriggered->find(metTriggerPath);
+    if (trigbit!=HLTTriggered->end())
+      hltMETTriggerSelection[0] = trigbit->second;
+
+    //trigbit = HLTTriggered->find(dijetTriggerPath);
+    //if (trigbit!=HLTTriggered->end())
+    //  hltJetTriggerSelection[0] = trigbit->second;
+    //trigbit = HLTTriggered->find(dijetTriggerPath);
+    //if (trigbit!=HLTTriggered->end())
+    //  hltJetTriggerSelection[0] = trigbit->second;
+
+    hltDiJetTriggerSelection[0]     = true;
+    hltSingleJetTriggerSelection[0] = true;
     hltJetTriggerSelection[0] = true;
     hltMETTriggerSelection[0] = true;
     hltMHTTriggerSelection[0] = true;
     hltHTTriggerSelection[0]  = true;
 
+    //hltTriggerSelection[0] = 
+    //  hltJetTriggerSelection[0] &&
+    //  hltMETTriggerSelection[0] &&
+    //  hltMHTTriggerSelection[0] &&
+    //  hltHTTriggerSelection[0];
+
     hltTriggerSelection[0] = 
-      hltJetTriggerSelection[0] &&
-      hltMETTriggerSelection[0] &&
-      hltMHTTriggerSelection[0] &&
-      hltHTTriggerSelection[0];
+      hltSingleJetTriggerSelection[0] ||
+      hltMETTriggerSelection[0];
 
     //Jets
     if (nJets>0) {
-      jet1PtSelection[0]  = (JetPt[0] >= jet1_minpt) ? true : false;
-      jet1EtaSelection[0]  = (fabs(JetEta[0]) <= jet1_maxeta) ? true : false;
+      jet1PtSelection[0]  = (JetP4->at(0).Pt() >= jet1_minpt) ? true : false;
+      jet1EtaSelection[0] = (fabs(JetP4->at(0).Eta()) <= jet1_maxeta) ? true : false;
       jet1IDSelection[0]  = jetID(0,false);
       jet1metdphiSelection[0] = (jet1metdphi >= cut_jet1metdphi) ? true : false;
     }
     if (nJets>1) {
-      jet2PtSelection[0]  = (JetPt[1] >= jet2_minpt) ? true : false;
+      jet2PtSelection[0]  = (JetP4->at(1).Pt() >= jet2_minpt) ? true : false;
       jet2IDSelection[0]  = jetID(1,false);
-      jet2EtaSelection[0]  = (fabs(JetEta[1]) <= jet2_maxeta) ? true : false;
+      jet2EtaSelection[0] = (fabs(JetP4->at(1).Eta()) <= jet2_maxeta) ? true : false;
       jet12dphiSelection[0]   = (jet12dphi   >= cut_jet12dphi)   ? true : false;
       jet2metdphiSelection[0] = (jet2metdphi >= cut_jet2metdphi) ? true : false;
     }
     
-    dphistarSelection[0]                 = (dphistar    >= cut_dphistar)    ? true : false;
+    dphistarSelection[0] = (dphistar    >= cut_dphistar)    ? true : false;
     
     metSelection[0]   = (met      >= cut_met)  ? true : false;
     htSelection[0]    = (ht       >= cut_ht)   ? true : false;
@@ -609,19 +669,28 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     if (jet2IDSelection[0])
       goodjetcount +=1;
     
-    for (int ijet = 2; ijet < nJets; ++ijet) 
-      if (jetID(ijet,false)) {
-	if (JetPt[ijet] > jetall_minpt)
-	  ++goodjetcount;
-	if (JetPt[ijet] > jetall_maxpt)
-	  excessiveJetVeto[0] = false;
-      }
-      
+    //switch for looking at exclusive vs inclusive dijet events
+    if (strictDiJets) {
+      for (int ijet = 2; ijet < nJets; ++ijet) 
+	if (jetID(ijet,false)) {
+	  if (JetP4->at(ijet).Pt() > jetall_minpt)
+	    ++goodjetcount;
+	  if (JetP4->at(ijet).Pt() > jetall_maxpt)
+	    excessiveJetVeto[0] = false;
+	}
+    }
+
+    for (int ijet = 0; ijet < nJets; ++ijet) 
+      if (JetP4->at(ijet).Pt() > jetall_minpt)
+	if (fabs(JetP4->at(ijet).Eta()) < jetall_maxeta)
+	  if (!jetID(ijet,false)) 
+	    failedJetID[0] = true;
+    
     UInt_t goodeleccount = 0;
     for (int ielec = 0; ielec < nElecs; ++ielec) 
       if (electronID(ielec,false) ) {
 	++goodeleccount;
-	if (ElecPt[ielec] > electron_maxpt)
+	if (ElectronP4->at(ielec).Pt() > electron_maxpt)
 	  electronVeto[0] = false;
       }
       
@@ -629,10 +698,10 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     for ( int imuon = 0; imuon < nMuons; ++imuon)
       if (muonID(imuon,1) ) {
 	++goodmuoncount;
-	if (MuonPt[imuon] > muon_maxpt)
+	if (MuonP4->at(imuon).Pt() > muon_maxpt)
 	  muonVeto[0] = false;
       }
-    leptonVeto[0] = electronVeto[0]||muonVeto[0];
+    leptonVeto[0] = electronVeto[0]&&muonVeto[0];
       
     //Final selections
     preselection     = Preselection[0];
@@ -646,8 +715,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       jet2IDSelection[0]  && 
       jet2EtaSelection[0];
 
-    finaljet       = dijetselection && excessiveJetVeto[0];
-    leptonveto     = electronVeto[0] || muonVeto[0];
+    finaljet       = dijetselection && excessiveJetVeto[0] && !failedJetID[0];
+    leptonveto     = electronVeto[0] && muonVeto[0];
     metselection   = metSelection[0];
     dphiselection  = jet1metdphiSelection[0] && jet2metdphiSelection[0];
     htselection    = htSelection[0];
@@ -655,8 +724,23 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     dphistarselection  = dphistarSelection[0];
       
       
-    //    printf("preselect   triggers  dijet   finaljet   dphi   dphi*   met   lepton   ht   mht\n");
-    //    printf("%d       %d       %d   %d   %d   %d   %d   %d   %d   %d\n",preselection,triggerselectiondijetselection,finaljet,dphiselection,dphistarselection,metselection,leptonveto,htselection,mhtselection);
+    //printf("preselect   triggers  dijet   finaljet   dphi   dphi*   met   lepton   ht   mht\n");
+    //std::cout<<std::setw(8)<<"preselect"<<std::setw(10)<<"triggers"
+    //	     <<std::setw(10)<<"dijet"<<std::setw(10)<<"finaljet"
+    //	     <<std::setw(10)<<"dphi"<<std::setw(10)<<"dphi*"
+    //	     <<std::setw(10)<<"met"<<std::setw(10)<<"lepton"
+    //	     <<std::setw(10)<<"ht"<<std::setw(10)<<"mht"<<std::endl;
+    ////printf("%d       %d       %d   %d   %d   %d   %d   %d   %d   %d\n",preselection,triggerselection,dijetselection,finaljet,dphiselection,dphistarselection,metselection,leptonveto,htselection,mhtselection);
+    //std::cout<<std::setw(9)<<preselection;
+    //std::cout<<std::setw(10)<<triggerselection;
+    //std::cout<<std::setw(10)<<dijetselection;
+    //std::cout<<std::setw(10)<<finaljet;
+    //std::cout<<std::setw(10)<<dphiselection;
+    //std::cout<<std::setw(10)<<dphistarselection;
+    //std::cout<<std::setw(10)<<metselection;
+    //std::cout<<std::setw(10)<<leptonveto;
+    //std::cout<<std::setw(10)<<htselection;
+    //std::cout<<std::setw(10)<<mhtselection<<std::endl;
 
     //**************************Individual cut counters***********************//
     if (preselection) {
@@ -671,12 +755,12 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       fjcounter[0]++;
       h_counters[1]->Fill(2.5);
     }
-    if (dphiselection) {
-      dphicounter[0]++;
-      h_counters[1]->Fill(3.5);
-    }
     if (leptonveto) {
       leptoncounter[0]++;
+      h_counters[1]->Fill(3.5);
+    }
+    if (dphiselection) {
+      dphicounter[0]++;
       h_counters[1]->Fill(4.5);
     }
     //Selection based on MET/DPhi(Jet1,2,MET)
@@ -703,6 +787,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     if (analysisVer=="met"||analysisVer=="mht") {
       pscounter[1]++;
       h_counters[0]->Fill(0.5);
+      h_Njets[1][0]->Fill(nJets);
+      h_Njets[1][1]->Fill(goodjetcount);
       if (preselection) {
 	pscounter[2]++;
 	h_counters[3]->Fill(0.5);
@@ -713,58 +799,130 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	  h_counters[3]->Fill(1.5);
 	  fjcounter[1]++;
 	  h_counters[0]->Fill(2.5);
+
+	  /*
+	    dijetselection = 
+	    jet1PtSelection[0]  && 
+	    jet1IDSelection[0]  && 
+	    jet1EtaSelection[0] &&
+	    jet2PtSelection[0]  && 
+	    jet2IDSelection[0]  && 
+	    jet2EtaSelection[0];
+	    finaljet = dijetselection && 
+	    excessiveJetVeto[0] &&
+	    failedJetID;
+	  */
+	  h_jet1emfrac[1]->Fill(JetFem->at(0));
+	  if ( jet1IDSelection[0] ) {
+	    h_jet1eta[1]->Fill(JetP4->at(0).Eta());
+	    if ( jet1EtaSelection[0]) {
+	      h_jet1et[1]->Fill(JetP4->at(0).Pt());
+	    }
+	  }
+	  h_jet2emfrac[1]->Fill(JetFem->at(1));
+	  if ( jet2IDSelection[0]) {
+	    h_jet2eta[1]->Fill(JetP4->at(1).Eta());
+	    if ( jet2EtaSelection[0]) {
+	      h_jet2et[1]->Fill(JetP4->at(1).Pt());
+	    }
+	  }
+	  if (dijetselection) {
+	    int ijet = 2;
+	    while (ijet < nJets) {
+	      if (jetID(ijet,false)) {
+		if (JetP4->at(ijet).Pt()>jetall_minpt)
+		  h_jetFem[1]->Fill(JetFem->at(ijet));
+		  h_jetallet[1]->Fill(JetP4->at(ijet).Pt());
+	      }
+	      ijet++;
+	    }
+	  }
+
 	  if (finaljet) {
 	    fjcounter[2]++;
 	    h_counters[3]->Fill(2.5);
 	    leptoncounter[1]++;
-	    h_counters[0]->Fill(4.5);
+	    h_counters[0]->Fill(3.5);
+
+	    for ( int ielec = 0; ielec < nElecs; ++ielec) {
+	      if (electronID(ielec,false) ) {
+		h_elecEt[1]->Fill(ElectronP4->at(ielec).Pt());
+		h_elecEta[1]->Fill(ElectronP4->at(ielec).Eta());
+	      }
+	    }
+	    h_Nelec[1]->Fill(nElecs);
+	    h_Ngoodelec[1]->Fill(goodeleccount);
+	    for ( int imuon = 0; imuon < nMuons; ++imuon) {
+	      if (muonID(imuon,1) ) {
+		h_muonEt[1]->Fill(MuonP4->at(imuon).Pt());
+		h_muonEta[1]->Fill(MuonP4->at(imuon).Eta());
+	      }
+	    }
+	    h_Nmuon[1]->Fill(nMuons);
+	    h_Ngoodmuon[1]->Fill(goodmuoncount);
+
 	    if (leptonveto) {
 	      leptoncounter[2]++;
-	      h_counters[3]->Fill(4.5);
+	      h_counters[3]->Fill(3.5);
 	      dphicounter[1]++;
-	      h_counters[0]->Fill(3.5);
+	      h_counters[0]->Fill(4.5);
+
+	      TLorentzVector jet1, jet2;
+	      jet1.SetPxPyPzE(JetP4->at(0).Px(),JetP4->at(0).Py(),JetP4->at(0).Pz(),JetP4->at(0).E());
+	      jet2.SetPxPyPzE(JetP4->at(1).Px(),JetP4->at(1).Py(),JetP4->at(1).Pz(),JetP4->at(1).E());
+	      h_jet12dphi[1]->Fill(jet1.DeltaPhi(jet2) );
+
+	      h_jet1metdphi[1]->Fill(jet1metdphi);
+	      if (jet1metdphiSelection[0]) {
+		h_jet2metdphi[1]->Fill(jet2metdphi);
+	      }
 	      if (dphiselection) {
 		dphicounter[2]++;
-		h_counters[3]->Fill(3.5);
+		h_counters[3]->Fill(4.5);
 		//Selection based on MET/DPhi(Jet1,2,MET)
 		metcounter[1]++;
 		h_counters[0]->Fill(5.5);
+		
+		h_MET[1]->Fill(met);
+		
 		if (metselection) {
 		  metcounter[2]++;
 		  h_counters[3]->Fill(5.5);}}}
 	    //Selection based on HT/MHT/DPhiStar
 	    dphistarcounter[1]++;
 	    h_counters[0]->Fill(6.5);
+
+	    h_dphistar[1]->Fill(dphistar);
+	    
 	    if (dphistarselection) {
 	      dphistarcounter[2]++;
 	      h_counters[3]->Fill(6.5);
 	      htcounter[1]++;
 	      h_counters[0]->Fill(7.5);
+	      
+	      h_HT[1]->Fill(ht);
+
 	      if (htselection) {
 		htcounter[2]++;
 		h_counters[3]->Fill(7.5);
 		mhtcounter[1]++;
 		h_counters[0]->Fill(8.5);
+
+		h_MHT[1]->Fill(mht.Pt());
+
 		if (mhtselection) {
 		  mhtcounter[2]++;
-		  h_counters[3]->Fill(8.5);}}}}}}
+		  h_counters[3]->Fill(8.5);
+
+		  h_Meff[1]->Fill(Meff);
+		}}}}}}
       //**************************N-1 cut counters***********************//
       if (
 	  triggerselection &&
 	  finaljet         &&
 	  leptonveto       &&
-	  (
-	   (
-	    dphiselection    &&
-	    metselection
-	   )
-	   ||
-	   (
-	    dphistarselection &&
-	    htselection       &&
-	    mhtselection     
-	    )
-	   )
+	  dphiselection    &&
+	  metselection
 	  ) {
 	pscounter[3]++;
 	h_counters[2]->Fill(0.5);}
@@ -772,18 +930,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	  preselection     &&
 	  finaljet         &&
 	  leptonveto       &&
-	  (
-	   (
-	    dphiselection    &&
-	    metselection 
-	    )
-	   ||
-	   (
-	    dphistarselection &&
-	    htselection       &&
-	    mhtselection     
-	    )
-	   )
+	  dphiselection    &&
+	  metselection 
 	  ) {
 	trcounter[3]++;
 	h_counters[2]->Fill(1.5);}
@@ -791,18 +939,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	  preselection     &&
 	  triggerselection &&
 	  leptonveto       &&
-	  (
-	   (
-	    dphiselection    &&
-	    metselection
-	   )
-	   ||
-	   (
-	    dphistarselection &&
-	    htselection       &&
-	    mhtselection     
-	    )
-	   )
+	  dphiselection    &&
+	  metselection
 	  ) {
 	fjcounter[3]++;
 	h_counters[2]->Fill(2.5);}
@@ -810,37 +948,19 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	  preselection     &&
 	  triggerselection &&
 	  finaljet         &&
-	  leptonveto       &&
-	  //(
-	   metselection
-	  //||
-	  // (
-	  //  dphistarselection &&
-	  //  htselection       &&
-	  //  mhtselection     
-	  //  )
-	  // )
+	  dphiselection    &&
+	  metselection
 	  ) {
-	dphicounter[3]++;
+	leptoncounter[3]++;
 	h_counters[2]->Fill(3.5);}
       if (
 	  preselection     &&
 	  triggerselection &&
 	  finaljet         &&
-	  (
-	   (
-	    dphiselection    &&
-	    metselection
-	    )
-	   ||
-	   (
-	    dphistarselection &&
-	    htselection       &&
-	    mhtselection     
-	    )
-	   )
+	  leptonveto       &&
+	  metselection
 	  ) {
-	leptoncounter[3]++;
+	dphicounter[3]++;
 	h_counters[2]->Fill(4.5);}
       if (
 	  preselection     &&
@@ -851,12 +971,12 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	  ) {
 	metcounter[3]++;
 	h_counters[2]->Fill(5.5);}
+
       //Selection based on HT/MHT/DPhiStar
       if (
 	  preselection     &&
 	  triggerselection &&
 	  finaljet         &&
-	  //dphiselection    &&
 	  leptonveto       &&
 	  htselection     &&
 	  mhtselection
@@ -867,7 +987,6 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	  preselection     &&
 	  triggerselection &&
 	  finaljet         &&
-	  //dphiselection    &&
 	  leptonveto       &&
 	  dphistarselection&&
 	  mhtselection     
@@ -878,7 +997,6 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	  preselection     &&
 	  triggerselection &&
 	  finaljet         &&
-	  //dphiselection    &&
 	  leptonveto       &&
 	  dphistarselection&&
 	  htselection     
@@ -897,21 +1015,11 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	jet1IDSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-	(
-	 (
-	  jet1metdphiSelection[0]&&
-	  jet2metdphiSelection[0]&&
-	  metSelection[0]
-	  )
-	 ||
-	 (
-	  htSelection[0]      &&
-	  mhtSelection[0]     &&
-	  meffSelection[0]    &&
-	  dphistarSelection[0]
-	  )
-	 )       &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
 	leptonVeto[0];
       
       hltTriggerSelection[1] = 
@@ -923,203 +1031,139 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	jet1IDSelection[0]   &&
 	jet2IDSelection[0]   &&
 	excessiveJetVeto[0]  &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0]&&
-	(
-	 (
-	  jet1metdphiSelection[0]&&
-	  jet2metdphiSelection[0]&&
-	  metSelection[0]  
-	  )
-	 ||
-	 (
-	  htSelection[0]      &&
-	  mhtSelection[0]     &&
-	  meffSelection[0]    &&
-	  dphistarSelection[0]
-	  )
-	 )       &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
 	leptonVeto[0];
       
       jet1PtSelection[1] =
 	nJetSelection[0]      &&
 	hltTriggerSelection[0]&&
-	jet2PtSelection[0]    &&
 	jet1EtaSelection[0]   &&
-	jet2EtaSelection[0]   &&
 	jet1IDSelection[0]    &&
+	//jet2PtSelection[0]    &&
+	jet2EtaSelection[0]   &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-	(
-	 (
-	  jet1metdphiSelection[0]&&
-	  jet2metdphiSelection[0]&&
-	  metSelection[0]    
-	  )
-	 ||
-	 (
-	  htSelection[0]      &&
-	  mhtSelection[0]     &&
-	  meffSelection[0]    &&
-	  dphistarSelection[0]
-	  )
-	 )       &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
 	leptonVeto[0];
     
       jet2PtSelection[1] = 
 	nJetSelection[0]      &&
 	hltTriggerSelection[0]&&
-	jet1PtSelection[0]    &&
+	//jet1PtSelection[0]    &&
 	jet1EtaSelection[0]   &&
-	jet2EtaSelection[0]   &&
 	jet1IDSelection[0]    &&
+	jet2EtaSelection[0]   &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-	(
-	 (
-	  jet1metdphiSelection[0]&&
-	  jet2metdphiSelection[0]&&
-	  metSelection[0] 
-	  )
-	 ||
-	 (
-	  htSelection[0]      &&
-	  mhtSelection[0]     &&
-	  meffSelection[0]    &&
-	  dphistarSelection[0]
-	  )
-	 )       &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
 	leptonVeto[0];
     
       jet1EtaSelection[1] = 
 	nJetSelection[0]      && 
 	hltTriggerSelection[0]&&
 	jet1PtSelection[0]    &&
+	jet1IDSelection[0]    &&
 	jet2PtSelection[0]    &&
 	jet2EtaSelection[0]   &&
-	jet1IDSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-	(
-	 (
-	  jet1metdphiSelection[0]&&
-	  jet2metdphiSelection[0]&&
-	  metSelection[0]    
-	  )
-	 ||
-	 (
-	  htSelection[0]      &&
-	  mhtSelection[0]     &&
-	  meffSelection[0]    &&
-	  dphistarSelection[0]
-	  )
-	 )       &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
 	leptonVeto[0];
     
       jet2EtaSelection[1] = 
 	nJetSelection[0]      &&
 	hltTriggerSelection[0]&&
 	jet1PtSelection[0]    &&
-	jet2PtSelection[0]    &&
 	jet1EtaSelection[0]   &&
 	jet1IDSelection[0]    &&
+	jet2PtSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-	(
-	 (
-	  jet1metdphiSelection[0]&&
-	  jet2metdphiSelection[0]&&
-	  metSelection[0]      
-	  )
-	 ||
-	 (
-	  htSelection[0]      &&
-	  mhtSelection[0]     &&
-	  meffSelection[0]    &&
-	  dphistarSelection[0]
-	  )
-	 )       &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
 	leptonVeto[0];
     
       jet1IDSelection[1] = 
 	nJetSelection[0]      &&
 	hltTriggerSelection[0]&&
 	jet1PtSelection[0]    &&
-	jet2PtSelection[0]    &&
 	jet1EtaSelection[0]   &&
+	jet2PtSelection[0]    &&
 	jet2EtaSelection[0]   &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-	(
-	 (
-	  jet1metdphiSelection[0]&&
-	  jet2metdphiSelection[0]&&
-	  metSelection[0]       
-	  )
-	 ||
-	 (
-	  htSelection[0]      &&
-	  mhtSelection[0]     &&
-	  meffSelection[0]    &&
-	  dphistarSelection[0]
-	  )
-	 )       &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
 	leptonVeto[0];
     
       jet2IDSelection[1] = 
 	nJetSelection[0]      &&
 	hltTriggerSelection[0]&&
 	jet1PtSelection[0]    &&
-	jet2PtSelection[0]    &&
 	jet1EtaSelection[0]   &&
-	jet2EtaSelection[0]   &&
 	jet1IDSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet2EtaSelection[0]   &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-	(
-	 (
-	  jet1metdphiSelection[0]&&
-	  jet2metdphiSelection[0]&&
-	  metSelection[0]     
-	  )
-	 ||
-	 (
-	  htSelection[0]      &&
-	  mhtSelection[0]     &&
-	  meffSelection[0]    &&
-	  dphistarSelection[0]
-	  )
-	 )       &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
 	leptonVeto[0];
     
       excessiveJetVeto[1] = 
 	nJetSelection[0]      &&
 	hltTriggerSelection[0]&&
 	jet1PtSelection[0]    &&
-	jet2PtSelection[0]    &&
 	jet1EtaSelection[0]   &&
-	jet2EtaSelection[0]   &&
 	jet1IDSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet2EtaSelection[0]   &&
 	jet2IDSelection[0]    &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-	(
-	 (
-	  jet1metdphiSelection[0]&&
-	  jet2metdphiSelection[0]&&
-	  metSelection[0]       
-	  )
-	 ||
-	 (
-	  htSelection[0]      &&
-	  mhtSelection[0]     &&
-	  meffSelection[0]    &&
-	  dphistarSelection[0]
-	  )
-	 )       &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
+	leptonVeto[0];
+      
+      failedJetID[1] = 
+	nJetSelection[0]      &&
+	hltTriggerSelection[0]&&
+	jet1PtSelection[0]    &&
+	jet1EtaSelection[0]   &&
+	jet1IDSelection[0]    &&
+	jet2PtSelection[0]    &&
+	jet2EtaSelection[0]   &&
+	jet2IDSelection[0]    &&
+	excessiveJetVeto[0]   &&
+	jet12dphiSelection[0] &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
 	leptonVeto[0];
       
       jet12dphiSelection[1] = 
@@ -1132,20 +1176,10 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	jet1IDSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
-	(
-	 (
-	  jet1metdphiSelection[0]&&
-	  jet2metdphiSelection[0]&&
-	  metSelection[0]      
-	  )
-	 ||
-	 (
-	  htSelection[0]      &&
-	  mhtSelection[0]     &&
-	  meffSelection[0]    &&
-	  dphistarSelection[0]
-	  )
-	 )       &&
+	!failedJetID[0]       &&
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0]        &&
 	leptonVeto[0];
       
       jet1metdphiSelection[1] = 
@@ -1158,8 +1192,9 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	jet1IDSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-	jet2metdphiSelection[0]&&
+	//jet2metdphiSelection[0]&&
 	metSelection[0]        &&
 	leptonVeto[0];
     
@@ -1173,9 +1208,9 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	jet1IDSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-	jet1metdphiSelection[0]&&
-
+	//jet1metdphiSelection[0]&&
 	metSelection[0]        &&
 
 	leptonVeto[0];
@@ -1191,8 +1226,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	jet1IDSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-      
 	jet1metdphiSelection[0]&&
 	jet2metdphiSelection[0]&&
 	leptonVeto[0];
@@ -1208,6 +1243,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	jet1IDSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
 	//jet1metdphiSelection[0]&&
 	//jet2metdphiSelection[0]&&
@@ -1227,6 +1263,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	jet1IDSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
 	//jet1metdphiSelection[0]&&
 	//jet2metdphiSelection[0]&&
@@ -1246,6 +1283,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	jet1IDSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
 	//jet1metdphiSelection[0]&&
 	//jet2metdphiSelection[0]&&
@@ -1265,13 +1303,13 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	jet1IDSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
 	//jet1metdphiSelection[0]&&
 	//jet2metdphiSelection[0]&&
 	htSelection[0]  &&
 	mhtSelection[0] &&
 	meffSelection[0]&&
-
 	leptonVeto[0];
       
       leptonVeto[1] = 
@@ -1284,21 +1322,11 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	jet1IDSelection[0]    &&
 	jet2IDSelection[0]    &&
 	excessiveJetVeto[0]   &&
+	!failedJetID[0]       &&
 	jet12dphiSelection[0] &&
-	(
-	 (
-	  jet1metdphiSelection[0]&&
-	  jet2metdphiSelection[0]&&
-	  metSelection[0]   
-	  )
-	 ||
-	 (
-	  htSelection[0]      &&
-	  mhtSelection[0]     &&
-	  meffSelection[0]    &&
-	  dphistarSelection[0]
-	  )
-	 );
+	jet1metdphiSelection[0]&&
+	jet2metdphiSelection[0]&&
+	metSelection[0];
 
     }
     else {
@@ -1317,15 +1345,15 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	  if (finaljet) {
 	    fjcounter[2]++;
 	    h_counters[3]->Fill(2.5);
-	    dphicounter[1]++;
+	    leptoncounter[1]++;
 	    h_counters[0]->Fill(3.5);
-	    if (dphiselection) {
-	      dphicounter[2]++;
+	    if (leptonveto) {
+	      leptoncounter[2]++;
 	      h_counters[3]->Fill(3.5);
-	      leptoncounter[1]++;
+	      dphicounter[1]++;
 	      h_counters[0]->Fill(4.5);
-	      if (leptonveto) {
-		leptoncounter[2]++;
+	      if (dphiselection) {
+		dphicounter[2]++;
 		h_counters[3]->Fill(4.5);
 		metcounter[1]++;
 		h_counters[0]->Fill(5.5);
@@ -1388,18 +1416,6 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	  preselection      &&
 	  triggerselection  &&
 	  finaljet          &&
-	  leptonveto        &&
-	  metselection      &&
-	  dphistarselection &&
-	  htselection       &&
-	  mhtselection    
-	  ) {
-	dphicounter[3]++;
-	h_counters[2]->Fill(3.5);}
-      if (
-	  preselection      &&
-	  triggerselection  &&
-	  finaljet          &&
 	  dphiselection     &&
 	  metselection      &&
 	  dphistarselection &&
@@ -1407,6 +1423,18 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 	  mhtselection    
 	  ) {
 	leptoncounter[3]++;
+	h_counters[2]->Fill(3.5);}
+      if (
+	  preselection      &&
+	  triggerselection  &&
+	  finaljet          &&
+	  leptonveto        &&
+	  metselection      &&
+	  dphistarselection &&
+	  htselection       &&
+	  mhtselection    
+	  ) {
+	dphicounter[3]++;
 	h_counters[2]->Fill(4.5);}
       //Selection based on MET/DPhi(Jet1,2,MET)
       if (
@@ -1837,31 +1865,25 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_Njets[0][0]->Fill(nJets);
     
     if (nJets > 0) {
-      h_jet1et[0]->Fill(JetPt[0]);
-      h_jet1eta[0]->Fill(JetEta[0]);
-      h_jet1emfrac[0]->Fill(JetFem[0]);
-      //h_jet1phi[0]->Fill(JetPhi[0]);
+      h_jet1et[0]->Fill(JetP4->at(0).Pt());
+      h_jet1eta[0]->Fill(JetP4->at(0).Eta());
+      h_jet1emfrac[0]->Fill(JetFem->at(0));
+      //h_jet1phi[0]->Fill(JetP4->at(0).Phi());
       h_jet1metdphi[0]->Fill(jet1metdphi);
     }
 
     if (nJets > 1) {
-      h_jet2et[0]->Fill(JetPt[1]);
-      h_jet2eta[0]->Fill(JetEta[1]);
-      h_jet2emfrac[0]->Fill(JetFem[1]);
-      //h_jet2phi[0]->Fill(JetPhi[1]);
+      h_jet2et[0]->Fill(JetP4->at(1).Pt());
+      h_jet2eta[0]->Fill(JetP4->at(1).Eta());
+      h_jet2emfrac[0]->Fill(JetFem->at(1));
+      //h_jet2phi[0]->Fill(JetP4->at(1).Phi());
       h_jet2metdphi[0]->Fill(jet2metdphi);
       
       TLorentzVector jet1, jet2;
-      jet1.SetPxPyPzE(JetPx[0],JetPy[0],JetPz[0],JetE[0]);
-      jet2.SetPxPyPzE(JetPx[1],JetPy[1],JetPz[1],JetE[1]);
+      jet1.SetPxPyPzE(JetP4->at(0).Px(),JetP4->at(0).Py(),JetP4->at(0).Pz(),JetP4->at(0).E());
+      jet2.SetPxPyPzE(JetP4->at(1).Px(),JetP4->at(1).Py(),JetP4->at(1).Pz(),JetP4->at(1).E());
       h_jet12dphi[0]->Fill(jet1.DeltaPhi(jet2) );
-
-      th_dphi1overdphi2[0] ->Fill(jet1metdphi/jet2metdphi);
-      th_dphi1overdphi12[0]->Fill(jet1metdphi/jet1.DeltaPhi(jet2));
-      th_dphi2overdphi12[0]->Fill(jet2metdphi/jet1.DeltaPhi(jet2));
-      th_dphi1vsdphi2[0]   ->Fill(jet1metdphi,jet2metdphi);
-      th_dphi1vsdphi12[0]  ->Fill(jet1metdphi,jet1.DeltaPhi(jet2));
-      th_dphi2vsdphi12[0]  ->Fill(jet2metdphi,jet1.DeltaPhi(jet2));
+      
     }
 
     h_MT[0]->Fill(MT);
@@ -1871,8 +1893,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     int ijet = 2;
     while (ijet < nJets) {
       if (jetID(ijet,false)) {
-	h_jetFem[0]->Fill(JetFem[ijet]);
-	h_jetallet[0]->Fill(JetPt[ijet]);
+	h_jetFem[0]->Fill(JetFem->at(ijet));
+	h_jetallet[0]->Fill(JetP4->at(ijet).Pt());
       }
       ijet++;
     }
@@ -1885,35 +1907,11 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_HT[0]->Fill(ht);
     h_MHT[0]->Fill(mht.Pt());
     h_Meff[0]->Fill(Meff);
-
-    th_metoversumet[0]   ->Fill(met/sumEt     );
-    th_metovermht[0]     ->Fill(met/mht.Pt()  );
-    th_metovermeff[0]    ->Fill(met/Meff      );
-    th_metoverht[0]      ->Fill(met/ht        );
-    th_metvssumet[0]     ->Fill(met,sumEt     );
-    th_metvsmht[0]       ->Fill(met,mht.Pt()  );
-    th_metvsmeff[0]      ->Fill(met,Meff      );
-    th_metvsht[0]        ->Fill(met,ht        );
-    th_htovermht[0]      ->Fill(ht/mht.Pt()   );
-    th_htovermeff[0]     ->Fill(ht/Meff       );
-    th_htoversumet[0]    ->Fill(ht/sumEt      );
-    th_htvsmht[0]        ->Fill(ht,mht.Pt()   );
-    th_htvsmeff[0]       ->Fill(ht,Meff       );
-    th_htvssumet[0]      ->Fill(ht,sumEt      );
-    th_mhtovermeff[0]    ->Fill(mht.Pt()/Meff );
-    th_mhtoversumet[0]   ->Fill(mht.Pt()/sumEt);
-    th_mhtvsmeff[0]      ->Fill(mht.Pt(),Meff );
-    th_mhtvssumet[0]     ->Fill(mht.Pt(),sumEt);
-    th_sumetovermeff[0]  ->Fill(sumEt/Meff    );
-    th_sumetvsmeff[0]    ->Fill(sumEt,Meff    );
-
-
-    //h_METphi[0]->Fill(metphi);
-
+    
     for ( int ielec = 0; ielec < nElecs; ++ielec) {
       if (electronID(ielec,false) ) {
-	h_elecEt[0]->Fill(ElecPt[ielec]);
-	h_elecEta[0]->Fill(ElecEta[ielec]);
+	h_elecEt[0]->Fill(ElectronP4->at(ielec).Pt());
+	h_elecEta[0]->Fill(ElectronP4->at(ielec).Eta());
       }
     }
     h_Nelec[0]->Fill(nElecs);
@@ -1921,160 +1919,143 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 
     for ( int imuon = 0; imuon < nMuons; ++imuon) {
       if (muonID(imuon,1) ) {
-	h_muonEt[0]->Fill(MuonPt[imuon]);
-	h_muonEta[0]->Fill(MuonEta[imuon]);
+	h_muonEt[0]->Fill(MuonP4->at(imuon).Pt());
+	h_muonEta[0]->Fill(MuonP4->at(imuon).Eta());
       }
     }
     h_Nmuon[0]->Fill(nMuons);
     h_Ngoodmuon[0]->Fill(goodmuoncount);
       
-
+    
     ////////////////////////////////////
     //individual cut plots
     ////////////////////////////////////
-
+    
     if (nJetSelection[0]) {
-      h_Njets[1][0]->Fill(nJets);
+      //h_Njets[1][0]->Fill(nJets);
       h_selections[0]->Fill(0.5);}
-
+    
     if (hltTriggerSelection[0]) {
       h_selections[0]->Fill(1.5);}
     
     if (leptonVeto[0]) {
+      /*
       for ( int ielec = 0; ielec < nElecs; ++ielec) {
 	if (electronID(ielec,false) ) {
-	  h_elecEt[1]->Fill(ElecPt[ielec]);
-	  h_elecEta[1]->Fill(ElecEta[ielec]);
+	  h_elecEt[1]->Fill(ElectronP4->at(ielec).Pt());
+	  h_elecEta[1]->Fill(ElectronP4->at(ielec).Eta());
 	}
       }
       h_Nelec[1]->Fill(nElecs);
       h_Ngoodelec[1]->Fill(goodeleccount);
-
       for ( int imuon = 0; imuon < nMuons; ++imuon) {
 	if (muonID(imuon,1) ) {
-	  h_muonEt[1]->Fill(MuonPt[imuon]);
-	  h_muonEta[1]->Fill(MuonEta[imuon]);
+	  h_muonEt[1]->Fill(MuonP4->at(imuon).Pt());
+	  h_muonEta[1]->Fill(MuonP4->at(imuon).Eta());
 	}
       }
       h_Nmuon[1]->Fill(nMuons);
       h_Ngoodmuon[1]->Fill(goodmuoncount);
-
-      h_selections[0]->Fill(2.5);}
+      */
       
-
+      h_selections[0]->Fill(2.5);}
+    
+    
     if (jet1PtSelection[0]) {
-      h_jet1et[1]->Fill(JetPt[0]);
+      //h_jet1et[1]->Fill(JetP4->at(0).Pt());
       h_selections[0]->Fill(3.5);}
-
+    
     if (jet2PtSelection[0]) {
-      h_jet2et[1]->Fill(JetPt[1]);
+      //h_jet2et[1]->Fill(JetP4->at(1).Pt());
       h_selections[0]->Fill(4.5);}
 
     if (jet1EtaSelection[0]) {
-      h_jet1eta[1]->Fill(JetEta[0]);
+      //h_jet1eta[1]->Fill(JetP4->at(0).Eta());
       h_selections[0]->Fill(5.5);}
 
     if (jet2EtaSelection[0]) {
-      h_jet2eta[1]->Fill(JetEta[1]);
+      //h_jet2eta[1]->Fill(JetP4->at(1).Eta());
       h_selections[0]->Fill(6.5);}
 
     if (jet1IDSelection[0]) {
-      h_jet1emfrac[1]->Fill(JetFem[0]);
+      //h_jet1emfrac[1]->Fill(JetFem->at(0));
       h_selections[0]->Fill(7.5);}
-
+    
     if (jet2IDSelection[0]) {
-      h_jet2emfrac[1]->Fill(JetFem[1]);
+      //h_jet2emfrac[1]->Fill(JetFem->at(1));
       h_selections[0]->Fill(8.5);}
-
+    
+    /*
     //What's going on here???
     ijet = 2;
     while (ijet < nJets) {
       if (jetID(ijet,false)) {
-	if (JetPt[ijet]>jetall_minpt)
-	  h_jetFem[1]->Fill(JetFem[ijet]);
+	if (JetP4->at(ijet).Pt()>jetall_minpt)
+	  h_jetFem[1]->Fill(JetFem->at(ijet));
       }
       ijet++;
     }
-    
+    */
     if (excessiveJetVeto[0]) {
-      ijet = 2;
-      while (ijet < nJets) {
+      /*
+	ijet = 2;
+	while (ijet < nJets) {
 	if (jetID(ijet,false)) {
-	  if (JetPt[ijet]>jetall_minpt)
-	    h_jetallet[1]->Fill(JetPt[ijet]);
+	  if (JetP4->at(ijet).Pt()>jetall_minpt)
+	    h_jetallet[1]->Fill(JetP4->at(ijet).Pt());
 	}
 	ijet++;
       }
       h_Njets[1][1]->Fill(goodjetcount);
+      */
       h_selections[0]->Fill(9.5);}
-
+    if (!failedJetID[0])
+      h_selections[0]->Fill(10.5);
     if (jet12dphiSelection[0]) {
       TLorentzVector jet1, jet2;
-      jet1.SetPxPyPzE(JetPx[0],JetPy[0],JetPz[0],JetE[0]);
-      jet2.SetPxPyPzE(JetPx[1],JetPy[1],JetPz[1],JetE[1]);
-      th_dphi1overdphi12[1]->Fill(jet1metdphi/jet1.DeltaPhi(jet2));
-      th_dphi1vsdphi12[1]  ->Fill(jet1metdphi,jet1.DeltaPhi(jet2));
-      th_dphi2vsdphi12[1]  ->Fill(jet2metdphi,jet1.DeltaPhi(jet2));
-      th_dphi2overdphi12[1]->Fill(jet2metdphi/jet1.DeltaPhi(jet2));
-      h_jet12dphi[1]->Fill(jet1.DeltaPhi(jet2) );
-      h_selections[0]->Fill(10.5);}
+      jet1.SetPxPyPzE(JetP4->at(0).Px(),JetP4->at(0).Py(),JetP4->at(0).Pz(),JetP4->at(0).E());
+      jet2.SetPxPyPzE(JetP4->at(1).Px(),JetP4->at(1).Py(),JetP4->at(1).Pz(),JetP4->at(1).E());
+      
+      //h_jet12dphi[1]->Fill(jet1.DeltaPhi(jet2) );
+      h_selections[0]->Fill(11.5);}
 
     ///
-
+    
     //MET analysis specific cuts    
     if (metSelection[0]) {
-      th_metoversumet[1]   ->Fill(met/sumEt     );
-      th_metovermht[1]     ->Fill(met/mht.Pt()  );
-      th_metovermeff[1]    ->Fill(met/Meff      );
-      th_metoverht[1]      ->Fill(met/ht        );
-      th_metvssumet[1]     ->Fill(met,sumEt     );
-      th_metvsmht[1]       ->Fill(met,mht.Pt()  );
-      th_metvsmeff[1]      ->Fill(met,Meff      );
-      th_metvsht[1]        ->Fill(met,ht        );
-      h_MET[1]->Fill(met);
+      //h_MET[1]->Fill(met);
       h_selections[0]->Fill(12.5);}
 
     if (jet1metdphiSelection[0]) {
-      th_dphi1overdphi2[1] ->Fill(jet1metdphi/jet2metdphi);
-      th_dphi1vsdphi2[1]   ->Fill(jet1metdphi,jet2metdphi);
-      h_jet1metdphi[1]->Fill(jet1metdphi);
+      //h_jet1metdphi[1]->Fill(jet1metdphi);
       h_selections[0]->Fill(13.5);}
 
     if (jet2metdphiSelection[0]) {
-      h_jet2metdphi[1]->Fill(jet2metdphi);
+      //h_jet2metdphi[1]->Fill(jet2metdphi);
       h_selections[0]->Fill(14.5);}
     
 
     //HT/MHT analysis specific cuts
     if (htSelection[0]) {
-      th_htovermht[1]      ->Fill(ht/mht.Pt()   );
-      th_htovermeff[1]     ->Fill(ht/Meff       );
-      th_htoversumet[1]    ->Fill(ht/sumEt      );
-      th_htvsmht[1]        ->Fill(ht,mht.Pt()   );
-      th_htvsmeff[1]       ->Fill(ht,Meff       );
-      th_htvssumet[1]      ->Fill(ht,sumEt      );
-      h_HT[1]->Fill(ht);
+
+      //h_HT[1]->Fill(ht);
       h_selections[0]->Fill(16.5);}
 
     if (mhtSelection[0]) {
-      th_mhtovermeff[1]    ->Fill(mht.Pt()/Meff );
-      th_mhtoversumet[1]   ->Fill(mht.Pt()/sumEt);
-      th_mhtvsmeff[1]      ->Fill(mht.Pt(),Meff );
-      th_mhtvssumet[1]     ->Fill(mht.Pt(),sumEt);
-      h_MHT[1]->Fill(mht.Pt());
+
+      //h_MHT[1]->Fill(mht.Pt());
       h_selections[0]->Fill(17.5);}
 
     if (meffSelection[0]) {
-      th_sumetovermeff[1]  ->Fill(sumEt/Meff    );
-      th_sumetvsmeff[1]    ->Fill(sumEt,Meff    );
-      h_Meff[1]->Fill(Meff);
+
+      //h_Meff[1]->Fill(Meff);
       h_selections[0]->Fill(18.5);}
 
     if (dphistarSelection[0]) {
-      h_dphistar[1]->Fill(dphistar);
+      //h_dphistar[1]->Fill(dphistar);
       h_selections[0]->Fill(19.5);}
             
-    
+        
     //////////////////////////////////////
     ///////////////////////////////////////////
     //N-1 plots
@@ -2090,8 +2071,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     if (leptonVeto[1]) {
       for ( int ielec = 0; ielec < nElecs; ++ielec) {
 	if (electronID(ielec,false) ) {
-	  h_elecEt[2]->Fill(ElecPt[ielec]);
-	  h_elecEta[2]->Fill(ElecEta[ielec]);
+	  h_elecEt[2]->Fill(ElectronP4->at(ielec).Pt());
+	  h_elecEta[2]->Fill(ElectronP4->at(ielec).Eta());
 	}
       }
       h_Nelec[2]->Fill(nElecs);
@@ -2099,8 +2080,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 
       for ( int imuon = 0; imuon < nMuons; ++imuon) {
 	if (muonID(imuon,1) ) {
-	  h_muonEt[2]->Fill(MuonPt[imuon]);
-	  h_muonEta[2]->Fill(MuonEta[imuon]);
+	  h_muonEt[2]->Fill(MuonP4->at(imuon).Pt());
+	  h_muonEta[2]->Fill(MuonP4->at(imuon).Eta());
 	}
       }
       h_Nmuon[2]->Fill(nMuons);
@@ -2110,46 +2091,34 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     }
       
     if (jet1PtSelection[1]) {
-      h_jet1et[2]->Fill(JetPt[0]);
+      h_jet1et[2]->Fill(JetP4->at(0).Pt());
       h_selections[1]->Fill(3.5);}
       
     if (jet2PtSelection[1]) {
-      h_jet2et[2]->Fill(JetPt[1]);
+      h_jet2et[2]->Fill(JetP4->at(1).Pt());
       h_selections[1]->Fill(4.5);}
       
     if (jet1EtaSelection[1]) {
-      h_jet1eta[2]->Fill(JetEta[0]);
+      h_jet1eta[2]->Fill(JetP4->at(0).Eta());
       h_selections[1]->Fill(5.5);}
       
     if (jet2EtaSelection[1]) {
-      h_jet2eta[2]->Fill(JetEta[1]);
+      h_jet2eta[2]->Fill(JetP4->at(1).Eta());
       h_selections[1]->Fill(6.5);}
       
     if (jet1IDSelection[1]) {
-      h_jet1emfrac[2]->Fill(JetFem[0]);
+      h_jet1emfrac[2]->Fill(JetFem->at(0));
       h_selections[1]->Fill(7.5);}
       
     if (jet2IDSelection[1]) {
-      h_jet2emfrac[2]->Fill(JetFem[1]);
+      h_jet2emfrac[2]->Fill(JetFem->at(1));
       h_selections[1]->Fill(8.5);}
         
-    if (jet12dphiSelection[1]) {
-      TLorentzVector jet1, jet2;
-      jet1.SetPxPyPzE(JetPx[0],JetPy[0],JetPz[0],JetE[0]);
-      jet2.SetPxPyPzE(JetPx[1],JetPy[1],JetPz[1],JetE[1]);
-      th_dphi1overdphi12[2]->Fill(jet1metdphi/jet1.DeltaPhi(jet2));
-      th_dphi2overdphi12[2]->Fill(jet2metdphi/jet1.DeltaPhi(jet2));
-      th_dphi1vsdphi12[2]  ->Fill(jet1metdphi,jet1.DeltaPhi(jet2));
-      th_dphi2vsdphi12[2]  ->Fill(jet2metdphi,jet1.DeltaPhi(jet2));
-
-      h_jet12dphi[2]->Fill(jet1.DeltaPhi(jet2) );
-      h_selections[1]->Fill(9.5);}
-    
     ijet = 2;
     while (ijet < nJets) {
       if (jetID(ijet,false)) {
-	if (JetPt[ijet]>jet1_minpt)
-	  h_jetFem[2]->Fill(JetFem[ijet]);
+	if (JetP4->at(ijet).Pt()>jetall_minpt)
+	  h_jetFem[2]->Fill(JetFem->at(ijet));
       }
       ijet++;
     }
@@ -2158,32 +2127,34 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       ijet = 2;
       while (ijet < nJets) {
 	if (jetID(ijet,false)) {
-	  if (JetPt[ijet]>jet2_minpt)
-	    h_jetallet[2]->Fill(JetPt[ijet]);
+	  if (JetP4->at(ijet).Pt()>jetall_minpt)
+	    h_jetallet[2]->Fill(JetP4->at(ijet).Pt());
 	}
 	ijet++;
       }
       h_Njets[2][1]->Fill(goodjetcount);
       //h_HT[2]->Fill(ht);//what to do about recalculating HT when some jets are rejected?
-      h_selections[1]->Fill(10.5);}
+      h_selections[1]->Fill(9.5);}
+    
+    if (failedJetID[1])
+      h_selections[0]->Fill(10.5);
+    if (jet12dphiSelection[1]) {
+      TLorentzVector jet1, jet2;
+      jet1.SetPxPyPzE(JetP4->at(0).Px(),JetP4->at(0).Py(),JetP4->at(0).Pz(),JetP4->at(0).E());
+      jet2.SetPxPyPzE(JetP4->at(1).Px(),JetP4->at(1).Py(),JetP4->at(1).Pz(),JetP4->at(1).E());
+
+      h_jet12dphi[2]->Fill(jet1.DeltaPhi(jet2) );
+      h_selections[1]->Fill(11.5);}
     
 
     //MET Analysis path
     if (metSelection[1]) {
-      th_metoversumet[2]   ->Fill(met/sumEt     );
-      th_metovermht[2]     ->Fill(met/mht.Pt()  );
-      th_metovermeff[2]    ->Fill(met/Meff      );
-      th_metoverht[2]      ->Fill(met/ht        );
-      th_metvssumet[2]     ->Fill(met,sumEt     );
-      th_metvsmht[2]       ->Fill(met,mht.Pt()  );
-      th_metvsmeff[2]      ->Fill(met,Meff      );
-      th_metvsht[2]        ->Fill(met,ht        );
+
       h_MET[2]->Fill(met);
       h_selections[1]->Fill(12.5);}
 
     if (jet1metdphiSelection[1]) {
-      th_dphi1overdphi2[2] ->Fill(jet1metdphi/jet2metdphi);
-      th_dphi1vsdphi2[2]   ->Fill(jet1metdphi,jet2metdphi);
+
       h_jet1metdphi[2]->Fill(jet1metdphi);
       h_selections[1]->Fill(13.5);}
 
@@ -2194,26 +2165,17 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 
     //HT/MHT Analysis path
     if (htSelection[1]) {
-      th_htovermht[2]      ->Fill(ht/mht.Pt()   );
-      th_htovermeff[2]     ->Fill(ht/Meff       );
-      th_htoversumet[2]    ->Fill(ht/sumEt      );
-      th_htvsmht[2]        ->Fill(ht,mht.Pt()   );
-      th_htvsmeff[2]       ->Fill(ht,Meff       );
-      th_htvssumet[2]      ->Fill(ht,sumEt      );
+
       h_HT[2]->Fill(ht);
       h_selections[1]->Fill(16.5);}
 
     if (mhtSelection[1]) {
-      th_mhtovermeff[2]    ->Fill(mht.Pt()/Meff );
-      th_mhtoversumet[2]   ->Fill(mht.Pt()/sumEt);
-      th_mhtvsmeff[2]      ->Fill(mht.Pt(),Meff );
-      th_mhtvssumet[2]     ->Fill(mht.Pt(),sumEt);
+
       h_MHT[2]->Fill(mht.Pt());
       h_selections[1]->Fill(17.5);}
 
     if (meffSelection[1]) {
-      th_sumetovermeff[2]  ->Fill(sumEt/Meff    );
-      th_sumetvsmeff[2]    ->Fill(sumEt,Meff    );
+
       h_Meff[2]->Fill(Meff);
       h_selections[1]->Fill(18.5);}
 
@@ -2268,7 +2230,7 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     if (selections) {
       
       //if (MET>1000) {
-      //printf("MET %2.2f: x=%2.2f ,y=%2.2f, phi=%2.2f\ngenMET %2.2f: x=%2.2f ,y=%2.2f, phi=%2.2f\n",MET,METx,METy,METphi_fullcorr_nocc,genMET,genMETx,genMETy,genMETphi);
+      //printf("MET %2.2f: x=%2.2f ,y=%2.2f, phi=%2.2f\ngenMET %2.2f: x=%2.2f ,y=%2.2f, phi=%2.2f\n",MET,METx,METy,METphi_fullcorr,genMET,genMETx,genMETy,genMETphi);
       //}
       
       h_selections[0]->Fill(20.5);
@@ -2278,8 +2240,8 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       h_Minv[1]->Fill(Minv);
       h_SumEt[1]->Fill(sumEt);
       
-      h_jet1et[3]->Fill(JetPt[0]);
-      h_jet2et[3]->Fill(JetPt[1]);
+      h_jet1et[3]->Fill(JetP4->at(0).Pt());
+      h_jet2et[3]->Fill(JetP4->at(1).Pt());
       
       h_MET[3]->Fill(met);
 
@@ -2289,25 +2251,25 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
 
       for (int ijet = 2; ijet < nJets; ++ijet) {
 	if (jetID(ijet,false)) {
-	  if (JetPt[ijet] > jetall_minpt) {
-	    h_jetFem[3]->Fill(JetFem[ijet]);
-	    h_jetallet[3]->Fill(JetPt[ijet]);
+	  if (JetP4->at(ijet).Pt() > jetall_minpt) {
+	    h_jetFem[3]->Fill(JetFem->at(ijet));
+	    h_jetallet[3]->Fill(JetP4->at(ijet).Pt());
 	  }
 	}
       }
 
       h_Njets[3][1]->Fill(goodjetcount);
       
-      h_jet1eta[3]->Fill(JetEta[0]);
-      h_jet2eta[3]->Fill(JetEta[1]);
-      h_jet1emfrac[3]->Fill(JetFem[0]);
-      h_jet2emfrac[3]->Fill(JetFem[1]);
+      h_jet1eta[3]->Fill(JetP4->at(0).Eta());
+      h_jet2eta[3]->Fill(JetP4->at(1).Eta());
+      h_jet1emfrac[3]->Fill(JetFem->at(0));
+      h_jet2emfrac[3]->Fill(JetFem->at(1));
       
       //total number of photons/leptons in event
       for ( int ielec = 0; ielec < nElecs; ++ielec) {
 	if (electronID(ielec,false) ) {
-	  h_elecEt[3]->Fill(ElecPt[ielec]);
-	  h_elecEta[3]->Fill(ElecEta[ielec]);
+	  h_elecEt[3]->Fill(ElectronP4->at(ielec).Pt());
+	  h_elecEta[3]->Fill(ElectronP4->at(ielec).Eta());
 	}
       }
       h_Nelec[3]->Fill(nElecs);
@@ -2315,71 +2277,46 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
       
       for ( int imuon = 0; imuon < nMuons; ++imuon) {
 	if (muonID(imuon,1) ) {
-	  h_muonEt[3]->Fill(MuonPt[imuon]);
-	  h_muonEta[3]->Fill(MuonEta[imuon]);
+	  h_muonEt[3]->Fill(MuonP4->at(imuon).Pt());
+	  h_muonEta[3]->Fill(MuonP4->at(imuon).Eta());
 	}
       }
       h_Nmuon[3]->Fill(nMuons);
       h_Ngoodmuon[3]->Fill(goodmuoncount);
       
       TLorentzVector jet1, jet2;
-      jet1.SetPxPyPzE(JetPx[0],JetPy[0],JetPz[0],JetE[0]);
-      jet2.SetPxPyPzE(JetPx[1],JetPy[1],JetPz[1],JetE[1]);
+      jet1.SetPxPyPzE(JetP4->at(0).Px(),JetP4->at(0).Py(),JetP4->at(0).Pz(),JetP4->at(0).E());
+      jet2.SetPxPyPzE(JetP4->at(1).Px(),JetP4->at(1).Py(),JetP4->at(1).Pz(),JetP4->at(1).E());
       h_jet12dphi[3]->Fill(jet1.DeltaPhi(jet2) );
       
       h_jet1metdphi[3]->Fill(jet1metdphi);
       h_jet2metdphi[3]->Fill(jet2metdphi);
       h_dphistar[2]->Fill(dphistar);
       
-      //h_jet1phi[1]->Fill(JetPhi[0]);
-      //h_jet2phi[1]->Fill(JetPhi[1]);
+      //h_jet1phi[1]->Fill(JetP4->at(0).Phi());
+      //h_jet2phi[1]->Fill(JetP4->at(1).Phi());
       //h_METphi[1]->Fill(metphi);
-      th_dphi1overdphi2[3] ->Fill(jet1metdphi/jet2metdphi);
-      th_dphi1overdphi12[3]->Fill(jet1metdphi/jet1.DeltaPhi(jet2));
-      th_dphi2overdphi12[3]->Fill(jet2metdphi/jet1.DeltaPhi(jet2));
-      th_dphi1vsdphi2[3]   ->Fill(jet1metdphi,jet2metdphi);
-      th_dphi1vsdphi12[3]  ->Fill(jet1metdphi,jet1.DeltaPhi(jet2));
-      th_dphi2vsdphi12[3]  ->Fill(jet2metdphi,jet1.DeltaPhi(jet2));
       
-      th_metoversumet[3]   ->Fill(met/sumEt     );
-      th_metovermht[3]     ->Fill(met/mht.Pt()  );
-      th_metovermeff[3]    ->Fill(met/Meff      );
-      th_metoverht[3]      ->Fill(met/ht        );
-      th_metvssumet[3]     ->Fill(met,sumEt     );
-      th_metvsmht[3]       ->Fill(met,mht.Pt()  );
-      th_metvsmeff[3]      ->Fill(met,Meff      );
-      th_metvsht[3]        ->Fill(met,ht        );
-      th_htovermht[3]      ->Fill(ht/mht.Pt()   );
-      th_htovermeff[3]     ->Fill(ht/Meff       );
-      th_htoversumet[3]    ->Fill(ht/sumEt      );
-      th_htvsmht[3]        ->Fill(ht,mht.Pt()   );
-      th_htvsmeff[3]       ->Fill(ht,Meff       );
-      th_htvssumet[3]      ->Fill(ht,sumEt      );
-      th_mhtovermeff[3]    ->Fill(mht.Pt()/Meff );
-      th_mhtoversumet[3]   ->Fill(mht.Pt()/sumEt);
-      th_mhtvsmeff[3]      ->Fill(mht.Pt(),Meff );
-      th_mhtvssumet[3]     ->Fill(mht.Pt(),sumEt);
-      th_sumetovermeff[3]  ->Fill(sumEt/Meff    );
-      th_sumetvsmeff[3]    ->Fill(sumEt,Meff    );
-
-
+      //print out event info for data that passes cuts
+      printOutEventInfo();
+      
     }
     //////////////////////////////////////
     
   }
+  std::cout<<"Done looping events "<<std::endl;
 
 
   // scale histograms to desired values
-  double scale = luminosity_ * cross_section_ * efficiency_ / generated_events_;
-  h_selections[1]->SetBinContent(21,cross_section_);
-  h_selections[1]->SetBinContent(22,efficiency_);
-  h_selections[1]->SetBinContent(23,luminosity_);
+  //h_selections[1]->SetBinContent(21,cross_section_);
+  //h_selections[1]->SetBinContent(22,efficiency_);
+  //h_selections[1]->SetBinContent(23,luminosity_);
 
   char ytitle[128];
   sprintf(ytitle,"Events / %2.0f pb^{-1}",luminosity_);
-  h_selections[0]->Scale(scale);
+  h_selections[0]->Scale(scale_);
   h_selections[0]->GetYaxis()->SetTitle(ytitle);
-  h_selections[1]->Scale(scale);
+  h_selections[1]->Scale(scale_);
   h_selections[1]->GetYaxis()->SetTitle(ytitle);
   h_selections[0]->GetXaxis()->SetBinLabel(1,"nJets");
   h_selections[0]->GetXaxis()->SetBinLabel(2,"hlt Trigger Cuts");
@@ -2390,9 +2327,10 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   h_selections[0]->GetXaxis()->SetBinLabel(7,"#eta_{Jet_{2}}");
   h_selections[0]->GetXaxis()->SetBinLabel(8,"EM_{FRAC}^{Jet_{1}}");
   h_selections[0]->GetXaxis()->SetBinLabel(9,"EM_{FRAC}^{Jet_{2}}");
-  h_selections[0]->GetXaxis()->SetBinLabel(10,"#Delta#phi(Jet_{1}, Jet_{2})");
-  h_selections[0]->GetXaxis()->SetBinLabel(11,"E^{MAX}_{T}^{jets}");
-  h_selections[0]->GetXaxis()->SetBinLabel(12,"#slash E_{T} Type Cuts");
+  h_selections[0]->GetXaxis()->SetBinLabel(10,"E^{MAX}_{T}^{jets}");
+  h_selections[0]->GetXaxis()->SetBinLabel(11,"Jets Failing JetID");
+  h_selections[0]->GetXaxis()->SetBinLabel(12,"#Delta#phi(Jet_{1}, Jet_{2})");
+  //h_selections[0]->GetXaxis()->SetBinLabel(12,"#slash E_{T} Type Cuts");
   h_selections[0]->GetXaxis()->SetBinLabel(13,"#slashE_{T}");
   h_selections[0]->GetXaxis()->SetBinLabel(14,"#Delta#phi(Jet_{1}, #slashE_{T})");
   h_selections[0]->GetXaxis()->SetBinLabel(15,"#Delta#phi(Jet_{2}, #slashE_{T})");
@@ -2413,9 +2351,10 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   h_selections[1]->GetXaxis()->SetBinLabel(7,"#eta_{Jet_{2}}");
   h_selections[1]->GetXaxis()->SetBinLabel(8,"EM_{FRAC}^{Jet_{1}}");
   h_selections[1]->GetXaxis()->SetBinLabel(9,"EM_{FRAC}^{Jet_{2}}");
-  h_selections[1]->GetXaxis()->SetBinLabel(10,"#Delta#phi(Jet_{1}, Jet_{2})");
-  h_selections[1]->GetXaxis()->SetBinLabel(11,"E^{MAX}_{T}^{jets}");
-  h_selections[1]->GetXaxis()->SetBinLabel(12,"#slash E_{T} Type Cuts");
+  h_selections[1]->GetXaxis()->SetBinLabel(10,"E^{MAX}_{T}^{jets}");
+  h_selections[1]->GetXaxis()->SetBinLabel(11,"Jets Failing JetID");
+  h_selections[1]->GetXaxis()->SetBinLabel(12,"#Delta#phi(Jet_{1}, Jet_{2})");
+  //h_selections[1]->GetXaxis()->SetBinLabel(12,"#slash E_{T} Type Cuts");
   h_selections[1]->GetXaxis()->SetBinLabel(13,"#slashE_{T}");
   h_selections[1]->GetXaxis()->SetBinLabel(14,"#Delta#phi(Jet_{1}, #slashE_{T})");
   h_selections[1]->GetXaxis()->SetBinLabel(15,"#Delta#phi(Jet_{2}, #slashE_{T})");
@@ -2425,39 +2364,39 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
   h_selections[1]->GetXaxis()->SetBinLabel(19,"#Delta#phi^{*}(Jets, #slashH_{T})");
   h_selections[1]->GetXaxis()->SetBinLabel(20,"M_{eff}");
   h_selections[1]->GetXaxis()->SetBinLabel(21,"Total Events");
-  h_selections[1]->GetXaxis()->SetBinLabel(22,"#sigma");
-  h_selections[1]->GetXaxis()->SetBinLabel(23,"#epsilon");
-  h_selections[1]->GetXaxis()->SetBinLabel(20,"#integralL dt");
+  //h_selections[1]->GetXaxis()->SetBinLabel(22,"#sigma");
+  //h_selections[1]->GetXaxis()->SetBinLabel(23,"#epsilon");
+  //h_selections[1]->GetXaxis()->SetBinLabel(20,"#integralL dt");
   h_selections[1]->SetStats(kFALSE);
 
   for (int mine = 0; mine < 2; ++mine) {
     //sprintf(ytitle,"Events / %2.0f pb^{-1}",luminosity_);
-    //h_jet1phi[mine]->Scale(scale);
+    //h_jet1phi[mine]->Scale(scale_);
     //h_jet1phi[mine]->GetYaxis()->SetTitle(ytitle);
-    //h_jet2phi[mine]->Scale(scale);
+    //h_jet2phi[mine]->Scale(scale_);
     //h_jet2phi[mine]->GetYaxis()->SetTitle(ytitle);
-    //h_METphi[mine]->Scale(scale);
+    //h_METphi[mine]->Scale(scale_);
     //h_METphi[mine]->GetYaxis()->SetTitle(ytitle);
 
     sprintf(ytitle,"Events / 50 GeV / %2.0f pb^{-1}",luminosity_);
-    h_MT[mine]->Scale(scale);
+    h_MT[mine]->Scale(scale_);
     h_MT[mine]->GetYaxis()->SetTitle(ytitle);
-    h_Minv[mine]->Scale(scale);
+    h_Minv[mine]->Scale(scale_);
     h_Minv[mine]->GetYaxis()->SetTitle(ytitle);
-    h_SumEt[mine]->Scale(scale);
+    h_SumEt[mine]->Scale(scale_);
     h_SumEt[mine]->GetYaxis()->SetTitle(ytitle);}
   
   for (int mine = 0; mine < 4; ++mine) {
     sprintf(ytitle,"Events / %2.0f pb^{-1}",luminosity_);
     //sprintf(ytitle,"Raw Events passing cuts");
-    h_counters[mine]->Scale(scale);
+    h_counters[mine]->Scale(scale_);
     h_counters[mine]->GetYaxis()->SetTitle(ytitle);
     h_counters[mine]->GetXaxis()->SetBinLabel(1,"2 Loose ID Jets p_{T} > 50 GeV");
     h_counters[mine]->GetXaxis()->SetBinLabel(2,"hlt Trigger Cuts");
     h_counters[mine]->GetXaxis()->SetBinLabel(3,"Jet 2 p_{T} > 100 GeV no third jet");
+    h_counters[mine]->GetXaxis()->SetBinLabel(4,"e/#mu Veto");
     sprintf(ytitle,"#Delta#phi(J_{1},#slashE_{T}) > %2.2f, #Delta#phi(J_{2},#slashE_{T}) > %2.2f",cut_jet1metdphi,cut_jet2metdphi);
-    h_counters[mine]->GetXaxis()->SetBinLabel(4,ytitle);
-    h_counters[mine]->GetXaxis()->SetBinLabel(5,"e/#mu Veto");
+    h_counters[mine]->GetXaxis()->SetBinLabel(5,ytitle);
     sprintf(ytitle,"#slashE_{T} > %2.2f",cut_met);
     h_counters[mine]->GetXaxis()->SetBinLabel(6,ytitle);
     sprintf(ytitle,"#Delta#phi* > %2.2f",cut_dphistar);
@@ -2471,109 +2410,107 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     
     sprintf(ytitle,"Events / %2.0f pb^{-1}",luminosity_);
     for (int my = 0; my < 2; ++my) {
-      h_Njets[mine][my]->Scale(scale);
+      h_Njets[mine][my]->Scale(scale_);
       h_Njets[mine][my]->GetYaxis()->SetTitle(ytitle);}
     
-    h_Nelec[mine]->Scale(scale);
+    h_Nelec[mine]->Scale(scale_);
     h_Nelec[mine]->GetYaxis()->SetTitle(ytitle);
-    h_Ngoodelec[mine]->Scale(scale);
+    h_Ngoodelec[mine]->Scale(scale_);
     h_Ngoodelec[mine]->GetYaxis()->SetTitle(ytitle);
 
-    h_Nmuon[mine]->Scale(scale);
+    h_Nmuon[mine]->Scale(scale_);
     h_Nmuon[mine]->GetYaxis()->SetTitle(ytitle);
-    h_Ngoodmuon[mine]->Scale(scale);
+    h_Ngoodmuon[mine]->Scale(scale_);
     h_Ngoodmuon[mine]->GetYaxis()->SetTitle(ytitle);
     
-    h_jet1eta[mine]->Scale(scale);
+    h_jet1eta[mine]->Scale(scale_);
     h_jet1eta[mine]->GetYaxis()->SetTitle(ytitle);
-    h_jet2eta[mine]->Scale(scale);
+    h_jet2eta[mine]->Scale(scale_);
     h_jet2eta[mine]->GetYaxis()->SetTitle(ytitle);
-    h_jet1emfrac[mine]->Scale(scale);
+    h_jet1emfrac[mine]->Scale(scale_);
     h_jet1emfrac[mine]->GetYaxis()->SetTitle(ytitle);
-    h_jet2emfrac[mine]->Scale(scale);
+    h_jet2emfrac[mine]->Scale(scale_);
     h_jet2emfrac[mine]->GetYaxis()->SetTitle(ytitle);
       
-    h_jetFem[mine]->Scale(scale);    h_jetFem[mine]->GetYaxis()->SetTitle(ytitle);
+    h_jetFem[mine]->Scale(scale_);    h_jetFem[mine]->GetYaxis()->SetTitle(ytitle);
       
-    h_jet12dphi[mine]->Scale(scale);
+    h_jet12dphi[mine]->Scale(scale_);
     h_jet12dphi[mine]->GetYaxis()->SetTitle(ytitle);
-    h_jet1metdphi[mine]->Scale(scale);
+    h_jet1metdphi[mine]->Scale(scale_);
     h_jet1metdphi[mine]->GetYaxis()->SetTitle(ytitle);
-    h_jet2metdphi[mine]->Scale(scale);
+    h_jet2metdphi[mine]->Scale(scale_);
     h_jet2metdphi[mine]->GetYaxis()->SetTitle(ytitle);
-    h_dphistar[mine]->Scale(scale);
+    h_dphistar[mine]->Scale(scale_);
     h_dphistar[mine]->GetYaxis()->SetTitle(ytitle);
 
     sprintf(ytitle,"Events / 25 GeV / %2.0f pb^{-1}",luminosity_);
-    h_jet1et[mine]->Scale(scale);
+    h_jet1et[mine]->Scale(scale_);
     h_jet1et[mine]->GetYaxis()->SetTitle(ytitle);
-    h_jet2et[mine]->Scale(scale);
+    h_jet2et[mine]->Scale(scale_);
     h_jet2et[mine]->GetYaxis()->SetTitle(ytitle);      
 
     sprintf(ytitle,"Events / 25 GeV / %2.0f pb^{-1}",luminosity_);
-    h_MET[mine]->Scale(scale);
+    h_MET[mine]->Scale(scale_);
     h_MET[mine]->GetYaxis()->SetTitle(ytitle);
-    h_MHT[mine]->Scale(scale);
+    h_MHT[mine]->Scale(scale_);
     h_MHT[mine]->GetYaxis()->SetTitle(ytitle);
 
     sprintf(ytitle,"Events / 25 GeV / %2.0f pb^{-1}",luminosity_);
     if (mine > 1)
       sprintf(ytitle,"Events / 5 GeV / %2.0f pb^{-1}",luminosity_);
-    h_jetallet[mine]->Scale(scale);
+    h_jetallet[mine]->Scale(scale_);
     h_jetallet[mine]->GetYaxis()->SetTitle(ytitle);      
-    h_elecEt[mine]->Scale(scale);
+    h_elecEt[mine]->Scale(scale_);
     h_elecEt[mine]->GetYaxis()->SetTitle(ytitle);
-    h_muonEt[mine]->Scale(scale);
+    h_muonEt[mine]->Scale(scale_);
     h_muonEt[mine]->GetYaxis()->SetTitle(ytitle);
 
     sprintf(ytitle,"Events / 50 GeV / %2.0f pb^{-1}",luminosity_);
 
-    h_HT[mine]->Scale(scale);
+    h_HT[mine]->Scale(scale_);
     h_HT[mine]->GetYaxis()->SetTitle(ytitle);
-    h_Meff[mine]->Scale(scale);
+    h_Meff[mine]->Scale(scale_);
     h_Meff[mine]->GetYaxis()->SetTitle(ytitle);
-
-    th_dphi1overdphi2[mine] ->Scale(scale);
-    th_dphi1overdphi12[mine]->Scale(scale);
-    th_dphi2overdphi12[mine]->Scale(scale);
-    th_dphi1vsdphi2[mine]   ->Scale(scale);
-    th_dphi1vsdphi12[mine]  ->Scale(scale);
-    th_dphi2vsdphi12[mine]  ->Scale(scale);
-
-    th_metoversumet[mine]   ->Scale(scale);
-    th_metovermht[mine]     ->Scale(scale);
-    th_metovermeff[mine]    ->Scale(scale);
-    th_metoverht[mine]      ->Scale(scale);
-    th_metvssumet[mine]     ->Scale(scale);
-    th_metvsmht[mine]       ->Scale(scale);
-    th_metvsmeff[mine]      ->Scale(scale);
-    th_metvsht[mine]        ->Scale(scale);
-    th_htovermht[mine]      ->Scale(scale);
-    th_htovermeff[mine]     ->Scale(scale);
-    th_htoversumet[mine]    ->Scale(scale);
-    th_htvsmht[mine]        ->Scale(scale);
-    th_htvsmeff[mine]       ->Scale(scale);
-    th_htvssumet[mine]      ->Scale(scale);
-    th_mhtovermeff[mine]    ->Scale(scale);
-    th_mhtoversumet[mine]   ->Scale(scale);
-    th_mhtvsmeff[mine]      ->Scale(scale);
-    th_mhtvssumet[mine]     ->Scale(scale);
-    th_sumetovermeff[mine]  ->Scale(scale);
-    th_sumetvsmeff[mine]    ->Scale(scale);
 
   }
 
   //
   int Nevents = totalcounter;
-  printf("Cut Series        Nevents - preselection - triggers - finaljet - dphiselection - leptonveto - metselection\n");
-  printf("Individual:       %7d - %12d - %8d - %8d - %16d - %12d - %13d - %11d - %12d - %17d\n",
-	 Nevents,pscounter[0],trcounter[0],fjcounter[0],dphicounter[0],leptoncounter[0],metcounter[0]);
-  printf("Sequential-pre:   %7d - %12d - %8d - %8d - %16d - %12d - %13d - %11d - %12d - %17d\n",
-	 Nevents,pscounter[1],trcounter[1],fjcounter[1],dphicounter[1],leptoncounter[1],metcounter[1]);
-  printf("Sequential-post:  %7d - %12d - %8d - %8d - %16d - %12d - %13d - %11d - %12d - %17d\n",
-	 Nevents,pscounter[2],trcounter[2],fjcounter[2],dphicounter[2],leptoncounter[2],metcounter[2]);
-  printf("N-1:              %7d - %12d - %8d - %8d - %16d - %12d - %13d - %11d - %12d - %17d\n",
-	 Nevents,pscounter[3],trcounter[3],fjcounter[3],dphicounter[3],leptoncounter[3],metcounter[3]);
+  std::cout<<std::setw(18)<<"Cut Series"<<std::setw(15)<<"Nevents"<<std::setw(3)<<" - "
+	   <<std::setw(12)<<"preselection"<<std::setw(3)<<" - "
+	   <<std::setw(12)<<"triggers"<<std::setw(3)<<" - "
+	   <<std::setw(10)<<"finaljet"<<std::setw(3)<<" - "
+	   <<std::setw(10)<<"leptonveto"<<std::setw(3)<<" - "
+	   <<std::setw(14)<<"dphiselection"<<std::setw(3)<<" - "
+	   <<std::setw(12)<<"metselection"<<std::endl;
+  std::cout<<std::setw(18)<<"Individual:"<<std::setw(15)<<Nevents<<std::setw(3)<<" - "
+	   <<std::setw(12)<<pscounter[0]<<std::setw(3)<<" - "
+	   <<std::setw(12)<<trcounter[0]<<std::setw(3)<<" - "
+	   <<std::setw(10)<<fjcounter[0]<<std::setw(3)<<" - "
+	   <<std::setw(10)<<leptoncounter[0]<<std::setw(3)<<" - "
+	   <<std::setw(14)<<dphicounter[0]<<std::setw(3)<<" - "
+	   <<std::setw(12)<<metcounter[0]<<std::endl;
+  std::cout<<std::setw(18)<<"Sequential-Pre:"<<std::setw(15)<<Nevents<<std::setw(3)<<" - "
+	   <<std::setw(12)<<pscounter[1]<<std::setw(3)<<" - "
+	   <<std::setw(12)<<trcounter[1]<<std::setw(3)<<" - "
+	   <<std::setw(10)<<fjcounter[1]<<std::setw(3)<<" - "
+	   <<std::setw(10)<<leptoncounter[1]<<std::setw(3)<<" - "
+	   <<std::setw(14)<<dphicounter[1]<<std::setw(3)<<" - "
+	   <<std::setw(12)<<metcounter[1]<<std::endl;
+  std::cout<<std::setw(18)<<"Sequential-Post:"<<std::setw(15)<<Nevents<<std::setw(3)<<" - "
+	   <<std::setw(12)<<pscounter[2]<<std::setw(3)<<" - "
+	   <<std::setw(12)<<trcounter[2]<<std::setw(3)<<" - "
+	   <<std::setw(10)<<fjcounter[2]<<std::setw(3)<<" - "
+	   <<std::setw(10)<<leptoncounter[2]<<std::setw(3)<<" - "
+	   <<std::setw(14)<<dphicounter[2]<<std::setw(3)<<" - "
+	   <<std::setw(12)<<metcounter[2]<<std::endl;
+  std::cout<<std::setw(18)<<"N-1:"<<std::setw(15)<<Nevents<<std::setw(3)<<" - "
+	   <<std::setw(12)<<pscounter[3]<<std::setw(3)<<" - "
+	   <<std::setw(12)<<trcounter[3]<<std::setw(3)<<" - "
+	   <<std::setw(10)<<fjcounter[3]<<std::setw(3)<<" - "
+	   <<std::setw(10)<<leptoncounter[3]<<std::setw(3)<<" - "
+	   <<std::setw(14)<<dphicounter[3]<<std::setw(3)<<" - "
+	   <<std::setw(12)<<metcounter[3]<<std::endl;
 
 
 
@@ -2615,33 +2552,6 @@ void DiJetStudy::Loop(std::string outputfile, std::string analysisVer, double lu
     h_Ngoodmuon[step]->Write();
     h_counters[step] ->Write();
 
-    th_dphi1overdphi2[step] ->Write();
-    th_dphi1overdphi12[step]->Write();
-    th_dphi2overdphi12[step]->Write();
-    th_dphi1vsdphi2[step]   ->Write();
-    th_dphi1vsdphi12[step]  ->Write();
-    th_dphi2vsdphi12[step]  ->Write();
-
-    th_metoversumet[step]   ->Write();
-    th_metovermht[step]     ->Write();
-    th_metovermeff[step]    ->Write();
-    th_metoverht[step]      ->Write();
-    th_metvssumet[step]     ->Write();
-    th_metvsmht[step]       ->Write();
-    th_metvsmeff[step]      ->Write();
-    th_metvsht[step]        ->Write();
-    th_htovermht[step]      ->Write();
-    th_htovermeff[step]     ->Write();
-    th_htoversumet[step]    ->Write();
-    th_htvsmht[step]        ->Write();
-    th_htvsmeff[step]       ->Write();
-    th_htvssumet[step]      ->Write();
-    th_mhtovermeff[step]    ->Write();
-    th_mhtoversumet[step]   ->Write();
-    th_mhtvsmeff[step]      ->Write();
-    th_mhtvssumet[step]     ->Write();
-    th_sumetovermeff[step]  ->Write();
-    th_sumetvsmeff[step]    ->Write();
   }
    
   for (int hist = 0; hist < 2; ++hist) {
