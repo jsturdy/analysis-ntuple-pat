@@ -104,6 +104,12 @@ private:
   std::vector<float>  vf_ElecIdRobTight;
   std::vector<float>  vf_ElecIdRobHighE;
 
+  std::vector<double>  vd_ElecHadOverEM;
+  std::vector<double>  vd_ElecE2OverE9;
+  std::vector<double>  vd_ElecSwissCross;
+  //std::vector<double>  vd_ElecTSeed;
+  std::vector<double>  vd_ElecSigmaIetaIeta;
+
   std::vector<double> vd_ElecChargeMode;
   std::vector<double> vd_ElecPtTrkMode;
   std::vector<double> vd_ElecQOverPErrTrkMode;
@@ -245,6 +251,7 @@ private:
   std::vector<int> vi_TauGenMother;
   std::vector<int> vi_TauGen;
 
+  std::vector<int>    vi_TauSigTrk;
   std::vector<double> vd_TauTrkIso;
   std::vector<double> vd_TauECalIso;
   std::vector<double> vd_TauHCalIso;
@@ -260,9 +267,10 @@ private:
   std::vector<float> vf_TauIdElec;
   std::vector<float> vf_TauIdMuon;
   std::vector<float> vf_TauIdIso;
-  std::vector<float> vf_TauIdNCfrFull;
   std::vector<float> vf_TauIdNCfrHalf;
   std::vector<float> vf_TauIdNCfrQuarter;
+  std::vector<float> vf_TauIdNCfrTenth;
+  std::vector<float> vf_TauIdNCfrFull;
 
 
   //int    m_AlpIdTest;
@@ -329,6 +337,12 @@ private:
     vd_ElecPtTrkMode.clear();
     vd_ElecQOverPErrTrkMode.clear();
     
+    vd_ElecE2OverE9.clear();
+    vd_ElecSwissCross.clear();
+    //vd_ElecTSeed.clear();
+    vd_ElecSigmaIetaIeta.clear();
+    vd_ElecHadOverEM.clear();
+
     vi_ElecGenPdgId.clear();
     vi_ElecGenMother.clear();
     
@@ -465,9 +479,10 @@ private:
     vf_TauIdElec.clear();
     vf_TauIdMuon.clear();
     vf_TauIdIso.clear();
-    vf_TauIdNCfrFull.clear();
     vf_TauIdNCfrHalf.clear();
     vf_TauIdNCfrQuarter.clear();
+    vf_TauIdNCfrTenth.clear();
+    vf_TauIdNCfrFull.clear();
   }  
 };
 

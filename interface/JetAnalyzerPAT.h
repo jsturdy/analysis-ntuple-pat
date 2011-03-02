@@ -18,6 +18,8 @@
 // Framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,6 +31,11 @@
 //#include "SusyAnalysis/EventSelector/interface/SelectorSequence.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+//Included for cross cleaning
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
 
 //#include "PhysicsTools/Utilities/interface/deltaPhi.h"
 //#include "PhysicsTools/Utilities/interface/deltaR.h"
@@ -36,6 +43,10 @@
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 
+                                                                                                                                                                                                                   
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 
 //
 // Class declaration
@@ -117,8 +128,6 @@ class JetAnalyzerPAT {
 
  private:
 
-  bool matchJetsByCaloTowers( const pat::Jet&, const pat::Jet& );
-
   // Configuration parameters
   TString prefix_;
 
@@ -128,34 +137,6 @@ class JetAnalyzerPAT {
 
   double htMaxEta_;
   double htMinPt_;
-
-  //calo jet id
-  double jetMaxEMF_;
-  double jetMinEMF_;
-  double jetMaxHPD_;
-  double jetMinHPD_;
-  double jetMaxRBX_;
-  double jetMinRBX_;
-  double jetMaxN90_;
-  double jetMinN90_;
-
-  //PF jet id
-  double jetMaxCHF_;
-  double jetMinCHF_;
-  double jetMaxNHF_;
-  double jetMinNHF_;
-  double jetMaxCEF_;
-  double jetMinCEF_;
-  double jetMaxNEF_;
-  double jetMinNEF_;
-  double jetMaxCMF_;
-  double jetMinCMF_;
-  double jetMaxCMult_;
-  double jetMinCMult_;
-  double jetMaxNMult_;
-  double jetMinNMult_;
-  double jetMaxMuMult_;
-  double jetMinMuMult_;
 
   std::vector<double> selJetMaxEta_;
   std::vector<double> selJetMinPt_;
@@ -169,12 +150,26 @@ class JetAnalyzerPAT {
   bool useCaloJets_;
   bool useTrackJets_;
 
+  double electronPt_  ;
+  double electronIso_ ;
+  double tauPt_       ;
+  double tauIso_      ;
+  double muonPt_      ;
+  double muonIso_     ;
+  double photonPt_    ;
+  double photonIso_   ;
+  
+
+  JetCorrectionUncertainty *jecUnc;
+  
   // Data tags
   edm::InputTag jetTag_;
   edm::InputTag genJetTag_;
 
+  std::string   jetCorTag_;
   char logmessage[128];
     
+
   // Plots
   TTree * mJetData;      /// Will contain the data passing the jet selection
 
@@ -185,6 +180,9 @@ class JetAnalyzerPAT {
 
   reco::Candidate::LorentzVector MHtP4;
   reco::Candidate::LorentzVector GenMHtP4;
+
+  std::vector<float> vf_JECUncPlus;
+  std::vector<float> vf_JECUncMinus;
 
   int    i_NJets;
 
@@ -212,6 +210,11 @@ class JetAnalyzerPAT {
   std::vector<double> vd_JetCharge;
   std::vector<int>    vi_JetHemi;
   std::vector<int>    vi_JetNConst;
+
+  std::map<std::string, std::vector<int> >    map_s_vi_JetNOverlaps;
+  std::vector<int>                            vi_JetNOverlaps;
+  std::map<std::string, std::vector<int> >    map_s_vi_JetOverlaps;
+  std::vector<int>                            vi_JetOverlaps;
   //calo/jpt jet specific
   std::vector<double> vd_JetfHPD;
   std::vector<double> vd_JetfRBX;
@@ -281,6 +284,12 @@ class JetAnalyzerPAT {
   void maintenance(const int& nJets) {
     //Setup the vectors
     map_s_vd_correctionFactor.clear();
+
+    map_s_vi_JetNOverlaps.clear();
+    map_s_vi_JetOverlaps.clear();
+
+    vf_JECUncPlus.clear();
+    vf_JECUncMinus.clear();
     
     v_JetP4.clear();
     v_RawJetP4.clear();

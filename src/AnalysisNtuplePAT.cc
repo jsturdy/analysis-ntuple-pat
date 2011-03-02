@@ -14,7 +14,7 @@ Implementation:Uses the EventSelector interface for event selection and TFileSer
 //
 // Original Author:  Markus Stoye, (modified by Jared Sturdy from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: AnalysisNtuplePAT.cc,v 1.9 2010/11/30 11:47:22 sturdy Exp $
+// $Id: AnalysisNtuplePAT.cc,v 1.10 2010/11/30 12:06:17 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/AnalysisNtuplePAT.h"
@@ -39,7 +39,7 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
   jptjetinfo    = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("jptJetParameters"), mAllData);
   pfjetinfo     = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfJetParameters"), mAllData);
   pf2patjetinfo = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pf2patJetParameters"), mAllData);
-  trackjetinfo  = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackJetParameters"), mAllData);
+  //trackjetinfo  = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackJetParameters"), mAllData);
 
   calometinfo       = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometParameters"), mAllData);
   calomettypeiiinfo = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometTypeIIParameters"), mAllData);
@@ -64,9 +64,12 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
   passCaloJets[0]    = 0;
   passJPTJets[0]     = 0;
   passPFJets[0]      = 0;
-  passTrackJets[0]   = 0;
+  passPF2PATJets[0]  = 0;
+  //passTrackJets[0]   = 0;
   passCaloMET[0]     = 0;
-  passPFMET[0]       = 0;
+  passCaloTypeIIMET[0] = 0;
+  passPFMET[0]         = 0;
+  passPFTypeIMET[0]    = 0;
   passTCMET[0]       = 0;
   passLeptons[0]     = 0;
   passPFLeptons[0]   = 0;
@@ -79,9 +82,12 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
   passCaloJets[1]    = 0;
   passJPTJets[1]     = 0;
   passPFJets[1]      = 0;
-  passTrackJets[1]   = 0;
+  passPF2PATJets[1]  = 0;
+  //passTrackJets[1]   = 0;
   passCaloMET[1]     = 0;
-  passPFMET[1]       = 0;
+  passCaloTypeIIMET[1] = 0;
+  passPFMET[1]         = 0;
+  passPFTypeIMET[1]    = 0;
   passTCMET[1]       = 0;
   passLeptons[1]     = 0;
   passPFLeptons[1]   = 0;
@@ -140,9 +146,9 @@ AnalysisNtuplePAT::analyze(const edm::Event& ev, const edm::EventSetup& sp)
   if (debug_) 
     std::cout<<"Getting the pf2pat jet result"<<std::endl;
   bool mypf2patjetresult    = pf2patjetinfo->filter(ev, sp);
-  if (debug_)
-    std::cout<<"Getting the track jet result"<<std::endl;
-  bool mytrackjetresult = trackjetinfo->filter(ev, sp);
+  //if (debug_)
+  //  std::cout<<"Getting the track jet result"<<std::endl;
+  //bool mytrackjetresult = trackjetinfo->filter(ev, sp);
 
   if (debug_) 
     std::cout<<"Getting the calo met result"<<std::endl;
@@ -181,14 +187,17 @@ AnalysisNtuplePAT::analyze(const edm::Event& ev, const edm::EventSetup& sp)
   bool mytriggerresult = triggers->filter(ev, sp);
   //bool myhemresult     = heminfo->filter(ev, sp);
 
-  if (mycalojetresult)  ++passCaloJets[0];
-  if (myjptjetresult)   ++passJPTJets[0];
-  if (mypfjetresult)    ++passPFJets[0];
-  if (mytrackjetresult) ++passTrackJets[0];
+  if (mycalojetresult)   ++passCaloJets[0];
+  if (myjptjetresult)    ++passJPTJets[0];
+  if (mypfjetresult)     ++passPFJets[0];
+  if (mypf2patjetresult) ++passPF2PATJets[0];
+  //if (mytrackjetresult)  ++passTrackJets[0];
 
-  if (mycalometresult) ++passCaloMET[0];
-  if (mypfmetresult)   ++passPFMET[0];
-  if (mytcmetresult)   ++passTCMET[0];
+  if (mycalometresult)       ++passCaloMET[0];
+  if (mycalomettypeiiresult) ++passCaloTypeIIMET[0];
+  if (mypfmetresult)         ++passPFMET[0];
+  if (mypfmettypeiresult)    ++passPFTypeIMET[0];
+  if (mytcmetresult)         ++passTCMET[0];
 
   if (myleptonresult)   ++passLeptons[0];
   if (mypfleptonresult) ++passPFLeptons[0];
@@ -246,7 +255,7 @@ AnalysisNtuplePAT::printSummary( void ) {
   printf("= Events passing the calojet filter:        %2d                                =\n",passCaloJets[0]);
   printf("= Events passing the jptjet filter:         %2d                                =\n",passJPTJets[0]);
   printf("= Events passing the pfjet filter:          %2d                                =\n",passPFJets[0]);
-  printf("= Events passing the trackjet filter:       %2d                                =\n",passTrackJets[0]);
+  //printf("= Events passing the trackjet filter:       %2d                                =\n",passTrackJets[0]);
   printf("============================MET results============================================\n");
   printf("= Events passing the CaloMET filter:        %2d                                =\n",passCaloMET[0]);
   printf("= Events passing the PFMET filter:          %2d                                =\n",passPFMET[0]);
@@ -272,7 +281,7 @@ AnalysisNtuplePAT::printSummary( void ) {
   printf("= Events passing all but the calojet filter:        %2d                        =\n",passCaloJets[1]);
   printf("= Events passing all but the jptjet filter:         %2d                        =\n",passJPTJets[1]);
   printf("= Events passing all but the pfjet filter:          %2d                        =\n",passPFJets[1]);
-  printf("= Events passing all but the trackjet filter:       %2d                        =\n",passTrackJets[1]);
+  //printf("= Events passing all but the trackjet filter:       %2d                        =\n",passTrackJets[1]);
   printf("= Events passing all but the CaloMET filter:        %2d                        =\n",passCaloMET[1]);
   printf("= Events passing all but the PFMET filter:          %2d                        =\n",passPFMET[1]);
   printf("= Events passing all but the TCMET filter:          %2d                        =\n",passTCMET[1]);

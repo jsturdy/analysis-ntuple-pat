@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: LeptonAnalyzerPAT.cc,v 1.11 2010/11/02 13:55:17 sturdy Exp $
+// $Id: LeptonAnalyzerPAT.cc,v 1.12 2010/11/08 15:30:00 sturdy Exp $
 //
 //
 
@@ -203,17 +203,26 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 
       // ECAL spike cleaning
       // Cut only on EB, ecal-seeded electrons
+      double mySwissCross = -999;
+      double myE2OverE9   = -999;
+
       if(theElectron.ecalDrivenSeed()>0 && fabs(theElectron.superCluster()->eta())<1.4442) {
 	
 	const reco::CaloClusterPtr    seed =    theElectron.superCluster()->seed(); // seed cluster
 	const   DetId seedId = seed->seed();
 	EcalSeverityLevelAlgo severity;
-	double myswissCross =  severity.swissCross(seedId, *myRecHits) ;
-	if (myswissCross > 0.95) { 
+	mySwissCross =  severity.swissCross(seedId, *myRecHits) ;
+	myE2OverE9   =  severity.swissCross(seedId, *myRecHits) ;
+	if (mySwissCross > 0.95) { 
 	  continue; //ingnore this electron if it has swiss cross > 0.95
 	  bool_spike = true;
 	}
       }
+      vd_ElecE2OverE9.push_back(myE2OverE9);
+      vd_ElecSwissCross.push_back(mySwissCross);
+      //vd_ElecTSeed.push_back(severity.swissCross(seedID, *recHits));
+      vd_ElecSigmaIetaIeta.push_back(theElectron.sigmaIetaIeta());
+      vd_ElecHadOverEM.push_back(theElectron.hadronicOverEm());
 
       v_elecP4.push_back(theElectron.p4());
       vd_ElecCharge.push_back(theElectron.charge());
@@ -557,12 +566,13 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       if (debug_) edm::LogVerbatim("LeptonEvent") << " looping over good taus " << std::endl;
       v_tauP4.push_back(theTau.p4());
       vd_TauCharge.push_back(theTau.charge());
-
+      
       vd_TauTrkIso .push_back(theTau.trackIso());
       vd_TauECalIso.push_back(theTau.ecalIso());
       vd_TauHCalIso.push_back(theTau.hcalIso());
       vd_TauAllIso .push_back(theTau.caloIso());
-
+      
+      vi_TauSigTrk .push_back(theTau.signalTracks().size());  
       vd_TauVx     .push_back(theTau.vx());
       vd_TauVy     .push_back(theTau.vy());
       vd_TauVz     .push_back(theTau.vz());
@@ -581,9 +591,10 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       vf_TauIdElec       .push_back(theTau.tauID("againstElectron"));
       vf_TauIdMuon       .push_back(theTau.tauID("againstMuon"));
       vf_TauIdIso        .push_back(theTau.tauID("byIsolation"));
-      vf_TauIdNCfrFull   .push_back(theTau.tauID("byTaNCfrOnePercent"));
       vf_TauIdNCfrHalf   .push_back(theTau.tauID("byTaNCfrHalfPercent"));
       vf_TauIdNCfrQuarter.push_back(theTau.tauID("byTaNCfrQuarterPercent"));
+      vf_TauIdNCfrTenth  .push_back(theTau.tauID("byTaNCfrTenthPercent"));
+      vf_TauIdNCfrFull   .push_back(theTau.tauID("byTaNCfrOnePercent"));
 
       //get associated gen particle information
       const reco::Candidate* candTau    = theTau.genLepton();
@@ -711,6 +722,11 @@ void LeptonAnalyzerPAT::bookTTree() {
   mLeptonData->Branch(prefix_+"ElecChargeMode", &vd_ElecChargeMode);
   mLeptonData->Branch(prefix_+"ElecPtMode",     &vd_ElecPtTrkMode);
   
+  mLeptonData->Branch(prefix_+"ElecE2OverE9",      &vd_ElecE2OverE9);
+  mLeptonData->Branch(prefix_+"ElecSwissCross",    &vd_ElecSwissCross);
+  mLeptonData->Branch(prefix_+"ElecHadOverEM",     &vd_ElecHadOverEM);
+  mLeptonData->Branch(prefix_+"ElecSigmaIetaIeta", &vd_ElecSigmaIetaIeta);
+
   
   //Electron vertex information
   mLeptonData->Branch(prefix_+"ElecVx",     &vd_ElecVx);
@@ -850,6 +866,7 @@ void LeptonAnalyzerPAT::bookTTree() {
 
   
   //Tau vertex information
+  mLeptonData->Branch(prefix_+"TauSigTrk", &vi_TauSigTrk);
   mLeptonData->Branch(prefix_+"TauVx",     &vd_TauVx);
   mLeptonData->Branch(prefix_+"TauVy",     &vd_TauVy);
   mLeptonData->Branch(prefix_+"TauVz",     &vd_TauVz);

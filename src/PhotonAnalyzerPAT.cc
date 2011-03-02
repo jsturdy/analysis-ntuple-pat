@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: PhotonAnalyzerPAT.cc,v 1.9 2010/11/02 13:55:17 sturdy Exp $
+// $Id: PhotonAnalyzerPAT.cc,v 1.10 2010/11/08 15:30:00 sturdy Exp $
 //
 //
 
@@ -143,7 +143,13 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
     return false;
   }
 
+  //Get the ECAL rechist for EB to help with E2/E9 and swissCross
+  edm::Handle<EcalRecHitCollection> recHits;
+  ev.getByLabel( "ecalRecHit","EcalRecHitsEB", recHits);
   
+  const EcalRecHitCollection *myRecHits = recHits.product();
+  
+
   edm::LogVerbatim("PhotonEvent") << " start reading in photons " << std::endl;
   // Add the photons
   i_PhotN = photHandle->size();
@@ -165,10 +171,44 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       vd_PhotECalIso.push_back(thePhoton.ecalIso());
       vd_PhotHCalIso.push_back(thePhoton.hcalIso());
       vd_PhotAllIso .push_back(thePhoton.caloIso());
+      
+      //IsolationKeys
+      //TrackIso=0, EcalIso=1, HcalIso=2,
+      //PfAllParticleIso=3,PfChargedHadronIso=4, PfNeutralHadronIso=5, PfGammaIso=6
+
+      vd_PhotTrkIsoDeposit .push_back(thePhoton.trackIsoDeposit()->candEnergy());
+      vd_PhotECalIsoDeposit.push_back(thePhoton.ecalIsoDeposit()->candEnergy());
+      vd_PhotHCalIsoDeposit.push_back(thePhoton.hcalIsoDeposit()->candEnergy());
+
+      vb_PhotIsEB.push_back(thePhoton.isEB());
+      vb_PhotIsEE.push_back(thePhoton.isEE());
 
       //vb_PhotLooseEM.push_back(thePhoton.photonID("PhotonCutBasedIDLooseEM"));
       vb_PhotLoosePhoton.push_back(thePhoton.photonID("PhotonCutBasedIDLoose"));
       vb_PhotTightPhoton.push_back(thePhoton.photonID("PhotonCutBasedIDTight"));
+
+      double mySwissCross = -999;
+      double myE2OverE9   = -999;
+      //double tSeed = -999;
+
+      //if (thePhoton.ecalDrivenSeed()>0 && fabs(thePhoton.superCluster()->eta())<1.4442) {
+      if (true) {
+	const reco::CaloClusterPtr    seed =    thePhoton.superCluster()->seed(); // seed cluster
+	const           DetId seedId = seed->seed();
+	EcalSeverityLevelAlgo severity;
+	mySwissCross =  severity.swissCross(seedId, *myRecHits) ;
+	myE2OverE9   =  severity.swissCross(seedId, *myRecHits) ;
+      }
+      
+      vd_PhotE2OverE9.push_back(myE2OverE9);
+      vd_PhotSwissCross.push_back(mySwissCross);
+      //vd_PhotTSeed.push_back(severity.swissCross(seedID, *recHits));
+      vd_PhotSigmaIetaIeta.push_back(thePhoton.sigmaIetaIeta());
+
+      vb_PhotHasPixelSeed.push_back(thePhoton.hasPixelSeed());
+      vb_PhotHasConversionTracks.push_back(thePhoton.hasConversionTracks());
+
+      vd_PhotHadOverEM.push_back(thePhoton.hadronicOverEm());
       
       // PhotGenon info
       const reco::Candidate* candPhot = thePhoton.genPhoton();
@@ -230,10 +270,24 @@ void PhotonAnalyzerPAT::bookTTree() {
   mPhotonData->Branch(prefix_+"PhotHCalIso", &vd_PhotHCalIso);
   mPhotonData->Branch(prefix_+"PhotAllIso",  &vd_PhotAllIso);
   
+  mPhotonData->Branch(prefix_+"PhotTrkIsoDeposit",  &vd_PhotTrkIsoDeposit);
+  mPhotonData->Branch(prefix_+"PhotECalIsoDeposit", &vd_PhotECalIsoDeposit);
+  mPhotonData->Branch(prefix_+"PhotHCalIsoDeposit", &vd_PhotHCalIsoDeposit);
+
+  mPhotonData->Branch(prefix_+"PhotIsEB", &vb_PhotIsEB);
+  mPhotonData->Branch(prefix_+"PhotIsEE", &vb_PhotIsEE);
+  mPhotonData->Branch(prefix_+"PhotHasPixelSeed", &vb_PhotHasPixelSeed);
+  mPhotonData->Branch(prefix_+"PhotHasConversionTracks", &vb_PhotHasConversionTracks);
+
   //mPhotonData->Branch(prefix_+"Phot_isccPhotAssoc", m_ccPhotAssoc,     prefix_+"ccPhotAssoc["+prefix_+"PhotN]/O");
   //mPhotonData->Branch(prefix_+"PhotLooseEM",        &vb_PhotLooseEM);
   mPhotonData->Branch(prefix_+"PhotLoosePhoton",    &vb_PhotLoosePhoton);
   mPhotonData->Branch(prefix_+"PhotTightPhoton",    &vb_PhotTightPhoton);
+
+  mPhotonData->Branch(prefix_+"PhotE2OverE9",   &vd_PhotE2OverE9);
+  mPhotonData->Branch(prefix_+"PhotSwissCross", &vd_PhotSwissCross);
+  mPhotonData->Branch(prefix_+"PhotHadOverEM",  &vd_PhotHadOverEM);
+  mPhotonData->Branch(prefix_+"PhotSigmaIetaIeta",  &vd_PhotSigmaIetaIeta);
 
   //from reco::candidate
   mPhotonData->Branch(prefix_+"PhotGenPdgId",  &vd_PhotGenPdgId);

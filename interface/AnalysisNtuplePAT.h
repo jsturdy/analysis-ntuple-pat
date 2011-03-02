@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -98,10 +99,13 @@ private:
   int passCaloJets[2];
   int passJPTJets[2];
   int passPFJets[2];
-  int passTrackJets[2];
+  int passPF2PATJets[2];
+  //int passTrackJets[2];
 
   int passCaloMET[2];
+  int passCaloTypeIIMET[2];
   int passPFMET[2];
+  int passPFTypeIMET[2];
   int passTCMET[2];
 
   int passLeptons[2];
@@ -124,7 +128,7 @@ private:
   JetAnalyzerPAT        * jptjetinfo;
   JetAnalyzerPAT        * pfjetinfo;
   JetAnalyzerPAT        * pf2patjetinfo;
-  JetAnalyzerPAT        * trackjetinfo;
+  //JetAnalyzerPAT        * trackjetinfo;
 
   METAnalyzerPAT        * calometinfo;
   METAnalyzerPAT        * calomettypeiiinfo;

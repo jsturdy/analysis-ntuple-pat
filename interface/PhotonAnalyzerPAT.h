@@ -24,6 +24,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
 
@@ -69,10 +72,24 @@ private:
   std::vector<double>  vd_PhotHCalIso;
   std::vector<double>  vd_PhotAllIso;
 
+  std::vector<double>  vd_PhotTrkIsoDeposit;
+  std::vector<double>  vd_PhotECalIsoDeposit;
+  std::vector<double>  vd_PhotHCalIsoDeposit;
+
   //bool m_ccPhotAssoc[50];
-  std::vector<bool>  vb_PhotLooseEM;
+  std::vector<bool>  vb_PhotIsEB;
+  std::vector<bool>  vb_PhotIsEE;
+  //std::vector<bool>  vb_PhotLooseEM;
   std::vector<bool>  vb_PhotLoosePhoton;
   std::vector<bool>  vb_PhotTightPhoton;
+
+  std::vector<double>  vd_PhotHadOverEM;
+  std::vector<double>  vd_PhotE2OverE9;
+  std::vector<double>  vd_PhotSwissCross;
+  //std::vector<double>  vd_PhotTSeed;
+  std::vector<double>  vd_PhotSigmaIetaIeta;
+  std::vector<bool>    vb_PhotHasPixelSeed;
+  std::vector<bool>    vb_PhotHasConversionTracks;
 
   std::vector<reco::Candidate::LorentzVector> v_genphotP4;
 
@@ -105,9 +122,23 @@ private:
     vd_PhotHCalIso.clear();
     vd_PhotAllIso.clear();
 
-    vb_PhotLooseEM.clear();
+    vd_PhotTrkIsoDeposit.clear();
+    vd_PhotECalIsoDeposit.clear();
+    vd_PhotHCalIsoDeposit.clear();
+
+    vb_PhotIsEB.clear();
+    vb_PhotIsEE.clear();
+    //vb_PhotLooseEM.clear();
     vb_PhotLoosePhoton.clear();
     vb_PhotTightPhoton.clear();
+
+    vd_PhotE2OverE9.clear();
+    vd_PhotSwissCross.clear();
+    //vd_PhotTSeed.clear();
+    vd_PhotSigmaIetaIeta.clear();
+    vb_PhotHasPixelSeed.clear();
+    vb_PhotHasConversionTracks.clear();
+    vd_PhotHadOverEM.clear();
 
     v_genphotP4.clear();
     vd_PhotGenPdgId.clear();

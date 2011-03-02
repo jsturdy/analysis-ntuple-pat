@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.14 2010/11/30 11:44:41 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.15 2010/11/30 13:37:08 sturdy Exp $
 //
 //
 
@@ -46,9 +46,7 @@ JetAnalyzerPAT::JetAnalyzerPAT(const edm::ParameterSet& jetParams, TTree* tmpAll
   debug_     = jetParams.getUntrackedParameter<int>("debugJets",0);
   prefix_    = jetParams.getUntrackedParameter<std::string>("prefixJets","Calo");
   jetMaxEta_ = jetParams.getUntrackedParameter<double >("jetMaxEta",5.);
-  jetMinPt_  = jetParams.getUntrackedParameter<double >("jetMinPt", 30.);
-  jetMaxEMF_ = jetParams.getUntrackedParameter<double >("jetMaxEMF",0.99);
-  jetMinEMF_ = jetParams.getUntrackedParameter<double >("jetMinEMF",0.01);
+  jetMinPt_  = jetParams.getUntrackedParameter<double >("jetMinPt", 10.);
 
   htMaxEta_ = jetParams.getUntrackedParameter<double >("htMaxEta",jetMaxEta_);
   htMinPt_  = jetParams.getUntrackedParameter<double >("htMinPt", jetMinPt_);
@@ -60,6 +58,18 @@ JetAnalyzerPAT::JetAnalyzerPAT(const edm::ParameterSet& jetParams, TTree* tmpAll
   useTrackJets_ = jetParams.getUntrackedParameter<bool>("useTrackJets",false);
 
   jetTag_     = jetParams.getUntrackedParameter<edm::InputTag>("jetTag");
+  //genJetTag_  = jetParams.getUntrackedParameter<edm::InputTag>("genJetTag");
+
+  jetCorTag_  = jetParams.getUntrackedParameter<std::string>("jetCorTag");
+
+  electronPt_   = jetParams.getUntrackedParameter<double>("electronPt",  false);
+  electronIso_  = jetParams.getUntrackedParameter<double>("electronIso", false);
+  tauPt_        = jetParams.getUntrackedParameter<double>("tauPt",  false);
+  tauIso_       = jetParams.getUntrackedParameter<double>("tauIso", false);
+  muonPt_       = jetParams.getUntrackedParameter<double>("muonPt",  false);
+  muonIso_      = jetParams.getUntrackedParameter<double>("muonIso", false);
+  photonPt_     = jetParams.getUntrackedParameter<double>("photonPt",  false);
+  photonIso_    = jetParams.getUntrackedParameter<double>("photonIso", false);
 
   localPi = acos(-1.0);
 
@@ -125,14 +135,20 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   if ( i_NJets >50 ) i_NJets = 50;
   maintenance(i_NJets);
   /////////
-
+  
   std::string corrLevel;
   if (doMCData_)
     corrLevel = "L2L3Residual";
   else
     corrLevel = "L3Absolute";
   
+  edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
+  es.get<JetCorrectionsRecord>().get(jetCorTag_,JetCorParColl);
+  JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
+  jecUnc = new JetCorrectionUncertainty(JetCorPar);
+  
   for (int k=0;k<i_NJets;k++){
+
     //const pat::Jet& theJet    = (*jetHandle)[k];
     const pat::Jet& theJet    = (*jetHandle)[k].correctedJet(corrLevel);
     //const pat::Jet& corrJet = theJet.correctedJet(corrLevel);
@@ -167,10 +183,160 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
     /******************Now collect all the Jet related variables***************************/
     if (theJet.pt() > jetMinPt_) {
       if (fabs(theJet.eta()) < jetMaxEta_) {
-    //if (uncorrJet.pt() > jetMinPt_) {
-    //  if (fabs(uncorrJet.eta()) < jetMaxEta_) {
 
-	if (debug_>5) std::cout<<"\n\nPassed minimum jet id requirements\n\n"<<std::endl;
+	//Get overlaps
+	const reco::CandidatePtrVector & elecs = theJet.overlaps("electrons");
+	const reco::CandidatePtrVector & taus  = theJet.overlaps("taus");
+	const reco::CandidatePtrVector & muons = theJet.overlaps("muons");
+	const reco::CandidatePtrVector & phots = theJet.overlaps("photons");
+
+	int nElecOverlaps = 0;
+	int nTauOverlaps  = 0;
+	int nMuonOverlaps = 0;
+	int nPhotOverlaps = 0;
+
+	int elecOverlap = 0;
+	int tauOverlap  = 0;
+	int muonOverlap = 0;
+	int photOverlap = 0;
+
+	//electron overlaps
+	for (size_t el = 0; el < elecs.size(); ++el) {
+	  // try to cast into pat::Electron
+	  const pat::Electron *electron = dynamic_cast<const pat::Electron *>(&*elecs[el]);
+	  if (electron) {
+	    ++nElecOverlaps;
+	    double elecRelIso = (electron->trackIso()+electron->ecalIso()+electron->hcalIso())/electron->pt();
+	    if (elecRelIso < electronIso_ && electron->pt() > electronPt_ ) {
+	      if (electron->electronID("eidRobustLoose")>0.)
+		elecOverlap = elecOverlap | 1<<0;
+	      if (electron->electronID("eidRobustTight")>0.)
+		elecOverlap = elecOverlap | 1<<1;
+	      if (electron->electronID("eidLoose")>0.)
+		elecOverlap = elecOverlap | 1<<2;
+	      if (electron->electronID("eidTight")>0.)
+		elecOverlap = elecOverlap | 1<<3;
+	      if (electron->electronID("eidRobustHighEnergy")>0.)
+		elecOverlap = elecOverlap | 1<<4;
+	    }
+	  }
+	}
+	
+	//tau overlaps
+	for (size_t ta = 0; ta < taus.size(); ++ta) {
+	  // try to cast into pat::Tau
+	  const pat::Tau *tau = dynamic_cast<const pat::Tau *>(&*taus[ta]);
+	  if (tau) {
+	    ++nTauOverlaps;
+	    double tauRelIso = (tau->trackIso()+tau->ecalIso()+tau->hcalIso())/tau->pt();
+	    if (tauRelIso < tauIso_ && tau->pt() > tauPt_ ) {
+	      if (tau->tauID("againstElectron")>0.)
+		tauOverlap = tauOverlap | 1<<0;
+	      if (tau->tauID("againstMuon")>0.)
+		tauOverlap = tauOverlap | 1<<1;
+	      if (tau->tauID("byIsolation")>0.)
+		tauOverlap = tauOverlap | 1<<2;
+	      if (tau->tauID("byTaNCfrHalfPercent")>0.)
+		tauOverlap = tauOverlap | 1<<3;
+	      if (tau->tauID("byTaNCfrQuarterPercent")>0.)
+		tauOverlap = tauOverlap | 1<<4;
+	      if (tau->tauID("byTaNCfrTenthPercent")>0.)
+		tauOverlap = tauOverlap | 1<<5;
+	      if (tau->tauID("byTaNCfrOnePercent")>0.)
+		tauOverlap = tauOverlap | 1<<6;
+	    }
+	  }
+	}
+	
+	//muon overlaps
+	for (size_t mu = 0; mu < muons.size(); ++mu) {
+	  // try to cast into pat::Muon
+	  const pat::Muon *muon = dynamic_cast<const pat::Muon *>(&*muons[mu]);
+	  if (muon) {
+	    ++nMuonOverlaps;
+	    double muonRelIso = (muon->trackIso()+muon->ecalIso()+muon->hcalIso())/muon->pt();
+	    if (muonRelIso < muonIso_ && muon->pt() > muonPt_ ) {
+	      if (muon->muonID("GlobalMuonPromptTight") )
+		  muonOverlap = muonOverlap | 1<<0;
+	      if (muon->muonID("AllArbitrated"));
+		  muonOverlap = muonOverlap | 1<<1;
+	      if (muon->muonID("TrackerMuonArbitrated"));
+		  muonOverlap = muonOverlap | 1<<2;
+	      if (muon->muonID("TMLastStationLoose"));
+		  muonOverlap = muonOverlap | 1<<3;
+	      if (muon->muonID("TMLastStationTight"));
+		  muonOverlap = muonOverlap | 1<<4;
+	      if (muon->muonID("TM2DCompatibilityLoose"));
+		  muonOverlap = muonOverlap | 1<<5;
+	      if (muon->muonID("TM2DCompatibilityTight"));
+		  muonOverlap = muonOverlap | 1<<6;
+	      if (muon->muonID("TMOneStationLoose"));
+		  muonOverlap = muonOverlap | 1<<7;
+	      if (muon->muonID("TMOneStationTight"));
+		  muonOverlap = muonOverlap | 1<<8;
+	      if (muon->muonID("TMLastStationOptimizedLowPtLoose"));
+		  muonOverlap = muonOverlap | 1<<9;
+	      if (muon->muonID("TMLastStationOptimizedLowPtTight"));
+		  muonOverlap = muonOverlap | 1<<10;
+	      if (muon->muonID("GMTkChiCompatibility"));
+		  muonOverlap = muonOverlap | 1<<11;
+	      if (muon->muonID("GMStaChiCompatibility"));
+		  muonOverlap = muonOverlap | 1<<12;
+	      if (muon->muonID("GMTkKinkTight"));
+		  muonOverlap = muonOverlap | 1<<13;
+	      if (muon->muonID("TMLastStationAngLoose"));
+		  muonOverlap = muonOverlap | 1<<14;
+	      if (muon->muonID("TMLastStationAngTight"));
+		  muonOverlap = muonOverlap | 1<<15;
+	      if (muon->muonID("TMLastStationOptimizedBarrelLowPtLoose"));
+		  muonOverlap = muonOverlap | 1<<16;
+	      if (muon->muonID("TMLastStationOptimizedBarrelLowPtTight"));
+		  muonOverlap = muonOverlap | 1<<17;
+	    }
+	  }
+	}
+	
+	//photon overlaps
+	for (size_t ph = 0; ph < phots.size(); ++ph) {
+	  // try to cast into pat::Photon
+	  const pat::Photon *photon = dynamic_cast<const pat::Photon *>(&*phots[ph]);
+	  if (photon) {
+	    ++nPhotOverlaps;
+	    double photRelIso = (photon->trackIso()+photon->ecalIso()+photon->hcalIso())/photon->pt();
+	    if (photRelIso < photonIso_ && photon->pt() > photonPt_ ) {
+	      if (photon->photonID("PhotonCutBasedIDLoose")>0.)
+		photOverlap = photOverlap | 1<<0;
+	      if (photon->photonID("PhotonCutBasedIDTight")>0.)
+		photOverlap = photOverlap | 1<<1;
+	    }
+	  }
+	}
+	
+	map_s_vi_JetNOverlaps["electrons"].push_back(nElecOverlaps);
+	map_s_vi_JetOverlaps["electrons"] .push_back(elecOverlap);
+	map_s_vi_JetNOverlaps["taus"].push_back(nTauOverlaps);
+	map_s_vi_JetOverlaps["taus"] .push_back(tauOverlap);
+	map_s_vi_JetNOverlaps["muons"].push_back(nMuonOverlaps);
+	map_s_vi_JetOverlaps["muons"] .push_back(muonOverlap);
+	map_s_vi_JetNOverlaps["photons"].push_back(nPhotOverlaps);
+	map_s_vi_JetOverlaps["photons"] .push_back(photOverlap);
+	//JEC uncertainties  
+	//      if (jet.isJet()) {
+	jecUnc->setJetEta(theJet.eta());
+	jecUnc->setJetPt(theJet.pt()); //corrected pT
+        const float uncplus = jecUnc->getUncertainty(true);
+        vf_JECUncPlus.push_back(uncplus);
+
+        //due to weird behavior of this JetUncertainty class, need to reset the eta and pt
+        jecUnc->setJetEta(theJet.eta());
+        jecUnc->setJetPt(theJet.pt()); //corrected pT
+        const float uncminus = jecUnc->getUncertainty(false);
+	vf_JECUncMinus.push_back(uncminus);
+	
+	//if (uncorrJet.pt() > jetMinPt_) {
+	//  if (fabs(uncorrJet.eta()) < jetMaxEta_) {
+
+	if (debug_>5) std::cout<<"\n\nPassed minimum jet requirements\n\n"<<std::endl;
 	
 
 	if (theJet.isCaloJet()) {
