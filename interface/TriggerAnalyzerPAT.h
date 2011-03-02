@@ -69,7 +69,9 @@ private:
 
   bool doMCData_;                 /// switch to turn off generator level information
   bool getHLTfromConfig_; 
-
+  bool checkedProcess_; 
+  bool getL1Info_;
+  
   char logmessage[128];
 
   // Plots
@@ -80,28 +82,16 @@ private:
   std::map<std::string, bool> hlttriggered;
   std::map<std::string, int>  hltprescaled;
 
-  bool m_HLT1JET;
-  bool m_HLT2JET;
-  bool m_HLT1MET;
-  bool m_HLT1HT;
-  bool m_HLT1HT1MHT;
-  bool m_HLT1Muon;
-
-  bool m_HLTMinBias;
-
   bool trigger_result;
 
   // Data tags
   edm::InputTag l1TriggerResults_; 
   edm::InputTag hlTriggerResults_; 
-  std::vector<std::string> pathNames_;
 
   edm::TriggerNames triggerNames_;     // TriggerNames class
   HLTConfigProvider hltConfig;
 
   int debug_;
-
-  double localPi;
 
   void maintenance() {
     l1triggered.clear();
