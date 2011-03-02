@@ -20,6 +20,7 @@ jetAnalyzerPAT = cms.untracked.PSet(
     useTrackJets = cms.untracked.bool(False),
 
     jetTag    = cms.untracked.InputTag("cleanPatJetsAK5"),
+    jetCorTag = cms.untracked.string("AK5Calo"),
 
     debugJets  = cms.untracked.int32(0),
     prefixJets = cms.untracked.string("")
