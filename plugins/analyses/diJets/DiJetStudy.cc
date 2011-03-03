@@ -32,7 +32,13 @@ DiJetStudy::DiJetStudy(TTree *tree, std::string* sampleList, std::string* trigge
   cross_section_    = sampVals.xs;
   efficiency_       = sampVals.eff;
   generated_events_ = sampVals.numGen;
-  
+
+  std::cout<<"sample:"<<sampleKey<<std::endl;
+  std::cout<<"lumi:  "<<sampVals.lumi<<std::endl;
+  std::cout<<"xs:    "<<sampVals.xs<<std::endl;
+  std::cout<<"eff:   "<<sampVals.eff<<std::endl;
+  std::cout<<"gen:   "<<sampVals.numGen<<std::endl;
+  std::cout<<"scale: "<<sampVals.scale<<std::endl;
 
   //Read in the trigger information
   triggerList_ = triggerList;
@@ -69,11 +75,12 @@ void DiJetStudy::printOutEventInfo()
 }
 //void DiJetStudy::Loop(std::string outputfile, double lum, double xs, double eff, double numGen, double cutJet1, double cutJet2, double cutMET)
 //void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, const double &cutJet2, const double &cutMET)
-void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, const double &cutJet2, const double &cutMET, const bool& strictDiJets)
+void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, const double &cutJet2, const double &cutMET, const bool& strictDiJets, const int& triggerPaths)
 //void DiJetStudy::Loop(const std::string &outputfile,  const double lum,  const double scale, const double &cutJet1, const double &cutJet2, const double &cutMET)
 {
-  printf("converted args: %s  pT1: %4.6f  pT2: %4.6f  MET: %4.6f\n",
-	 outputfile.c_str(), cutJet1, cutJet2, cutMET);
+  bool debug_ = false;
+  printf("converted args: %s  pT1: %4.6f  pT2: %4.6f  MET: %4.6f  strictDiJets:  %d  triggerPaths:  %d\n",
+	 outputfile.c_str(), cutJet1, cutJet2, cutMET, strictDiJets, triggerPaths);
   //printf("converted args: %s  pT1: %4.6f  pT2: %4.6f  MET: %4.6f  lum: %4.6f,  xs: %4.6f,  eff: %4.6f  num: %4.6f\n",
 	 // outputfile.c_str(), cutJet1, cutJet2, cutMET, lum, xs, eff, numGen);
   //printf("received args: %s  pT1: %4.6f  pT2: %4.6f  MET: %4.6f  lum: %4.6f,  scale: %4.6f\n",outputfile.c_str(), cutJet1, cutJet2, cutMET, lum, scale);
@@ -570,7 +577,7 @@ void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, cons
       }
       ++key;
     }
-
+    
     key = metTriggers.begin();
     while (key != metTriggers.end() ) {
       if (Run < key->first) {
@@ -579,7 +586,7 @@ void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, cons
       }
       ++key;
     }
-
+    
     key = muonTriggers.begin();
     while (key != muonTriggers.end() ) {
       if (Run < key->first) {
@@ -588,7 +595,7 @@ void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, cons
       }
       ++key;
     }
-
+    
     key = electronTriggers.begin();
     while (key != electronTriggers.end() ) {
       if (Run < key->first) {
@@ -598,11 +605,11 @@ void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, cons
       ++key;
     }
 
-    //std::cout<<"Using "<<dijetTriggerPath<<" as the dijet trigger"<<std::endl;
-    //std::cout<<"Using "<<singlejetTriggerPath<<" as the singlejet trigger"<<std::endl;
-    //std::cout<<"Using "<<metTriggerPath<<" as the met trigger"<<std::endl;
-    //std::cout<<"Using "<<muonTriggerPath<<" as the muon trigger"<<std::endl;
-    //std::cout<<"Using "<<electronTriggerPath<<" as the electron trigger"<<std::endl;
+    if (debug_) std::cout<<"Using "<<dijetTriggerPath    <<" as the dijet trigger"    <<std::endl;
+    if (debug_) std::cout<<"Using "<<singlejetTriggerPath<<" as the singlejet trigger"<<std::endl;
+    if (debug_) std::cout<<"Using "<<metTriggerPath      <<" as the met trigger"      <<std::endl;
+    if (debug_) std::cout<<"Using "<<muonTriggerPath     <<" as the muon trigger"     <<std::endl;
+    if (debug_) std::cout<<"Using "<<electronTriggerPath <<" as the electron trigger" <<std::endl;
 
     stringtobool::iterator trigbit = HLTTriggered->find(dijetTriggerPath);
     if (trigbit!=HLTTriggered->end())
@@ -623,12 +630,33 @@ void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, cons
     //if (trigbit!=HLTTriggered->end())
     //  hltJetTriggerSelection[0] = trigbit->second;
 
-    hltDiJetTriggerSelection[0]     = true;
-    hltSingleJetTriggerSelection[0] = true;
-    hltJetTriggerSelection[0] = true;
-    hltMETTriggerSelection[0] = true;
-    hltMHTTriggerSelection[0] = true;
-    hltHTTriggerSelection[0]  = true;
+    //hltDiJetTriggerSelection[0]     = true;
+    //hltSingleJetTriggerSelection[0] = true;
+    //hltJetTriggerSelection[0] = true;
+    //hltMETTriggerSelection[0] = true;
+    //hltMHTTriggerSelection[0] = true;
+    //hltHTTriggerSelection[0]  = true;
+    /*********************************
+     * Trigger selection options
+     * 0 AND of single jet, met
+     * 1 AND of di jet, met
+     * 2 single jet
+     * 3 di jet
+     * 4 met
+     * 5 AND of ht, met
+     * 6 AND of single jet, mht
+     * 7 AND of di jet, mht
+     * 8 ht
+     * 9 mht
+     *
+     *
+     *
+     *********************************/
+    //hltTriggerSelection[0] = 
+    //  hltJetTriggerSelection[0] &&
+    //  hltMETTriggerSelection[0] &&
+    //  hltMHTTriggerSelection[0] &&
+    //  hltHTTriggerSelection[0];
 
     //hltTriggerSelection[0] = 
     //  hltJetTriggerSelection[0] &&
@@ -636,9 +664,68 @@ void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, cons
     //  hltMHTTriggerSelection[0] &&
     //  hltHTTriggerSelection[0];
 
+    if (triggerPaths == 0) {
+    //trigger selection based on a single jet trigger and a met trigger
     hltTriggerSelection[0] = 
-      hltSingleJetTriggerSelection[0] ||
+      hltSingleJetTriggerSelection[0] &
       hltMETTriggerSelection[0];
+    }
+    if (triggerPaths == 1) {
+    //trigger selection based on a di jet trigger and a met trigger
+    hltTriggerSelection[0] = 
+      hltDiJetTriggerSelection[0] &&
+      hltMETTriggerSelection[0];
+    }
+
+    if (triggerPaths == 2) {
+    //trigger selection based on a single jet trigger
+    hltTriggerSelection[0] = 
+      hltSingleJetTriggerSelection[0];
+    }
+
+    if (triggerPaths == 3) {
+    //trigger selection based on a dijet jet trigger
+    hltTriggerSelection[0] = 
+      hltDiJetTriggerSelection[0];
+    }
+
+    if (triggerPaths == 4) {
+    //trigger selection based on a met trigger
+    hltTriggerSelection[0] = 
+      hltMETTriggerSelection[0];
+    }
+
+    if (triggerPaths == 5) {
+    //trigger selection based on a single jet trigger and a met trigger
+    hltTriggerSelection[0] = 
+      hltHTTriggerSelection[0] &
+      hltMETTriggerSelection[0];
+    }
+    if (triggerPaths == 6) {
+    //trigger selection based on a di jet trigger and a met trigger
+    hltTriggerSelection[0] = 
+      hltSingleJetTriggerSelection[0] &&
+      hltMHTTriggerSelection[0];
+    }
+
+    if (triggerPaths == 7) {
+    //trigger selection based on a di jet trigger and a met trigger
+    hltTriggerSelection[0] = 
+      hltDiJetTriggerSelection[0] &&
+      hltMHTTriggerSelection[0];
+    }
+
+    if (triggerPaths == 8) {
+    //trigger selection based on a di jet trigger and a met trigger
+    hltTriggerSelection[0] = 
+      hltHTTriggerSelection[0];
+    }
+
+    if (triggerPaths == 9) {
+    //trigger selection based on a di jet trigger and a met trigger
+    hltTriggerSelection[0] = 
+      hltMHTTriggerSelection[0];
+    }
 
     //Jets
     if (nJets>0) {
@@ -2393,7 +2480,10 @@ void DiJetStudy::Loop(const std::string &outputfile, const double &cutJet1, cons
     h_counters[mine]->GetYaxis()->SetTitle(ytitle);
     h_counters[mine]->GetXaxis()->SetBinLabel(1,"2 Loose ID Jets p_{T} > 50 GeV");
     h_counters[mine]->GetXaxis()->SetBinLabel(2,"hlt Trigger Cuts");
-    h_counters[mine]->GetXaxis()->SetBinLabel(3,"Jet 2 p_{T} > 100 GeV no third jet");
+    if (strictDiJets)
+      h_counters[mine]->GetXaxis()->SetBinLabel(3,"strict di-jet cuts");
+    else
+      h_counters[mine]->GetXaxis()->SetBinLabel(3,"loose di-jet cuts ");
     h_counters[mine]->GetXaxis()->SetBinLabel(4,"e/#mu Veto");
     sprintf(ytitle,"#Delta#phi(J_{1},#slashE_{T}) > %2.2f, #Delta#phi(J_{2},#slashE_{T}) > %2.2f",cut_jet1metdphi,cut_jet2metdphi);
     h_counters[mine]->GetXaxis()->SetBinLabel(5,ytitle);

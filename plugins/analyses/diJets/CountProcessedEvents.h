@@ -8,7 +8,7 @@
 #ifndef CountProcessedEvents_h
 #define CountProcessedEvents_h
 
-#include "ntupleAnalysisPAT.h"
+#include "../../common/ntupleAnalysisPAT.h"
 
 class CountProcessedEvents : public ntupleAnalysisPAT {
   public :

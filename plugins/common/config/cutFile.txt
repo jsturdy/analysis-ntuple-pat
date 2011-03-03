@@ -1,0 +1,32 @@
+######             pt   operation     eta  operation     enabled
+cut_jet1           150  >             2.5  <             1
+cut_jet2           150  >             3.0  <             1
+cut_jetall         50   <             5.0  <             1
+###cuts to create HT object
+cut_ht_jet         50   >             3.0  <             1
+###cuts to create MHT object
+cut_mht_jet        30   >             5.0  <             1
+###### single cut value (pt)
+cut_met            250  >		                 1
+cut_mht            250  >		                -1
+cut_ht             300  >		                -1
+####               dphi angle
+cut_jet1metdphi    0.5  >		                 1
+cut_jet2metdphi    0.5  >		                 1
+cut_jetallmetdphi  0.3  >		                -1
+cut_jet12dphi      -1   >		                -1
+cut_R1             -1   >		                -1
+cut_R2             -1   >		                -1
+######cuts for lepton veto
+cut_elec_pt        10   >             2.5  <            -1
+cut_elec_veto_pt   10   <             2.5  <            -1
+cut_elec_iso       0.1  <		                -1
+cut_muon_pt        10   >             2.5  <            -1
+cut_muon_veto_pt   10   <             2.5  <            -1
+cut_muon_iso       0.05 <		                -1
+cut_tau_pt         10   >               5  <            -1
+cut_tau_veto_pt    10   <               5  <            -1
+cut_tau_iso        0.1  <		                -1
+cut_phot_pt        10   >             2.5  <            -1
+cut_phot_veto_pt   10   <             2.5  <            -1
+cut_phot_iso       0.1  >                               -1
