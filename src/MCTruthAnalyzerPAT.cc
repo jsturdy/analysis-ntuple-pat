@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: MCTruthAnalyzerPAT.cc,v 1.13 2011/03/02 19:18:58 sturdy Exp $
+// $Id: MCTruthAnalyzerPAT.cc,v 1.1 2011/03/07 18:04:37 sturdy Exp $
 //
 //
 
@@ -31,7 +31,7 @@ MCTruthAnalyzerPAT::MCTruthAnalyzerPAT(const edm::ParameterSet& genParams, TTree
   mMCTruthData = tmpAllData;
 
   genParticleTag_ = genParams.getUntrackedParameter<edm::InputTag>("genParticleTag");
-  debug_          = genParams.getUntrackedParameter<int>("debugGen",0);
+  debug_          = genParams.getUntrackedParameter<int>("debugTruth",0);
  
   // Initialise ntuple branches
   bookTTree();

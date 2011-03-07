@@ -8,11 +8,11 @@ from JSturdy.AnalysisNtuplePAT.trackAnalyzerPAT_cfi   import trackAnalyzerPAT
 from JSturdy.AnalysisNtuplePAT.triggerAnalyzerPAT_cfi import triggerAnalyzerPAT
 from JSturdy.AnalysisNtuplePAT.vertexAnalyzerPAT_cfi  import vertexAnalyzerPAT
 from JSturdy.AnalysisNtuplePAT.photonAnalyzerPAT_cfi  import photonAnalyzerPAT
-from JSturdy.AnalysisNtuplePAT.mcTruthAnalyzerPAT_cfi  import mcTruthAnalyzerPAT
+from JSturdy.AnalysisNtuplePAT.mcTruthAnalyzerPAT_cfi import mcTruthAnalyzerPAT
 #from JSturdy.AnalysisNtuplePAT.hemisphereAnalyzerPAT_cfi import hemisphereAnalyzerPAT
 
 #global switch for data/mc
-doMC = cms.untracked.bool(True)
+doMC      = cms.untracked.bool(True)
 debugLevel = cms.untracked.int32(0)
 
 
@@ -177,7 +177,8 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
         )
     ),
 
-    debugDiJets = cms.untracked.int32(0)
+    debugDiJets = cms.untracked.int32(0),
+    doMCTruth   = cms.untracked.bool(False)
 )
 
 

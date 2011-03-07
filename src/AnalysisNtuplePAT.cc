@@ -14,7 +14,7 @@ Implementation:Uses the EventSelector interface for event selection and TFileSer
 //
 // Original Author:  Markus Stoye, (modified by Jared Sturdy from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: AnalysisNtuplePAT.cc,v 1.12 2011/03/07 18:04:37 sturdy Exp $
+// $Id: AnalysisNtuplePAT.cc,v 1.13 2011/03/07 18:10:11 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/AnalysisNtuplePAT.h"
@@ -28,7 +28,7 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
 
   //default parameters
   debug_     = pset.getUntrackedParameter<int>("debugDiJets",0);
-  doMCTruth_ = pset.getUntrackedParameter<int>("doMCTruth",0);
+  doMCTruth_ = pset.getUntrackedParameter<int>("doMCTruth",false);
  
 
   localPi = acos(-1.0);
@@ -42,6 +42,7 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
   pf2patjetinfo = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pf2patJetParameters"), mAllData);
   //trackjetinfo  = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackJetParameters"), mAllData);
 
+  //MET information
   calometinfo       = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometParameters"), mAllData);
   calomettypeiiinfo = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometTypeIIParameters"), mAllData);
 
@@ -50,17 +51,25 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
 
   tcmetinfo      = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("tcmetParameters"), mAllData);
 
+  //Photon information
   photons   = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("photonParameters"), mAllData);
   pfphotons = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfphotonParameters"), mAllData);
 
+  //Lepton information
   leptons   = new LeptonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("leptonParameters"), mAllData);
   pfleptons = new LeptonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfleptonParameters"), mAllData);
 
+  //Vertex information
   vertex   = new VertexAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("vertexParameters"), mAllData);
+
+  //Track information
   tracks   = new TrackAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackParameters"), mAllData);
+
+  //Trigger information
   triggers = new TriggerAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("triggerParameters"), mAllData);
   //heminfo  = new HemisphereAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("hemisphereParameters"), mAllData));
 
+  //MC truth  information
   if (doMCTruth_)
     geninfo  = new MCTruthAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("genParticleeParameters"), mAllData);
 
