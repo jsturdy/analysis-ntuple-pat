@@ -37,7 +37,6 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
 #include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
@@ -68,13 +67,11 @@ private:
   edm::InputTag elecTag_;
   edm::InputTag muonTag_;
   edm::InputTag tauTag_;
-  edm::InputTag genTag_;
 
   double elecMaxEta_, elecMaxEt_, elecMinEt_, elecRelIso_;  /// for preselection cuts on electrons
   double muonMaxEta_, muonMaxEt_, muonMinEt_, muonRelIso_;  /// for preselection cuts on muons
   double tauMaxEta_, tauMaxEt_, tauMinEt_, tauRelIso_;      /// for preselection cuts on taus
 
-  bool   doMCData_;                 /// switch to turn off generator level information
   int    debug_;
   TString prefix_;
 
@@ -95,6 +92,12 @@ private:
   std::vector<double> vd_ElecECalIso;
   std::vector<double> vd_ElecHCalIso;
   std::vector<double> vd_ElecAllIso;
+
+  std::vector<double> vd_ElecPFAllParticleIso;
+  std::vector<double> vd_ElecPFChargedHadronIso;
+  std::vector<double> vd_ElecPFNeutralHadronIso;
+  std::vector<double> vd_ElecPFGammaIso;
+
   std::vector<double> vd_ElecTrkChiNorm;
   std::vector<double> vd_ElecCharge;
 
@@ -115,7 +118,9 @@ private:
   std::vector<double> vd_ElecQOverPErrTrkMode;
 
   std::vector<int>    vi_ElecGenPdgId;
+  std::vector<int>    vi_ElecGenStatus;
   std::vector<int>    vi_ElecGenMother;
+  std::vector<int>    vi_ElecGenMotherStatus;
 
   std::vector<double> vd_ElecCaloEnergy;
   std::vector<double> vd_ElecHOverE;
@@ -151,6 +156,12 @@ private:
   std::vector<double> vd_MuonECalIso;
   std::vector<double> vd_MuonHCalIso;
   std::vector<double> vd_MuonAllIso;
+
+  std::vector<double> vd_MuonPFAllParticleIso;
+  std::vector<double> vd_MuonPFChargedHadronIso;
+  std::vector<double> vd_MuonPFNeutralHadronIso;
+  std::vector<double> vd_MuonPFGammaIso;
+
   std::vector<double> vd_MuonTrkChiNorm;
   std::vector<double> vd_MuonCharge;
 
@@ -219,7 +230,9 @@ private:
   std::vector<double> vd_MuonTrkOuterR;
 
   std::vector<int>    vi_MuonGenPdgId;
+  std::vector<int>    vi_MuonGenStatus;
   std::vector<int>    vi_MuonGenMother;
+  std::vector<int>    vi_MuonGenMotherStatus;
 
 
   // Variables
@@ -248,7 +261,9 @@ private:
   std::vector<double> vd_TauCharge;
 
   std::vector<int> vi_TauGenPdgId;
+  std::vector<int> vi_TauGenStatus;
   std::vector<int> vi_TauGenMother;
+  std::vector<int> vi_TauGenMotherStatus;
   std::vector<int> vi_TauGen;
 
   std::vector<int>    vi_TauSigTrk;
@@ -256,6 +271,11 @@ private:
   std::vector<double> vd_TauECalIso;
   std::vector<double> vd_TauHCalIso;
   std::vector<double> vd_TauAllIso;
+
+  std::vector<double> vd_TauPFAllParticleIso;
+  std::vector<double> vd_TauPFChargedHadronIso;
+  std::vector<double> vd_TauPFNeutralHadronIso;
+  std::vector<double> vd_TauPFGammaIso;
 
   std::vector<double> vd_TauVx;
   std::vector<double> vd_TauVy;
@@ -273,50 +293,6 @@ private:
   std::vector<float> vf_TauIdNCfrFull;
 
 
-  //int    m_AlpIdTest;
-  //std::vector<double> vd_AlpPtScale;
-  double d_Pthat;
-
-  //std::vector<double> vd_MuonPairMass;
-  //int    m_MuonPairIndex[2];
-
-  std::vector<reco::Candidate::LorentzVector> v_genP4;
-  std::vector<reco::Candidate::LorentzVector> v_genLepP4;
-  int               i_length;
-  std::vector<int>  vi_genIds;
-  std::vector<int>  vi_genRefs;
-  std::vector<int>  vi_genStatus;
-  std::vector<int>  vi_genDaughters;
-
-  int               i_genLepLength;
-  std::vector<int>  vi_genLepIds;
-  std::vector<int>  vi_genLepRefs;
-  std::vector<int>  vi_genLepStatus;
-  std::vector<int>  vi_genLepDaughters;
-
-  bool init_;                          // vectors initialised or not
-
-
-  std::string outputFileName_;
-
-  //input from .cfg
-
-  double localPi;
-
-  void maintenanceGen(const int& nParts) {
-    v_genP4.clear();
-    vi_genIds.clear();
-    vi_genRefs.clear();
-    vi_genStatus.clear();
-    vi_genDaughters.clear();
-    
-    v_genLepP4.clear();
-    vi_genLepIds.clear();
-    vi_genLepRefs.clear();
-    vi_genLepStatus.clear();
-    vi_genLepDaughters.clear();
-  }
-
   void maintenanceElecs(const int& nElecs) {
     v_elecP4.clear();
     v_genelecP4.clear();
@@ -325,6 +301,12 @@ private:
     vd_ElecECalIso.clear();
     vd_ElecHCalIso.clear();
     vd_ElecAllIso.clear();
+
+    vd_ElecPFAllParticleIso.clear();
+    vd_ElecPFChargedHadronIso.clear();
+    vd_ElecPFNeutralHadronIso.clear();
+    vd_ElecPFGammaIso.clear();
+
     vd_ElecTrkChiNorm.clear();
     vd_ElecCharge.clear();
     
@@ -344,7 +326,9 @@ private:
     vd_ElecHadOverEM.clear();
 
     vi_ElecGenPdgId.clear();
+    vi_ElecGenStatus.clear();
     vi_ElecGenMother.clear();
+    vi_ElecGenMotherStatus.clear();
     
     vd_ElecCaloEnergy.clear();
     vd_ElecHOverE.clear();
@@ -380,6 +364,12 @@ private:
     vd_MuonECalIso.clear();
     vd_MuonHCalIso.clear();
     vd_MuonAllIso.clear();
+
+    vd_MuonPFAllParticleIso.clear();
+    vd_MuonPFChargedHadronIso.clear();
+    vd_MuonPFNeutralHadronIso.clear();
+    vd_MuonPFGammaIso.clear();
+
     vd_MuonTrkChiNorm.clear();
     vd_MuonCharge.clear();
 
@@ -448,7 +438,9 @@ private:
     vd_MuonTrkOuterR.clear();
 
     vi_MuonGenPdgId.clear();
+    vi_MuonGenStatus.clear();
     vi_MuonGenMother.clear();
+    vi_MuonGenMotherStatus.clear();
   }
 
   void maintenanceTaus(const int& nTaus) {
@@ -460,13 +452,20 @@ private:
     vd_TauCharge.clear();
 
     vi_TauGenPdgId.clear();
+    vi_TauGenStatus.clear();
     vi_TauGenMother.clear();
+    vi_TauGenMotherStatus.clear();
     vi_TauGen.clear();
     
     vd_TauTrkIso.clear();
     vd_TauECalIso.clear();
     vd_TauHCalIso.clear();
     vd_TauAllIso.clear();
+
+    vd_TauPFAllParticleIso.clear();
+    vd_TauPFChargedHadronIso.clear();
+    vd_TauPFNeutralHadronIso.clear();
+    vd_TauPFGammaIso.clear();
 
     vd_TauVx.clear();
     vd_TauVy.clear();

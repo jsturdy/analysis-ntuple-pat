@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.15 2010/11/30 13:37:08 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.16 2011/03/02 19:18:58 sturdy Exp $
 //
 //
 
@@ -616,14 +616,18 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  genp4.SetPxPyPzE(theJet.genParton()->px(),theJet.genParton()->py(),theJet.genParton()->pz(),theJet.genParton()->energy());
 	  v_JetPartonP4.push_back(genp4);
 	  vi_JetPartonId    .push_back(theJet.genParton()->pdgId());
+	  vi_JetPartonStatus.push_back(theJet.genParton()->status());
 	  vi_JetPartonMother.push_back(theJet.genParton()->mother()->pdgId());
+	  vi_JetPartonMotherStatus.push_back(theJet.genParton()->mother()->status());
 	}
 	else{
 	  reco::Candidate::LorentzVector genp4;
 	  genp4.SetPxPyPzE(-999.,-999.,-999.,-999);
 	  v_JetPartonP4.push_back(genp4);
 	  vi_JetPartonId    .push_back(999.);
+	  vi_JetPartonStatus.push_back(999.);
 	  vi_JetPartonMother.push_back(999.);
+	  vi_JetPartonMotherStatus.push_back(999.);
 	}
 	++mjet;
       }
@@ -689,10 +693,12 @@ void JetAnalyzerPAT::bookTTree() {
   mJetData->Branch(prefix_+"GenJetP4",&v_GenJetP4);
   //
   //information about associated partons
-  mJetData->Branch(prefix_+"JetPartonP4",&v_JetPartonP4);
-  mJetData->Branch(prefix_+"JetPartonId",         &vi_JetPartonId);
-  mJetData->Branch(prefix_+"JetPartonMother",     &vi_JetPartonMother);
-  mJetData->Branch(prefix_+"JetPartonFlavour",    &vi_JetPartonFlavour);
+  mJetData->Branch(prefix_+"JetPartonP4",      &v_JetPartonP4);
+  mJetData->Branch(prefix_+"JetPartonId",      &vi_JetPartonId);
+  mJetData->Branch(prefix_+"JetPartonStatus",  &vi_JetPartonStatus);
+  mJetData->Branch(prefix_+"JetPartonMother",  &vi_JetPartonMother);
+  mJetData->Branch(prefix_+"JetPartonMotherStatus", &vi_JetPartonMotherStatus);
+  mJetData->Branch(prefix_+"JetPartonFlavour", &vi_JetPartonFlavour);
     
   
   //mJetData->Branch(prefix_+"JetIDInfo",    &vjid_JetID);

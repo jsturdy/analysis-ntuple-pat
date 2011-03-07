@@ -14,7 +14,7 @@ Implementation:Uses the EventSelector interface for event selection and TFileSer
 //
 // Original Author:  Markus Stoye, (modified by Jared Sturdy from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: AnalysisNtuplePAT.cc,v 1.10 2010/11/30 12:06:17 sturdy Exp $
+// $Id: AnalysisNtuplePAT.cc,v 1.11 2011/03/02 19:18:58 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/AnalysisNtuplePAT.h"
@@ -27,7 +27,8 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
 { 
 
   //default parameters
-  debug_   = pset.getUntrackedParameter<int>("debugDiJets",0);
+  debug_     = pset.getUntrackedParameter<int>("debugDiJets",0);
+  doMCTruth_ = pset.getUntrackedParameter<int>("doMCTruth",0);
  
 
   localPi = acos(-1.0);
@@ -35,30 +36,33 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
   // Initialise plots [should improve in the future]
   initPlots();
     
-  calojetinfo   = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("caloJetParameters"), mAllData);
-  jptjetinfo    = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("jptJetParameters"), mAllData);
-  pfjetinfo     = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfJetParameters"), mAllData);
-  pf2patjetinfo = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pf2patJetParameters"), mAllData);
-  //trackjetinfo  = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackJetParameters"), mAllData);
+  calojetinfo   = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("caloJetParameters"), mJetData);
+  jptjetinfo    = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("jptJetParameters"), mJetData);
+  pfjetinfo     = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfJetParameters"), mJetData);
+  pf2patjetinfo = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pf2patJetParameters"), mJetData);
+  //trackjetinfo  = new JetAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackJetParameters"), mJetData);
 
-  calometinfo       = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometParameters"), mAllData);
-  calomettypeiiinfo = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometTypeIIParameters"), mAllData);
+  calometinfo       = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometParameters"), mMETData);
+  calomettypeiiinfo = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometTypeIIParameters"), mMETData);
 
-  pfmetinfo      = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfmetParameters"), mAllData);
-  pfmettypeiinfo = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfmetTypeIParameters"), mAllData);
+  pfmetinfo      = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfmetParameters"), mMETData);
+  pfmettypeiinfo = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfmetTypeIParameters"), mMETData);
 
-  tcmetinfo      = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("tcmetParameters"), mAllData);
+  tcmetinfo      = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("tcmetParameters"), mMETData);
 
-  photons   = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("photonParameters"), mAllData);
-  pfphotons = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfphotonParameters"), mAllData);
+  photons   = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("photonParameters"), mPhotonData);
+  pfphotons = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfphotonParameters"), mPhotonData);
 
-  leptons   = new LeptonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("leptonParameters"), mAllData);
-  pfleptons = new LeptonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfleptonParameters"), mAllData);
+  leptons   = new LeptonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("leptonParameters"), mLeptonData);
+  pfleptons = new LeptonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfleptonParameters"), mLeptonData);
 
-  vertex   = new VertexAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("vertexParameters"), mAllData);
-  tracks   = new TrackAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackParameters"), mAllData);
-  triggers = new TriggerAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("triggerParameters"), mAllData);
+  vertex   = new VertexAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("vertexParameters"), mVertexData);
+  tracks   = new TrackAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackParameters"), mTrackData);
+  triggers = new TriggerAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("triggerParameters"), mTriggerData);
   //heminfo  = new HemisphereAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("hemisphereParameters"), mAllData));
+
+  if (doMCTruth_)
+    geninfo  = new MCTruthAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("genParticleeParameters"), mGenParticleData);
 
   //Setup counters for filters
   passCaloJets[0]    = 0;
@@ -155,38 +159,60 @@ AnalysisNtuplePAT::analyze(const edm::Event& ev, const edm::EventSetup& sp)
   bool mycalometresult          = calometinfo->filter(ev, sp);
   bool mycalomettypeiiresult    = calomettypeiiinfo->filter(ev, sp);
 
+  //
   if (debug_) 
     std::cout<<"Getting the pf met result"<<std::endl;
   bool mypfmetresult      = pfmetinfo->filter(ev, sp);
   bool mypfmettypeiresult = pfmettypeiinfo->filter(ev, sp);
 
+  //
   if (debug_) 
     std::cout<<"Getting the tc met result"<<std::endl;
   bool mytcmetresult      = tcmetinfo->filter(ev, sp);
 
+  //
   if (debug_) 
     std::cout<<"Getting the reco photon result"<<std::endl;
   bool myphotonresult   = photons->filter(ev, sp);
+
+  //
   if (debug_)
     std::cout<<"Getting the pf photon result"<<std::endl;
   bool mypfphotonresult = pfphotons->filter(ev, sp);
 
+  //
   if (debug_) 
     std::cout<<"Getting the reco lepton result"<<std::endl;
   bool myleptonresult   = leptons->filter(ev, sp);
+
+  //
   if (debug_)
     std::cout<<"Getting the pf lepton result"<<std::endl;
   bool mypfleptonresult = pfleptons->filter(ev, sp);
 
+  //
   if (debug_) 
     std::cout<<"Getting the vertex result"<<std::endl;
   bool myvertexresult  = vertex->filter(ev, sp);
+
+  //
   if (debug_) 
     std::cout<<"Getting the track result"<<std::endl;
   bool mytrackresult   = tracks->filter(ev, sp);
+
+  //
+  if (debug_) 
+    std::cout<<"Getting the track result"<<std::endl;
   bool mytriggerresult = triggers->filter(ev, sp);
   //bool myhemresult     = heminfo->filter(ev, sp);
 
+  //
+  if (doMCTruth_) {
+    if (debug_) 
+      std::cout<<"Getting the mc truth result"<<std::endl;
+    bool mymctruth = geninfo->filter(ev, sp);
+  }
+  
   if (mycalojetresult)   ++passCaloJets[0];
   if (myjptjetresult)    ++passJPTJets[0];
   if (mypfjetresult)     ++passPFJets[0];
@@ -320,7 +346,31 @@ AnalysisNtuplePAT::initPlots() {
   mAllData->Branch("BunchCrossing", &m_BunchCrossing, "BunchCrossing/I");
   mAllData->Branch("IsData",        &m_IsData,        "IsData/O");
 
+  mJetData = fs->make<TTree>( "JetData", "Jet variables" );
+  mJetData->SetAutoSave(10);
 
+  mMETData = fs->make<TTree>( "METData", "MET variables" );
+  mMETData->SetAutoSave(10);
+
+  mLeptonData = fs->make<TTree>( "LeptonData", "Lepton variables" );
+  mLeptonData->SetAutoSave(10);
+
+  mPhotonData = fs->make<TTree>( "PhotonData", "Photon variables" );
+  mPhotonData->SetAutoSave(10);
+
+  mVertexData = fs->make<TTree>( "VertexData", "Vertex and beamspot variables" );
+  mVertexData->SetAutoSave(10);
+
+  mTrackData = fs->make<TTree>( "TrackData", "Track variables" );
+  mTrackData->SetAutoSave(10);
+
+  mTriggerData = fs->make<TTree>( "TriggerData", "Trigger variables" );
+  mTriggerData->SetAutoSave(10);
+
+  if (doMCTruth_) {
+    mGenParticleData = fs->make<TTree>( "GenParticleData", "GenParticle variables" );
+    mGenParticleData->SetAutoSave(10);
+  }
     
   edm::LogInfo("AnalysisNtuplePAT") << "Ntuple variables " << variables.str();
   

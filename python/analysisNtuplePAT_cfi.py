@@ -8,6 +8,7 @@ from JSturdy.AnalysisNtuplePAT.trackAnalyzerPAT_cfi   import trackAnalyzerPAT
 from JSturdy.AnalysisNtuplePAT.triggerAnalyzerPAT_cfi import triggerAnalyzerPAT
 from JSturdy.AnalysisNtuplePAT.vertexAnalyzerPAT_cfi  import vertexAnalyzerPAT
 from JSturdy.AnalysisNtuplePAT.photonAnalyzerPAT_cfi  import photonAnalyzerPAT
+from JSturdy.AnalysisNtuplePAT.mcTruthAnalyzerPAT_cfi  import mcTruthAnalyzerPAT
 #from JSturdy.AnalysisNtuplePAT.hemisphereAnalyzerPAT_cfi import hemisphereAnalyzerPAT
 
 #global switch for data/mc
@@ -79,7 +80,6 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
                                    ############Lepton section############
     leptonParameters     = cms.untracked.PSet(
         leptonAnalyzerPAT.clone(
-            doMCLeps  = doMC,
             elecTag   = cms.untracked.InputTag("cleanPatElectrons"),
             muonTag   = cms.untracked.InputTag("cleanPatMuons"),
             tauTag    = cms.untracked.InputTag("cleanPatTaus"),
@@ -89,7 +89,6 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
                                    ############Photon section############
     photonParameters     = cms.untracked.PSet(
         photonAnalyzerPAT.clone(
-            doMCPhots = doMC,
             photTag  = cms.untracked.InputTag("cleanPatPhotons"),
             prefixPhots = cms.untracked.string("")
         )
@@ -98,7 +97,6 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
     #PF section
     pfleptonParameters     = cms.untracked.PSet(
         leptonAnalyzerPAT.clone(
-            doMCLeps  = doMC,
             elecTag   = cms.untracked.InputTag("selectedPatElectronsPF"),
             muonTag   = cms.untracked.InputTag("selectedPatMuonsPF"),
             tauTag    = cms.untracked.InputTag("selectedPatTausPF"),
@@ -107,9 +105,15 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
     ),
     pfphotonParameters     = cms.untracked.PSet(
         photonAnalyzerPAT.clone(
-            doMCPhots = doMC,
             photTag  = cms.untracked.InputTag("selectedPatPhotonsPF"),
             prefixPhots = cms.untracked.string("PF")
+        )
+    ),
+
+#############################MC Truth information #####################
+    mcTruthParameters     = cms.untracked.PSet(
+        mcTruthAnalyzerPAT.clone(
+            genParticleTag  = cms.untracked.InputTag("genParticles")
         )
     ),
 

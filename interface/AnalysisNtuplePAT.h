@@ -34,6 +34,7 @@
 #include "JSturdy/AnalysisNtuplePAT/interface/PhotonAnalyzerPAT.h"
 #include "JSturdy/AnalysisNtuplePAT/interface/TrackAnalyzerPAT.h"
 #include "JSturdy/AnalysisNtuplePAT/interface/TriggerAnalyzerPAT.h"
+#include "JSturdy/AnalysisNtuplePAT/interface/MCTruthAnalyzerPAT.h"
 
 
 //
@@ -74,6 +75,14 @@ private:
   // Plots
   TNtuple* ntuple_;      /// Will contain all the selector information we want to keep
   TTree * mAllData;      /// Will contain the additional di-jet specific data
+  TTree * mLeptonData;      /// Will contain the additional di-jet specific data
+  TTree * mJetData;      /// Will contain the additional di-jet specific data
+  TTree * mMETData;      /// Will contain the additional di-jet specific data
+  TTree * mPhotonData;      /// Will contain the additional di-jet specific data
+  TTree * mTriggerData;      /// Will contain the additional di-jet specific data
+  TTree * mVertexData;      /// Will contain the additional di-jet specific data
+  TTree * mGenParticleData;      /// Will contain the additional di-jet specific data
+  TTree * mTrackData;      /// Will contain the additional di-jet specific data
 
   float* variables_;     ///< Container for the tree variables (from selectors)
   bool*  decisions_;     ///< Container for all selector decisions
@@ -94,7 +103,8 @@ private:
 
   bool init_;                          // vectors initialised or not
 
-  int debug_;
+  int  debug_;
+  bool doMCTruth_;
 
   int passCaloJets[2];
   int passJPTJets[2];
@@ -149,6 +159,8 @@ private:
   VertexAnalyzerPAT     * vertex;
   TrackAnalyzerPAT      * tracks;
   TriggerAnalyzerPAT    * triggers;
+
+  MCTruthAnalyzerPAT    * geninfo;
 
 };
 #endif

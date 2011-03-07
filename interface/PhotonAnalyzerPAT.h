@@ -49,11 +49,8 @@ private:
   
   //configuration parameters
   edm::InputTag photTag_;
-  edm::InputTag genTag_;
-
 
   double photMaxEta_, photMaxEt_, photMinEt_, photRelIso_;  /// for prelection cuts on photons
-  bool   doMCData_;                 /// switch to turn off generator level information
   int    debug_;
   TString prefix_;
 
@@ -71,6 +68,12 @@ private:
   std::vector<double>  vd_PhotECalIso;
   std::vector<double>  vd_PhotHCalIso;
   std::vector<double>  vd_PhotAllIso;
+
+  std::vector<double>  vd_PhotPFAllParticleIso;
+  std::vector<double>  vd_PhotPFChargedHadronIso;
+  std::vector<double>  vd_PhotPFNeutralHadronIso;
+  std::vector<double>  vd_PhotPFGammaIso;
+  
 
   std::vector<double>  vd_PhotTrkIsoDeposit;
   std::vector<double>  vd_PhotECalIsoDeposit;
@@ -93,26 +96,11 @@ private:
 
   std::vector<reco::Candidate::LorentzVector> v_genphotP4;
 
-  std::vector<double> vd_PhotGenPdgId;
-  std::vector<double> vd_PhotGenMother;
+  std::vector<int> vi_PhotGenPdgId;
+  std::vector<int> vi_PhotGenStatus;
+  std::vector<int> vi_PhotGenMother;
+  std::vector<int> vi_PhotGenMotherStatus;
   //
-
-  std::vector<reco::Candidate::LorentzVector> v_genPhotP4;
-  int   i_genPhotLength;
-  std::vector<int>   vi_genPhotIds;
-  std::vector<int>   vi_genPhotRefs;
-  std::vector<int>   vi_genPhotStatus;
-  std::vector<int>   vi_genPhotDaughters;
-
-
-  bool init_;                          // vectors initialised or not
-
-
-  std::string outputFileName_;
-
-  //input from .cfg
-
-  double localPi;
 
   void maintenancePhots(const int& nPhots) {
     v_photP4.clear();
@@ -121,6 +109,11 @@ private:
     vd_PhotECalIso.clear();
     vd_PhotHCalIso.clear();
     vd_PhotAllIso.clear();
+
+    vd_PhotPFAllParticleIso.clear();
+    vd_PhotPFChargedHadronIso.clear();
+    vd_PhotPFNeutralHadronIso.clear();
+    vd_PhotPFGammaIso.clear();
 
     vd_PhotTrkIsoDeposit.clear();
     vd_PhotECalIsoDeposit.clear();
@@ -141,15 +134,10 @@ private:
     vd_PhotHadOverEM.clear();
 
     v_genphotP4.clear();
-    vd_PhotGenPdgId.clear();
-    vd_PhotGenMother.clear();
-  }
-  void maintenanceGen(const int& nPhots) {
-    v_genPhotP4.clear();
-    vi_genPhotIds.clear();
-    vi_genPhotRefs.clear();
-    vi_genPhotStatus.clear();
-    vi_genPhotDaughters.clear();
+    vi_PhotGenPdgId.clear();
+    vi_PhotGenStatus.clear();
+    vi_PhotGenMother.clear();
+    vi_PhotGenMotherStatus.clear();
   }
 };
 

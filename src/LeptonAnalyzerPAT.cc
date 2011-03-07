@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: LeptonAnalyzerPAT.cc,v 1.12 2010/11/08 15:30:00 sturdy Exp $
+// $Id: LeptonAnalyzerPAT.cc,v 1.13 2011/03/02 19:18:58 sturdy Exp $
 //
 //
 
@@ -52,9 +52,6 @@ LeptonAnalyzerPAT::LeptonAnalyzerPAT(const edm::ParameterSet& leptonParams, TTre
   tauMinEt_  = leptonParams.getUntrackedParameter<double>("tauMinEt",5.);
   tauRelIso_ = leptonParams.getUntrackedParameter<double>("tauRelIso",0.5);
 
-  //doMCData_   = leptonParams.getUntrackedParameter<bool>("doMCLeps",false);
-  //if (doMCData_) 
-  genTag_   = leptonParams.getUntrackedParameter<edm::InputTag>("genLepTag");
   debug_   = leptonParams.getUntrackedParameter<int>("debugLeps",0);
   prefix_  = leptonParams.getUntrackedParameter<std::string>("prefixLeps","");
  
@@ -62,8 +59,6 @@ LeptonAnalyzerPAT::LeptonAnalyzerPAT(const edm::ParameterSet& leptonParams, TTre
   elecTag_   = leptonParams.getUntrackedParameter<edm::InputTag>("elecTag");
   muonTag_   = leptonParams.getUntrackedParameter<edm::InputTag>("muonTag");
   tauTag_   = leptonParams.getUntrackedParameter<edm::InputTag>("tauTag");
-
-  localPi = acos(-1.0);
 
   // Initialise ntuple branches
   bookTTree();
@@ -90,81 +85,6 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 
   std::ostringstream dbg;
 
-  // GEN INFO do only if running on MC data
-  doMCData_ = ev.isRealData();
-
-  if(!doMCData_) {
-    //get pthat of process
-    d_Pthat = -999.;
-    
-    Handle<double> genEventScale;
-    ev.getByLabel( "genEventScale", genEventScale );
-    if ( genEventScale.isValid() ) d_Pthat = *genEventScale;
-    
-    Handle<reco::GenParticleCollection>  genParticles;
-    ev.getByLabel(genTag_, genParticles);   
-    
-    int count=0;
-    int lcount=0;
-    //int tcount=0;
-    if (debug_>1) edm::LogVerbatim("LeptonEvent") << logmessage<< std::endl;
-
-    maintenanceGen(genParticles->size());
-
-    for( size_t i = 0; i < genParticles->size(); ++ i ) {
-      const reco::Candidate& pCand = (*genParticles)[ i ];
-      
-      int st = pCand.status();  
-      
-      //get status 3 particles
-      if (st==3) {
-	v_genP4.push_back(pCand.p4());
-	vi_genIds.push_back(pCand.pdgId());
-	vi_genStatus.push_back(pCand.status());
-	vi_genDaughters.push_back(pCand.numberOfDaughters());
-      
-	if (pCand.numberOfMothers() > 0 ) { 
-	  const reco::Candidate * mom = pCand.mother();
-	  while (mom->pdgId() == pCand.pdgId()) {mom = mom->mother(); }
-	  
-	  for( size_t j = 0; j < i; ++ j ) {
-	    const Candidate * ref = &((*genParticles)[j]);
-	    //if (ref == mom) { vi_genRefs.push_back(ref->pdgId()); } //return mother's pdgId
-	    if (ref == mom) { vi_genRefs.push_back(j); } //point to particle that is reference
-	  }  
-	} else { vi_genRefs.push_back(-999);}
-
-	if (debug_>1)  edm::LogVerbatim("LeptonEvent") << logmessage<<std::endl;
-	++count;
-      }
-      else { // store also electrons or muons or taus of status 1 
-	if ( (abs(pCand.pdgId()) == 11) || (abs(pCand.pdgId()) == 13) || (abs(pCand.pdgId()) == 15) ) {
-	  
-	  v_genLepP4.push_back(pCand.p4());
-	  vi_genLepIds   .push_back(pCand.pdgId());
-	  vi_genLepStatus.push_back(pCand.status());
-	  vi_genLepDaughters.push_back(pCand.numberOfDaughters());
-	  
-	  if (pCand.numberOfMothers() > 0 ) { 
-	    const reco::Candidate * mom = pCand.mother();
-	    while (mom->pdgId() == pCand.pdgId()) { mom = mom->mother(); }
-	    
-	    for( size_t j = 0; j < i; ++ j ) {
-	      const reco::Candidate * ref = &((*genParticles)[j]);
-	      //if (ref == mom) { vi_genLepRefs.push_back(ref->pdgId()); }
-	      if (ref == mom) { vi_genLepRefs.push_back(j); }
-	    }  
-	  } else { vi_genLepRefs.push_back(-999);}
-
-	  if (debug_>1)  edm::LogVerbatim("LeptonEvent")<<logmessage<<std::endl;
-	  ++lcount;
-	}
-      }
-    }
-    i_length = count;
-    i_genLepLength = lcount;
-  }
-  
   /*
    *Get the information on all the electrons
    *
@@ -233,6 +153,12 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       vd_ElecECalIso.push_back(theElectron.ecalIso());
       vd_ElecHCalIso.push_back(theElectron.hcalIso());
       vd_ElecAllIso .push_back(theElectron.caloIso());
+
+      //Special PF based isolation variables
+      vd_ElecPFAllParticleIso  .push_back(theElectron.userIsolation(pat::PfAllParticleIso));
+      vd_ElecPFChargedHadronIso.push_back(theElectron.userIsolation(pat::PfChargedHadronIso));
+      vd_ElecPFNeutralHadronIso.push_back(theElectron.userIsolation(pat::PfNeutralHadronIso));
+      vd_ElecPFGammaIso        .push_back(theElectron.userIsolation(pat::PfGammaIso));
       
       vf_ElecIdLoose   .push_back(theElectron.electronID("eidLoose"));
       vf_ElecIdTight   .push_back(theElectron.electronID("eidTight"));
@@ -304,21 +230,26 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       const reco::Candidate* candElec = theElectron.genLepton();
       if ( candElec ) {
 	vi_ElecGenPdgId.push_back(candElec->pdgId());
+	vi_ElecGenStatus.push_back(candElec->status());
 	reco::Candidate::LorentzVector genp4;
 	genp4.SetPxPyPzE(candElec->px(),candElec->py(),candElec->pz(),candElec->energy());
 	v_genelecP4.push_back(genp4);
       	
 	const reco::Candidate* elecMother = candElec->mother();
 	if( elecMother ) {
+	  //is this necessary
 	  while (elecMother->pdgId() == candElec->pdgId()) elecMother = elecMother->mother();
 	  if ( elecMother ) {
 	    vi_ElecGenMother.push_back(theElectron.genLepton()->mother()->pdgId());
+	    vi_ElecGenMotherStatus.push_back(theElectron.genLepton()->mother()->status());
 	  }
 	}
       }
       else {
-	vi_ElecGenPdgId.push_back(-999);
-	vi_ElecGenMother.push_back(-999);
+	vi_ElecGenPdgId       .push_back(-999);
+	vi_ElecGenStatus      .push_back(-999);
+	vi_ElecGenMother      .push_back(-999);
+	vi_ElecGenMotherStatus.push_back(-999);
 	reco::Candidate::LorentzVector genp4;
 	genp4.SetPxPyPzE(-999.,-999.,-999.,-999.);
 	v_genelecP4.push_back(genp4);
@@ -371,6 +302,12 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       vd_MuonHCalIso.push_back(theMuon.hcalIso());
       vd_MuonAllIso.push_back(theMuon.caloIso());
 
+      //Special PF based isolation variables
+      vd_MuonPFAllParticleIso  .push_back(theMuon.userIsolation(pat::PfAllParticleIso));
+      vd_MuonPFChargedHadronIso.push_back(theMuon.userIsolation(pat::PfChargedHadronIso));
+      vd_MuonPFNeutralHadronIso.push_back(theMuon.userIsolation(pat::PfNeutralHadronIso));
+      vd_MuonPFGammaIso        .push_back(theMuon.userIsolation(pat::PfGammaIso));
+      
       vd_MuonECalIsoDeposit.push_back(theMuon.isolationR03().emVetoEt);
       vd_MuonHCalIsoDeposit.push_back(theMuon.isolationR03().hadVetoEt);
 
@@ -500,22 +437,27 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       const reco::Candidate* candMuon = theMuon.genLepton();
       if ( candMuon ) {
 	vi_MuonGenPdgId.push_back(candMuon->pdgId());
+	vi_MuonGenStatus.push_back(candMuon->status());
 	reco::Candidate::LorentzVector genp4;
 	genp4.SetPxPyPzE(candMuon->px(),candMuon->py(),candMuon->pz(),candMuon->energy());
 	v_genmuonP4.push_back(genp4);
 	
 	const reco::Candidate* muonMother = candMuon->mother();
 	if( muonMother ) {
+	  //is this necessary
 	  while (muonMother->pdgId() == candMuon->pdgId()) muonMother = muonMother->mother();
 	  if ( muonMother ) {
 	    vi_MuonGenMother.push_back(theMuon.genLepton()->mother()->pdgId());
+	    vi_MuonGenMotherStatus.push_back(theMuon.genLepton()->mother()->status());
 	  }
 	}
       }
       
       else{
-	vi_MuonGenPdgId.push_back(-999);
-	vi_MuonGenMother.push_back(-999);
+	vi_MuonGenPdgId       .push_back(-999);
+	vi_MuonGenStatus      .push_back(-999);
+	vi_MuonGenMother      .push_back(-999);
+	vi_MuonGenMotherStatus.push_back(-999);
 	reco::Candidate::LorentzVector genp4;
 	genp4.SetPxPyPzE(-999.,-999.,-999.,-999);
 	v_genmuonP4.push_back(genp4);
@@ -572,6 +514,12 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       vd_TauHCalIso.push_back(theTau.hcalIso());
       vd_TauAllIso .push_back(theTau.caloIso());
       
+      //Special PF based isolation variables
+      vd_TauPFAllParticleIso  .push_back(theTau.userIsolation(pat::PfAllParticleIso));
+      vd_TauPFChargedHadronIso.push_back(theTau.userIsolation(pat::PfChargedHadronIso));
+      vd_TauPFNeutralHadronIso.push_back(theTau.userIsolation(pat::PfNeutralHadronIso));
+      vd_TauPFGammaIso        .push_back(theTau.userIsolation(pat::PfGammaIso));
+      
       vi_TauSigTrk .push_back(theTau.signalTracks().size());  
       vd_TauVx     .push_back(theTau.vx());
       vd_TauVy     .push_back(theTau.vy());
@@ -599,15 +547,18 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       //get associated gen particle information
       const reco::Candidate* candTau    = theTau.genLepton();
       if ( candTau ) {
-	vi_TauGenPdgId.push_back(candTau->pdgId());
+	vi_TauGenPdgId .push_back(candTau->pdgId());
+	vi_TauGenStatus.push_back(candTau->status());
 	reco::Candidate::LorentzVector genp4;
 	genp4.SetPxPyPzE(candTau->px(),candTau->py(),candTau->pz(),candTau->energy());
 	v_gentauP4.push_back(genp4);
 	const reco::Candidate* tauMother = candTau->mother();
 	if( tauMother ) {
+	  //is this necessary
 	  while (tauMother->pdgId() == candTau->pdgId()) tauMother = tauMother->mother();
 	  if ( tauMother ) {
 	    vi_TauGenMother.push_back(theTau.genLepton()->mother()->pdgId());
+	    vi_TauGenMotherStatus.push_back(theTau.genLepton()->mother()->status());
 	  }
 	}
       }
@@ -711,6 +662,12 @@ void LeptonAnalyzerPAT::bookTTree() {
   mLeptonData->Branch(prefix_+"ElecECalIso",    &vd_ElecECalIso);
   mLeptonData->Branch(prefix_+"ElecHCalIso",    &vd_ElecHCalIso);
   mLeptonData->Branch(prefix_+"ElecAllIso",     &vd_ElecAllIso);
+
+  mLeptonData->Branch(prefix_+"ElecPFAllParticleIso",   &vd_ElecPFAllParticleIso);
+  mLeptonData->Branch(prefix_+"ElecPFChargedHadronIso", &vd_ElecPFChargedHadronIso);
+  mLeptonData->Branch(prefix_+"ElecPFNeutralHadronIso", &vd_ElecPFNeutralHadronIso);
+  mLeptonData->Branch(prefix_+"ElecPFGammaIso",         &vd_ElecPFGammaIso);
+
   mLeptonData->Branch(prefix_+"ElecTrkChiNorm", &vd_ElecNormChi2);
   
   //Electron identification values
@@ -754,9 +711,11 @@ void LeptonAnalyzerPAT::bookTTree() {
   
   //Generator level information stored in the electron object
   mLeptonData->Branch(prefix_+"ElecGenP4",     &v_genelecP4);
-  mLeptonData->Branch(prefix_+"ElecGenPdgId",  &vi_ElecGenPdgId);
-  mLeptonData->Branch(prefix_+"ElecGenMother", &vi_ElecGenMother);
-  
+  mLeptonData->Branch(prefix_+"ElecGenPdgId",   &vi_ElecGenPdgId);
+  mLeptonData->Branch(prefix_+"ElecGenStatus",  &vi_ElecGenStatus);
+  mLeptonData->Branch(prefix_+"ElecGenMother",  &vi_ElecGenMother);
+  mLeptonData->Branch(prefix_+"ElecGenMotherStatus", &vi_ElecGenMotherStatus);
+
   //add muons
   mLeptonData->Branch(prefix_+"MuonVeto", &bool_MuonVeto, prefix_+"MuonVeto/O");
   //General kinematic variables related to muons
@@ -771,6 +730,12 @@ void LeptonAnalyzerPAT::bookTTree() {
   mLeptonData->Branch(prefix_+"MuonECalIso",    &vd_MuonECalIso);
   mLeptonData->Branch(prefix_+"MuonHCalIso",    &vd_MuonHCalIso);
   mLeptonData->Branch(prefix_+"MuonAllIso",     &vd_MuonAllIso);
+
+  mLeptonData->Branch(prefix_+"MuonPFAllParticleIso",   &vd_MuonPFAllParticleIso);
+  mLeptonData->Branch(prefix_+"MuonPFChargedHadronIso", &vd_MuonPFChargedHadronIso);
+  mLeptonData->Branch(prefix_+"MuonPFNeutralHadronIso", &vd_MuonPFNeutralHadronIso);
+  mLeptonData->Branch(prefix_+"MuonPFGammaIso",         &vd_MuonPFGammaIso);
+
   mLeptonData->Branch(prefix_+"MuonTrkChiNorm", &vd_MuonTrkChiNorm);
   
   mLeptonData->Branch(prefix_+"MuonECalIsoDeposit", &vd_MuonECalIsoDeposit);
@@ -839,8 +804,10 @@ void LeptonAnalyzerPAT::bookTTree() {
   
   //Generator level muon information
   mLeptonData->Branch(prefix_+"MuonGenP4",     &v_genmuonP4);
-  mLeptonData->Branch(prefix_+"MuonGenPdgId",  &vi_MuonGenPdgId);
-  mLeptonData->Branch(prefix_+"MuonGenMother", &vi_MuonGenMother);
+  mLeptonData->Branch(prefix_+"MuonGenPdgId",   &vi_MuonGenPdgId);
+  mLeptonData->Branch(prefix_+"MuonGenStatus",  &vi_MuonGenStatus);
+  mLeptonData->Branch(prefix_+"MuonGenMother",  &vi_MuonGenMother);
+  mLeptonData->Branch(prefix_+"MuonGenMotherStatus", &vi_MuonGenMotherStatus);
   
   //add taus
   mLeptonData->Branch(prefix_+"TauVeto", &bool_TauVeto, prefix_+"TauVeto/O");
@@ -855,7 +822,12 @@ void LeptonAnalyzerPAT::bookTTree() {
   mLeptonData->Branch(prefix_+"TauECalIso",    &vd_TauECalIso);
   mLeptonData->Branch(prefix_+"TauHCalIso",    &vd_TauHCalIso);
   mLeptonData->Branch(prefix_+"TauAllIso",     &vd_TauAllIso);
-  
+
+  mLeptonData->Branch(prefix_+"TauPFAllParticleIso",   &vd_TauPFAllParticleIso);
+  mLeptonData->Branch(prefix_+"TauPFChargedHadronIso", &vd_TauPFChargedHadronIso);
+  mLeptonData->Branch(prefix_+"TauPFNeutralHadronIso", &vd_TauPFNeutralHadronIso);
+  mLeptonData->Branch(prefix_+"TauPFGammaIso",         &vd_TauPFGammaIso);
+
   //Tau identification values
   mLeptonData->Branch(prefix_+"TauIdElec",       &vf_TauIdElec);
   mLeptonData->Branch(prefix_+"TauIdMuon",       &vf_TauIdMuon);
@@ -877,32 +849,11 @@ void LeptonAnalyzerPAT::bookTTree() {
   //Generator level information stored in the tau object
   mLeptonData->Branch(prefix_+"TauGenP4",    &v_gentauP4);
   mLeptonData->Branch(prefix_+"TauGenJetP4", &v_gentaujetP4);
-  mLeptonData->Branch(prefix_+"TauGenPdgId", &vi_TauGenPdgId);
-  mLeptonData->Branch(prefix_+"TauGenMother",&vi_TauGenMother);
+  mLeptonData->Branch(prefix_+"TauGenPdgId",   &vi_TauGenPdgId);
+  mLeptonData->Branch(prefix_+"TauGenStatus",  &vi_TauGenStatus);
+  mLeptonData->Branch(prefix_+"TauGenMother",  &vi_TauGenMother);
+  mLeptonData->Branch(prefix_+"TauGenMotherStatus", &vi_TauGenMotherStatus);
   mLeptonData->Branch(prefix_+"TauGen",      &vi_TauGen);
-  
-  
-  
-  //generator level information
-  if (!doMCData_) {
-    //generator leptons (electrons and muons and taus
-    mLeptonData->Branch(prefix_+"genP4",       &v_genP4);
-    mLeptonData->Branch(prefix_+"genN",        &i_length,        prefix_+"genN/I");
-    mLeptonData->Branch(prefix_+"genId",       &vi_genIds);
-    mLeptonData->Branch(prefix_+"genStatus",   &vi_genStatus);
-    mLeptonData->Branch(prefix_+"genMother",   &vi_genRefs);
-    mLeptonData->Branch(prefix_+"genDaughters",&vi_genDaughters);
-    
-    //generator leptons status (electrons and muons and taus
-    mLeptonData->Branch(prefix_+"genLepP4",       &v_genLepP4);
-    mLeptonData->Branch(prefix_+"genLepN",        &i_genLepLength, prefix_+"genLepN/I");
-    mLeptonData->Branch(prefix_+"genLepId",       &vi_genLepIds);
-    mLeptonData->Branch(prefix_+"genLepStatus",   &vi_genLepStatus);
-    mLeptonData->Branch(prefix_+"genLepMother",   &vi_genLepRefs);
-    mLeptonData->Branch(prefix_+"genLepDaughters",&vi_genLepDaughters);
-    
-    mLeptonData->Branch(prefix_+"pthat", &d_Pthat, prefix_+"pthat/D");
-  }    
   
   edm::LogInfo("LeptonEvent") << "Ntuple variables " << variables.str();
   

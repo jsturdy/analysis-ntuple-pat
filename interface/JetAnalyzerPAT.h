@@ -271,7 +271,9 @@ class JetAnalyzerPAT {
   //Parton level id for gen jets?
   std::vector<reco::Candidate::LorentzVector > v_JetPartonP4;
   std::vector<int>    vi_JetPartonId;
+  std::vector<int>    vi_JetPartonStatus;
   std::vector<int>    vi_JetPartonMother;
+  std::vector<int>    vi_JetPartonMotherStatus;
   std::vector<int>    vi_JetPartonFlavour;
 
   //Result of some predefined preselection
@@ -355,7 +357,9 @@ class JetAnalyzerPAT {
     
     v_JetPartonP4.clear();
     vi_JetPartonId.clear();
+    vi_JetPartonStatus.clear();
     vi_JetPartonMother.clear();
+    vi_JetPartonMotherStatus.clear();
     vi_JetPartonFlavour.clear();
   }
 };

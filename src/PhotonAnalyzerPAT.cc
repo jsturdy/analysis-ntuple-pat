@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: PhotonAnalyzerPAT.cc,v 1.10 2010/11/08 15:30:00 sturdy Exp $
+// $Id: PhotonAnalyzerPAT.cc,v 1.11 2011/03/02 19:18:58 sturdy Exp $
 //
 //
 
@@ -51,16 +51,11 @@ PhotonAnalyzerPAT::PhotonAnalyzerPAT(const edm::ParameterSet& photonParams, TTre
   photMinEt_  = photonParams.getUntrackedParameter<double>("photMinEt",5);
   photRelIso_ = photonParams.getUntrackedParameter<double>("photRelIso",0.5);
 
-  doMCData_   = photonParams.getUntrackedParameter<bool>("doMCPhots",false);
-  if (doMCData_) 
-    genTag_  = photonParams.getUntrackedParameter<edm::InputTag>("genPhotTag");
   debug_   = photonParams.getUntrackedParameter<int>("debugPhots",0);
   prefix_  = photonParams.getUntrackedParameter<std::string>("prefixPhots","");
  
   // get the data tags
   photTag_ = photonParams.getUntrackedParameter<edm::InputTag>("photTag");
-
-  localPi = acos(-1.0);
 
   // Initialise plots [should improve in the future]
   bookTTree();
@@ -81,55 +76,12 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   using namespace reco;
   using namespace edm;
 
-  doMCData_ = ev.isRealData();
-  
   bool_PhotVeto      = false;
   bool photon_result = true;
   edm::LogVerbatim("PhotonEvent") << " Start  " << std::endl;
 
   std::ostringstream dbg;
   
-  // GEN INFO do only if running on MC data
-  if (!doMCData_) {
-    
-    Handle<reco::GenParticleCollection>  genParticles;
-    ev.getByLabel(genTag_, genParticles);   
-    
-    int pcount=0;
-    maintenanceGen(genParticles->size());
-    for( size_t i = 0; i < genParticles->size(); ++ i ) {
-      const reco::Candidate& pCand = (*genParticles)[ i ];
-      
-      int st = pCand.status();  
-      
-      if (st==3) {
-  	int status = 3;
-      } else { // store photons of status 1 
-  	if ( (abs(pCand.pdgId()) == 22) ) {
-  	  
-	  v_genPhotP4        .push_back(pCand.p4());
-  	  vi_genPhotIds      .push_back(pCand.pdgId());
-  	  vi_genPhotStatus   .push_back(pCand.status());
-  	  vi_genPhotDaughters.push_back(pCand.numberOfDaughters());
-  	  
-  	  if (pCand.numberOfMothers() > 0 ) { 
-  	    const reco::Candidate * mom = pCand.mother();
-  	    while (mom->pdgId() == pCand.pdgId()) { mom = mom->mother(); }
-  	    
-  	    for( size_t j = 0; j < i; ++ j ) {
-  	      const Candidate * ref = &((*genParticles)[j]);
-  	      //if (ref == mom) { vi_genPhotRefs.push_back(ref->pdgId()); }
-  	      if (ref == mom) { vi_genPhotRefs.push_back(j); }
-  	    }  
-  	  } else { vi_genPhotRefs[pcount]=-999;}
-  	  pcount++;
-  	}
-      }
-    }
-    i_genPhotLength = pcount;
-  }
-  
-
   /*
    *Get the information on all the photons
    *
@@ -171,11 +123,13 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       vd_PhotECalIso.push_back(thePhoton.ecalIso());
       vd_PhotHCalIso.push_back(thePhoton.hcalIso());
       vd_PhotAllIso .push_back(thePhoton.caloIso());
-      
-      //IsolationKeys
-      //TrackIso=0, EcalIso=1, HcalIso=2,
-      //PfAllParticleIso=3,PfChargedHadronIso=4, PfNeutralHadronIso=5, PfGammaIso=6
 
+      //Special PF based isolation variables
+      vd_PhotPFAllParticleIso  .push_back(thePhoton.userIsolation(pat::PfAllParticleIso));
+      vd_PhotPFChargedHadronIso.push_back(thePhoton.userIsolation(pat::PfChargedHadronIso));
+      vd_PhotPFNeutralHadronIso.push_back(thePhoton.userIsolation(pat::PfNeutralHadronIso));
+      vd_PhotPFGammaIso        .push_back(thePhoton.userIsolation(pat::PfGammaIso));
+      
       vd_PhotTrkIsoDeposit .push_back(thePhoton.trackIsoDeposit()->candEnergy());
       vd_PhotECalIsoDeposit.push_back(thePhoton.ecalIsoDeposit()->candEnergy());
       vd_PhotHCalIsoDeposit.push_back(thePhoton.hcalIsoDeposit()->candEnergy());
@@ -216,21 +170,26 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
       
       if ( candPhot ) {
-	vd_PhotGenPdgId.push_back(candPhot->pdgId());
+	vi_PhotGenPdgId.push_back(candPhot->pdgId());
+	vi_PhotGenStatus.push_back(candPhot->status());
 	reco::Candidate::LorentzVector genp4;
 	genp4.SetPxPyPzE(candPhot->px(),candPhot->py(),candPhot->pz(),candPhot->energy());
 	v_genphotP4.push_back(genp4);
 	const reco::Candidate* photMother = candPhot->mother();
 	if ( photMother ) {
+	  //is this necessary
 	  while (photMother->pdgId() == candPhot->pdgId()) photMother = photMother->mother();
 	  if ( photMother ) {
-	    vd_PhotGenMother.push_back(photMother->pdgId());
+	    vi_PhotGenMother.push_back(photMother->pdgId());
+	    vi_PhotGenMotherStatus.push_back(photMother->status());
 	  }
 	}
       }
       else {
-	vd_PhotGenPdgId .push_back(-999);
-	vd_PhotGenMother.push_back(-999);
+	vi_PhotGenPdgId       .push_back(-999);
+	vi_PhotGenStatus      .push_back(-999);
+	vi_PhotGenMother      .push_back(-999);
+	vi_PhotGenMotherStatus.push_back(-999);
 	reco::Candidate::LorentzVector genp4;
 	genp4.SetPxPyPzE(-999.,-999.,-999.,-999);
 	v_genphotP4.push_back(genp4);
@@ -269,6 +228,12 @@ void PhotonAnalyzerPAT::bookTTree() {
   mPhotonData->Branch(prefix_+"PhotECalIso", &vd_PhotECalIso);
   mPhotonData->Branch(prefix_+"PhotHCalIso", &vd_PhotHCalIso);
   mPhotonData->Branch(prefix_+"PhotAllIso",  &vd_PhotAllIso);
+
+  mPhotonData->Branch(prefix_+"PhotPFAllParticleIso",   &vd_PhotPFAllParticleIso);
+  mPhotonData->Branch(prefix_+"PhotPFChargedHadronIso", &vd_PhotPFChargedHadronIso);
+  mPhotonData->Branch(prefix_+"PhotPFNeutralHadronIso", &vd_PhotPFNeutralHadronIso);
+  mPhotonData->Branch(prefix_+"PhotPFGammaIso",         &vd_PhotPFGammaIso);
+
   
   mPhotonData->Branch(prefix_+"PhotTrkIsoDeposit",  &vd_PhotTrkIsoDeposit);
   mPhotonData->Branch(prefix_+"PhotECalIsoDeposit", &vd_PhotECalIsoDeposit);
@@ -290,22 +255,12 @@ void PhotonAnalyzerPAT::bookTTree() {
   mPhotonData->Branch(prefix_+"PhotSigmaIetaIeta",  &vd_PhotSigmaIetaIeta);
 
   //from reco::candidate
-  mPhotonData->Branch(prefix_+"PhotGenPdgId",  &vd_PhotGenPdgId);
-  mPhotonData->Branch(prefix_+"PhotGenMother", &vd_PhotGenMother);
+  mPhotonData->Branch(prefix_+"PhotGenPdgId",   &vi_PhotGenPdgId);
+  mPhotonData->Branch(prefix_+"PhotGenStatus",  &vi_PhotGenStatus);
+  mPhotonData->Branch(prefix_+"PhotGenMother",  &vi_PhotGenMother);
+  mPhotonData->Branch(prefix_+"PhotGenMotherStatus", &vi_PhotGenMotherStatus);
   mPhotonData->Branch(prefix_+"PhotGenP4",     &v_genphotP4);
   
-  if (!doMCData_) {
-  
-    //from genParticles
-    mPhotonData->Branch(prefix_+"genPhotP4",       &v_genPhotP4);
-    mPhotonData->Branch(prefix_+"genPhotN",        &i_genPhotLength, prefix_+"genPhotN/I");
-    mPhotonData->Branch(prefix_+"genPhotId",       &vi_genPhotIds);
-    mPhotonData->Branch(prefix_+"genPhotMother",   &vi_genPhotRefs);
-    mPhotonData->Branch(prefix_+"genPhotStatus",   &vi_genPhotStatus);
-    mPhotonData->Branch(prefix_+"genPhotDaughters",&vi_genPhotDaughters);
-  
-  }
-
   edm::LogInfo("PhotonEvent") << "Ntuple variables " << variables.str();
   
 }
