@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: PhotonAnalyzerPAT.cc,v 1.11 2011/03/02 19:18:58 sturdy Exp $
+// $Id: PhotonAnalyzerPAT.cc,v 1.12 2011/03/07 18:04:37 sturdy Exp $
 //
 //
 
@@ -67,6 +67,11 @@ PhotonAnalyzerPAT::~PhotonAnalyzerPAT() {
   delete mPhotonData;
 }
 
+//
+//________________________________________________________________________________________
+void PhotonAnalyzerPAT::beginRun(const edm::Run& run, const edm::EventSetup&es)
+{
+}
 
 //________________________________________________________________________________________
 // Method called to for each event
@@ -130,9 +135,14 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       vd_PhotPFNeutralHadronIso.push_back(thePhoton.userIsolation(pat::PfNeutralHadronIso));
       vd_PhotPFGammaIso        .push_back(thePhoton.userIsolation(pat::PfGammaIso));
       
-      vd_PhotTrkIsoDeposit .push_back(thePhoton.trackIsoDeposit()->candEnergy());
-      vd_PhotECalIsoDeposit.push_back(thePhoton.ecalIsoDeposit()->candEnergy());
-      vd_PhotHCalIsoDeposit.push_back(thePhoton.hcalIsoDeposit()->candEnergy());
+      //vd_PhotTrkIsoDeposit .push_back(thePhoton.trackIsoDeposit()->candEnergy());
+      //vd_PhotECalIsoDeposit.push_back(thePhoton.ecalIsoDeposit()->candEnergy());
+      //vd_PhotHCalIsoDeposit.push_back(thePhoton.hcalIsoDeposit()->candEnergy());
+      //
+      //vd_PhotPFAllParticleIsoDeposit  .push_back(thePhoton.userIsoDeposit(pat::PfAllParticleIso)->candEnergy());
+      //vd_PhotPFChargedHadronIsoDeposit.push_back(thePhoton.userIsoDeposit(pat::PfChargedHadronIso)->candEnergy());
+      //vd_PhotPFNeutralHadronIsoDeposit.push_back(thePhoton.userIsoDeposit(pat::PfNeutralHadronIso)->candEnergy());
+      //vd_PhotPFGammaIsoDeposit        .push_back(thePhoton.userIsoDeposit(pat::PfGammaIso)->candEnergy());
 
       vb_PhotIsEB.push_back(thePhoton.isEB());
       vb_PhotIsEE.push_back(thePhoton.isEE());
@@ -233,12 +243,16 @@ void PhotonAnalyzerPAT::bookTTree() {
   mPhotonData->Branch(prefix_+"PhotPFChargedHadronIso", &vd_PhotPFChargedHadronIso);
   mPhotonData->Branch(prefix_+"PhotPFNeutralHadronIso", &vd_PhotPFNeutralHadronIso);
   mPhotonData->Branch(prefix_+"PhotPFGammaIso",         &vd_PhotPFGammaIso);
-
   
-  mPhotonData->Branch(prefix_+"PhotTrkIsoDeposit",  &vd_PhotTrkIsoDeposit);
-  mPhotonData->Branch(prefix_+"PhotECalIsoDeposit", &vd_PhotECalIsoDeposit);
-  mPhotonData->Branch(prefix_+"PhotHCalIsoDeposit", &vd_PhotHCalIsoDeposit);
-
+  //mPhotonData->Branch(prefix_+"PhotTrkIsoDeposit",  &vd_PhotTrkIsoDeposit);
+  //mPhotonData->Branch(prefix_+"PhotECalIsoDeposit", &vd_PhotECalIsoDeposit);
+  //mPhotonData->Branch(prefix_+"PhotHCalIsoDeposit", &vd_PhotHCalIsoDeposit);
+  //
+  //mPhotonData->Branch(prefix_+"PhotPFAllParticleIsoDeposit",   &vd_PhotPFAllParticleIsoDeposit);
+  //mPhotonData->Branch(prefix_+"PhotPFChargedHadronIsoDeposit", &vd_PhotPFChargedHadronIsoDeposit);
+  //mPhotonData->Branch(prefix_+"PhotPFNeutralHadronIsoDeposit", &vd_PhotPFNeutralHadronIsoDeposit);
+  //mPhotonData->Branch(prefix_+"PhotPFGammaIsoDeposit",         &vd_PhotPFGammaIsoDeposit);
+  
   mPhotonData->Branch(prefix_+"PhotIsEB", &vb_PhotIsEB);
   mPhotonData->Branch(prefix_+"PhotIsEE", &vb_PhotIsEE);
   mPhotonData->Branch(prefix_+"PhotHasPixelSeed", &vb_PhotHasPixelSeed);

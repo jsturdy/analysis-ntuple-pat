@@ -59,6 +59,7 @@ class JetAnalyzerPAT {
   
   bool filter(const edm::Event&, const edm::EventSetup&);
   
+  void beginRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
   /// Define all plots
   void bookTTree();
@@ -167,13 +168,24 @@ class JetAnalyzerPAT {
   edm::InputTag genJetTag_;
 
   std::string   jetCorTag_;
+
   char logmessage[128];
-    
 
   // Plots
   TTree * mJetData;      /// Will contain the data passing the jet selection
 
   std::map<std::string, std::vector<float> > map_s_vd_correctionFactor;
+  //std::map<std::string, std::vector<int> >   map_s_vi_JetOverlaps;
+  //std::map<std::string, std::vector<int> >   map_s_vi_JetNOverlaps;
+  std::vector<int>                           vi_JetElectronOverlaps;
+  std::vector<int>                           vi_JetElectronNOverlaps;
+  std::vector<int>                           vi_JetMuonOverlaps;
+  std::vector<int>                           vi_JetMuonNOverlaps;
+  std::vector<int>                           vi_JetTauOverlaps;
+  std::vector<int>                           vi_JetTauNOverlaps;
+  std::vector<int>                           vi_JetPhotonOverlaps;
+  std::vector<int>                           vi_JetPhotonNOverlaps;
+
   std::vector<reco::Candidate::LorentzVector > v_JetP4;
   std::vector<reco::Candidate::LorentzVector > v_RawJetP4;
   std::vector<reco::Candidate::LorentzVector > v_GenJetP4;
@@ -211,10 +223,6 @@ class JetAnalyzerPAT {
   std::vector<int>    vi_JetHemi;
   std::vector<int>    vi_JetNConst;
 
-  std::map<std::string, std::vector<int> >    map_s_vi_JetNOverlaps;
-  std::vector<int>                            vi_JetNOverlaps;
-  std::map<std::string, std::vector<int> >    map_s_vi_JetOverlaps;
-  std::vector<int>                            vi_JetOverlaps;
   //calo/jpt jet specific
   std::vector<double> vd_JetfHPD;
   std::vector<double> vd_JetfRBX;
@@ -279,16 +287,21 @@ class JetAnalyzerPAT {
   //Result of some predefined preselection
   bool   bool_JetPreselection;
 
-  std::string outputFileName_;
-
-  double localPi;
-
   void maintenance(const int& nJets) {
     //Setup the vectors
     map_s_vd_correctionFactor.clear();
 
-    map_s_vi_JetNOverlaps.clear();
-    map_s_vi_JetOverlaps.clear();
+    //map_s_vi_JetNOverlaps.clear();
+    //map_s_vi_JetOverlaps.clear();
+
+    vi_JetElectronNOverlaps.clear();
+    vi_JetElectronOverlaps.clear();
+    vi_JetMuonNOverlaps.clear();
+    vi_JetMuonOverlaps.clear();
+    vi_JetTauNOverlaps.clear();
+    vi_JetTauOverlaps.clear();
+    vi_JetPhotonNOverlaps.clear();
+    vi_JetPhotonOverlaps.clear();
 
     vf_JECUncPlus.clear();
     vf_JECUncMinus.clear();

@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: MCTruthAnalyzerPAT.cc,v 1.1 2011/03/07 18:04:37 sturdy Exp $
+// $Id: MCTruthAnalyzerPAT.cc,v 1.2 2011/03/07 19:01:29 sturdy Exp $
 //
 //
 
@@ -45,6 +45,11 @@ MCTruthAnalyzerPAT::~MCTruthAnalyzerPAT()
   
 }
 
+//
+//________________________________________________________________________________________
+void MCTruthAnalyzerPAT::beginRun(const edm::Run& run, const edm::EventSetup&es)
+{
+}
 
 //________________________________________________________________________________________
 bool MCTruthAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)

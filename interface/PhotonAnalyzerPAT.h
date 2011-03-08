@@ -40,6 +40,7 @@ class PhotonAnalyzerPAT {
   
   bool filter(const edm::Event& evt,const edm::EventSetup& iSetup );
   
+  void beginRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
   /// Define all plots
   void bookTTree();
@@ -73,11 +74,15 @@ private:
   std::vector<double>  vd_PhotPFChargedHadronIso;
   std::vector<double>  vd_PhotPFNeutralHadronIso;
   std::vector<double>  vd_PhotPFGammaIso;
-  
-
-  std::vector<double>  vd_PhotTrkIsoDeposit;
-  std::vector<double>  vd_PhotECalIsoDeposit;
-  std::vector<double>  vd_PhotHCalIsoDeposit;
+ 
+  //std::vector<double>  vd_PhotTrkIsoDeposit;
+  //std::vector<double>  vd_PhotECalIsoDeposit;
+  //std::vector<double>  vd_PhotHCalIsoDeposit;
+  //
+  //std::vector<double>  vd_PhotPFAllParticleIsoDeposit;
+  //std::vector<double>  vd_PhotPFChargedHadronIsoDeposit;
+  //std::vector<double>  vd_PhotPFNeutralHadronIsoDeposit;
+  //std::vector<double>  vd_PhotPFGammaIsoDeposit;
 
   //bool m_ccPhotAssoc[50];
   std::vector<bool>  vb_PhotIsEB;
@@ -115,9 +120,14 @@ private:
     vd_PhotPFNeutralHadronIso.clear();
     vd_PhotPFGammaIso.clear();
 
-    vd_PhotTrkIsoDeposit.clear();
-    vd_PhotECalIsoDeposit.clear();
-    vd_PhotHCalIsoDeposit.clear();
+    //vd_PhotTrkIsoDeposit.clear();
+    //vd_PhotECalIsoDeposit.clear();
+    //vd_PhotHCalIsoDeposit.clear();
+    //
+    //vd_PhotPFAllParticleIsoDeposit.clear();
+    //vd_PhotPFChargedHadronIsoDeposit.clear();
+    //vd_PhotPFNeutralHadronIsoDeposit.clear();
+    //vd_PhotPFGammaIsoDeposit.clear();
 
     vb_PhotIsEB.clear();
     vb_PhotIsEE.clear();

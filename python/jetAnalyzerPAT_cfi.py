@@ -23,14 +23,14 @@ jetAnalyzerPAT = cms.untracked.PSet(
     jetCorTag = cms.untracked.string("AK5Calo"),
 
     #for overlap counting
-    electronPt  = cms.double(30.),
-    electronIso = cms.double(0.1),
-    tauPt       = cms.double(10.),
-    tauIso      = cms.double(0.1),
-    muonPt      = cms.double(10.),
-    muonIso     = cms.double(0.05),
-    photonPt    = cms.double(10.),
-    photonIso   = cms.double(1.5),
+    electronPt  = cms.untracked.double(30.),
+    electronIso = cms.untracked.double(0.1),
+    tauPt       = cms.untracked.double(10.),
+    tauIso      = cms.untracked.double(0.1),
+    muonPt      = cms.untracked.double(10.),
+    muonIso     = cms.untracked.double(0.05),
+    photonPt    = cms.untracked.double(10.),
+    photonIso   = cms.untracked.double(1.5),
     
 
     debugJets  = cms.untracked.int32(0),

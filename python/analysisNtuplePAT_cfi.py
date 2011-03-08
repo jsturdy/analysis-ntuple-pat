@@ -37,7 +37,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             useJPTJets   = cms.untracked.bool(True),
             debugJets = debugLevel,
             jetTag     = cms.untracked.InputTag("cleanPatJetsAK5JPT"),
-            jetCorTag  = cms.untracked.InputTag("AK5JPT"),
+            jetCorTag  = cms.untracked.string("AK5JPT"),
             prefixJets = cms.untracked.string("JPT")
         )
     ),
@@ -49,7 +49,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             usePFJets   = cms.untracked.bool(True),
             debugJets = debugLevel,
             jetTag     = cms.untracked.InputTag("cleanPatJetsAK5PF"),
-            jetCorTag  = cms.untracked.InputTag("AK5PF"),
+            jetCorTag  = cms.untracked.string("AK5PF"),
             prefixJets = cms.untracked.string("PF")
         )
     ),
@@ -60,7 +60,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             usePFJets   = cms.untracked.bool(True),
             debugJets = debugLevel,
             jetTag     = cms.untracked.InputTag("selectedPatJetsPF"),
-            jetCorTag  = cms.untracked.InputTag("AK5PF"),
+            jetCorTag  = cms.untracked.string("AK5PF"),
             prefixJets = cms.untracked.string("PF2PAT")
         )
     ),
@@ -72,7 +72,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
             useTrackJets   = cms.untracked.bool(True),
             debugJets = debugLevel,
             jetTag     = cms.untracked.InputTag("cleanPatJetsAK5Track"),
-            jetCorTag  = cms.untracked.InputTag("AK5Track"),
+            jetCorTag  = cms.untracked.string("AK5Track"),
             prefixJets = cms.untracked.string("Track")
         )
     ),
@@ -147,7 +147,7 @@ analysisNtuplePAT = cms.EDAnalyzer("AnalysisNtuplePAT",
         metAnalyzerPAT.clone(
             doMCMET   = doMC,
             genMETTag = cms.untracked.InputTag("genMetTrue"),
-            metTag    = cms.untracked.InputTag("patMETsPFTypeI"),
+            metTag    = cms.untracked.InputTag("patMETsTypeIPF"),
             prefixMET = cms.untracked.string("PFTypeI")
         )
     ),

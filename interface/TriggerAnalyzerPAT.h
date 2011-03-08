@@ -30,6 +30,7 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 //#include "FWCore/Framework/interface/TriggerNames.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
@@ -87,6 +88,7 @@ private:
   // Data tags
   edm::InputTag l1TriggerResults_; 
   edm::InputTag hlTriggerResults_; 
+  std::string processName_;
 
   edm::TriggerNames triggerNames_;     // TriggerNames class
   HLTConfigProvider hltConfig;

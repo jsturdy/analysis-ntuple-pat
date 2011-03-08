@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.16 2011/03/02 19:18:58 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.17 2011/03/07 18:04:37 sturdy Exp $
 //
 //
 
@@ -71,8 +71,6 @@ JetAnalyzerPAT::JetAnalyzerPAT(const edm::ParameterSet& jetParams, TTree* tmpAll
   photonPt_     = jetParams.getUntrackedParameter<double>("photonPt",  false);
   photonIso_    = jetParams.getUntrackedParameter<double>("photonIso", false);
 
-  localPi = acos(-1.0);
-
   // Initialise plots [should improve in the future]
   bookTTree();
 }
@@ -83,6 +81,11 @@ JetAnalyzerPAT::~JetAnalyzerPAT() {
   delete mJetData;  
 }
 
+//
+//________________________________________________________________________________________
+void JetAnalyzerPAT::beginRun(const edm::Run& run, const edm::EventSetup&es)
+{
+}
 
 //________________________________________________________________________________________
 // Method called to for each event
@@ -312,14 +315,23 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  }
 	}
 	
-	map_s_vi_JetNOverlaps["electrons"].push_back(nElecOverlaps);
-	map_s_vi_JetOverlaps["electrons"] .push_back(elecOverlap);
-	map_s_vi_JetNOverlaps["taus"].push_back(nTauOverlaps);
-	map_s_vi_JetOverlaps["taus"] .push_back(tauOverlap);
-	map_s_vi_JetNOverlaps["muons"].push_back(nMuonOverlaps);
-	map_s_vi_JetOverlaps["muons"] .push_back(muonOverlap);
-	map_s_vi_JetNOverlaps["photons"].push_back(nPhotOverlaps);
-	map_s_vi_JetOverlaps["photons"] .push_back(photOverlap);
+	//map_s_vi_JetNOverlaps["electrons"].push_back(nElecOverlaps);
+	//map_s_vi_JetOverlaps["electrons"] .push_back(elecOverlap);
+	//map_s_vi_JetNOverlaps["taus"].push_back(nTauOverlaps);
+	//map_s_vi_JetOverlaps["taus"] .push_back(tauOverlap);
+	//map_s_vi_JetNOverlaps["muons"].push_back(nMuonOverlaps);
+	//map_s_vi_JetOverlaps["muons"] .push_back(muonOverlap);
+	//map_s_vi_JetNOverlaps["photons"].push_back(nPhotOverlaps);
+	//map_s_vi_JetOverlaps["photons"] .push_back(photOverlap);
+
+	vi_JetElectronNOverlaps.push_back(nElecOverlaps);
+	vi_JetElectronOverlaps .push_back(elecOverlap);
+	vi_JetMuonNOverlaps.push_back(nTauOverlaps);
+	vi_JetMuonOverlaps .push_back(tauOverlap);
+	vi_JetTauNOverlaps.push_back(nMuonOverlaps);
+	vi_JetTauOverlaps .push_back(muonOverlap);
+	vi_JetPhotonNOverlaps.push_back(nPhotOverlaps);
+	vi_JetPhotonOverlaps .push_back(photOverlap);
 	//JEC uncertainties  
 	//      if (jet.isJet()) {
 	jecUnc->setJetEta(theJet.eta());
@@ -375,31 +387,25 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 
 	//if (useCaloJets_) {
 	if (theJet.jecSetsAvailable()) {
-	  //JES corrections for the RAW uncorrected jet (RAW)
 	  map_s_vd_correctionFactor["raw"].push_back(uncorrJet.jecFactor("Uncorrected"));
-	  //JES corrections for the Offset (L1Offset)
-	  map_s_vd_correctionFactor["off"].push_back(uncorrJet.jecFactor("L1Offset"));
-	  //JES corrections for the Relative vs eta (L2Relative)
+	  //map_s_vd_correctionFactor["off"].push_back(uncorrJet.jecFactor("L1Offset"));
 	  map_s_vd_correctionFactor["rel"].push_back(uncorrJet.jecFactor("L2Relative"));
-	  //JES corrections for the Absolute vs pT (L3Absolute)
 	  map_s_vd_correctionFactor["abs"].push_back(uncorrJet.jecFactor("L3Absolute"));
-	  //JES corrections for the EM fraction (L4Emf)
-	  map_s_vd_correctionFactor["emf"].push_back(uncorrJet.jecFactor("L4Emf"));
-	  //JES corrections for the Hadrons (L5Flavour)
-	  map_s_vd_correctionFactor["had:glu"].push_back(uncorrJet.jecFactor("L5Flavor", "gluon"));
-	  map_s_vd_correctionFactor["had:uds"].push_back(uncorrJet.jecFactor("L5Flavor", "uds"));
-	  map_s_vd_correctionFactor["had:c"].push_back(uncorrJet.jecFactor("L5Flavor", "c"));
-	  map_s_vd_correctionFactor["had:b"].push_back(uncorrJet.jecFactor("L5Flavor", "b"));
-	  //JES corrections for the Underlying Event (L6UE)
-	  map_s_vd_correctionFactor["ue:glu"].push_back(uncorrJet.jecFactor("L6UE", "gluon"));
-	  map_s_vd_correctionFactor["ue:uds"].push_back(uncorrJet.jecFactor("L6UE", "uds"));
-	  map_s_vd_correctionFactor["ue:c"].push_back(uncorrJet.jecFactor("L6UE", "c"));
-	  map_s_vd_correctionFactor["ue:b"].push_back(uncorrJet.jecFactor("L6UE", "b"));
-	  //JES corrections for the Partons (L7Parton)
-	  map_s_vd_correctionFactor["part:glu"].push_back(uncorrJet.jecFactor("L7Parton", "gluon"));
-	  map_s_vd_correctionFactor["part:uds"].push_back(uncorrJet.jecFactor("L7Parton", "uds"));
-	  map_s_vd_correctionFactor["part:c"].push_back(uncorrJet.jecFactor("L7Parton", "c"));
-	  map_s_vd_correctionFactor["part:b"].push_back(uncorrJet.jecFactor("L7Parton", "b"));
+	  if (corrLevel=="L2L3Residual")
+	    map_s_vd_correctionFactor["residual"].push_back(uncorrJet.jecFactor("L2L3Residual"));
+	  //map_s_vd_correctionFactor["emf"].push_back(uncorrJet.jecFactor("L4Emf"));
+	  //map_s_vd_correctionFactor["had:glu"].push_back(uncorrJet.jecFactor("L5Flavor", "gluon"));
+	  //map_s_vd_correctionFactor["had:uds"].push_back(uncorrJet.jecFactor("L5Flavor", "uds"));
+	  //map_s_vd_correctionFactor["had:c"].push_back(uncorrJet.jecFactor("L5Flavor", "c"));
+	  //map_s_vd_correctionFactor["had:b"].push_back(uncorrJet.jecFactor("L5Flavor", "b"));
+	  //map_s_vd_correctionFactor["ue:glu"].push_back(uncorrJet.jecFactor("L6UE", "gluon"));
+	  //map_s_vd_correctionFactor["ue:uds"].push_back(uncorrJet.jecFactor("L6UE", "uds"));
+	  //map_s_vd_correctionFactor["ue:c"].push_back(uncorrJet.jecFactor("L6UE", "c"));
+	  //map_s_vd_correctionFactor["ue:b"].push_back(uncorrJet.jecFactor("L6UE", "b"));
+	  //map_s_vd_correctionFactor["part:glu"].push_back(uncorrJet.jecFactor("L7Parton", "gluon"));
+	  //map_s_vd_correctionFactor["part:uds"].push_back(uncorrJet.jecFactor("L7Parton", "uds"));
+	  //map_s_vd_correctionFactor["part:c"].push_back(uncorrJet.jecFactor("L7Parton", "c"));
+	  //map_s_vd_correctionFactor["part:b"].push_back(uncorrJet.jecFactor("L7Parton", "b"));
 	}
 
 	else {
@@ -668,7 +674,20 @@ void JetAnalyzerPAT::bookTTree() {
   mJetData->Branch(prefix_+"JetPhiPhiMoment",  &vd_JetPhiPhiMoment);
   //mJetData->Branch(prefix_+"JetHemi", &vi_JetHemi, prefix_+"JetHemi["+prefix_+"NJets]/I");
   mJetData->Branch(prefix_+"JetCorrFactor",   &map_s_vd_correctionFactor);
+  //mJetData->Branch(prefix_+"JetOverlaps",     &map_s_vi_JetOverlaps);
+  //mJetData->Branch(prefix_+"JetNOverlaps",    &map_s_vi_JetNOverlaps);
+  mJetData->Branch(prefix_+"AllJetElectronOverlaps",  &vi_JetElectronOverlaps);
+  mJetData->Branch(prefix_+"AllJetElectronNOverlaps", &vi_JetElectronNOverlaps);
+  mJetData->Branch(prefix_+"AllJetMuonOverlaps",  &vi_JetMuonOverlaps);
+  mJetData->Branch(prefix_+"AllJetMuonNOverlaps", &vi_JetMuonNOverlaps);
+  mJetData->Branch(prefix_+"AllJetTauOverlaps",  &vi_JetTauOverlaps);
+  mJetData->Branch(prefix_+"AllJetTauNOverlaps", &vi_JetTauNOverlaps);
+  mJetData->Branch(prefix_+"AllJetPhotonOverlaps",  &vi_JetPhotonOverlaps);
+  mJetData->Branch(prefix_+"AllJetPhotonNOverlaps", &vi_JetPhotonNOverlaps);
   mJetData->Branch(prefix_+"JetPreselection", &bool_JetPreselection, prefix_+"JetPreselection/O");
+
+  mJetData->Branch(prefix_+"JECUncPlus",  &vf_JECUncPlus);
+  mJetData->Branch(prefix_+"JECUncMinus", &vf_JECUncMinus);
 
   
   //b-tagging information
@@ -685,6 +704,7 @@ void JetAnalyzerPAT::bookTTree() {
   mJetData->Branch(prefix_+"JetBTag_SoftLeptonByIP",  &vd_JetBTag_SoftLeptonByIP);
   mJetData->Branch(prefix_+"JetBTag_SoftLeptonByPt",  &vd_JetBTag_SoftLeptonByPt);
   
+
   //information about associated gen jets
   //mJetData->Branch(prefix_+"GenMHt",  &GenMHt);
   mJetData->Branch(prefix_+"GenHt",    &d_GenHt,     prefix_+"GenHt/D");

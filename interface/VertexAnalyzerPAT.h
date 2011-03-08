@@ -39,6 +39,7 @@ class VertexAnalyzerPAT {
   
   bool filter(const edm::Event& evt,const edm::EventSetup& iSetup );
 
+  void beginRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
   void bookTTree();
 

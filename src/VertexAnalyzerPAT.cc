@@ -13,7 +13,7 @@ Description: Collects variables related to vertices, performs a primary vertex c
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: VertexAnalyzerPAT.cc,v 1.8 2010/10/18 14:34:47 sturdy Exp $
+// $Id: VertexAnalyzerPAT.cc,v 1.9 2010/11/02 13:55:18 sturdy Exp $
 //
 //
 
@@ -48,6 +48,11 @@ VertexAnalyzerPAT::~VertexAnalyzerPAT() {
   delete mVertexData;
 }
 
+//
+//________________________________________________________________________________________
+void VertexAnalyzerPAT::beginRun(const edm::Run& run, const edm::EventSetup&es)
+{
+}
 
 //________________________________________________________________________________________
 // Method called to for each event

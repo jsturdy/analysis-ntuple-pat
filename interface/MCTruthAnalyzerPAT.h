@@ -37,6 +37,7 @@ class MCTruthAnalyzerPAT {
   
   bool filter(const edm::Event& evt,const edm::EventSetup& es );
   
+  void beginRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
   /// Define all plots
   void bookTTree();

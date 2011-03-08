@@ -48,14 +48,16 @@ public:
 private:
   //*** CMSSW interface
   /// Called once per job, at start
-  virtual void beginJob() ;
+  void beginJob() ;
+  /// Called once per run, at start
+  void beginRun(const edm::Run& run, const edm::EventSetup& es);
   /// Called for each event
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&);
   /// Called once per job, at end
-  virtual void endJob();
+  void endJob();
 
   /// Print a summary of counts for all selectors
-  virtual void printSummary(void);
+  void printSummary(void);
  
   //*** Plotting
   void initPlots();
@@ -85,7 +87,6 @@ private:
   //TTree * mTrackData;      /// Will contain the additional di-jet specific data
 
   float* variables_;     ///< Container for the tree variables (from selectors)
-  bool*  decisions_;     ///< Container for all selector decisions
   bool   globalDec_;     ///< Global decision for event
 
   int m_Run;
@@ -97,11 +98,7 @@ private:
 
   bool m_IsData;
 
-  int    mGlobalDecision;
-
   unsigned int  nEvents_;              // number of events processed
-
-  bool init_;                          // vectors initialised or not
 
   int  debug_;
   bool doMCTruth_;
@@ -122,18 +119,13 @@ private:
   int passPFLeptons[2];
 
   int passPhotons[2];
-  int passPFPhotons[2];
+  //int passPFPhotons[2];
 
   int passVertex[2];
   int passTracks[2];
   int passTriggers[2];
   //int passHemispheres[2];
   
-  std::string outputFileName_;
-
-  double localPi;
-  unsigned int *mSelectorResults;
-
   JetAnalyzerPAT        * calojetinfo;
   JetAnalyzerPAT        * jptjetinfo;
   JetAnalyzerPAT        * pfjetinfo;
@@ -151,7 +143,7 @@ private:
   //HemisphereAnalyzerPAT * heminfo;
 
   PhotonAnalyzerPAT     * photons;
-  PhotonAnalyzerPAT     * pfphotons;
+  //PhotonAnalyzerPAT     * pfphotons;
 
   LeptonAnalyzerPAT     * leptons;
   LeptonAnalyzerPAT     * pfleptons;

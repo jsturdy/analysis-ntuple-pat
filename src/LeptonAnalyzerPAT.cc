@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: LeptonAnalyzerPAT.cc,v 1.13 2011/03/02 19:18:58 sturdy Exp $
+// $Id: LeptonAnalyzerPAT.cc,v 1.14 2011/03/07 18:04:37 sturdy Exp $
 //
 //
 
@@ -69,6 +69,11 @@ LeptonAnalyzerPAT::LeptonAnalyzerPAT(const edm::ParameterSet& leptonParams, TTre
 //________________________________________________________________________________________
 LeptonAnalyzerPAT::~LeptonAnalyzerPAT() {}
 
+//
+//________________________________________________________________________________________
+void LeptonAnalyzerPAT::beginRun(const edm::Run& run, const edm::EventSetup&es)
+{
+}
 
 //________________________________________________________________________________________
 bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
@@ -740,7 +745,7 @@ void LeptonAnalyzerPAT::bookTTree() {
   
   mLeptonData->Branch(prefix_+"MuonECalIsoDeposit", &vd_MuonECalIsoDeposit);
   mLeptonData->Branch(prefix_+"MuonHCalIsoDeposit", &vd_MuonHCalIsoDeposit);
-  
+
   //Muon calorimeter type
   mLeptonData->Branch(prefix_+"MuonIsGlobal",                              &vb_MuonIsGlobal);
   mLeptonData->Branch(prefix_+"MuonIsStandAlone",                          &vb_MuonIsStandAlone);

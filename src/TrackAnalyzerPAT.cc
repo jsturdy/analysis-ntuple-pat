@@ -13,7 +13,7 @@ Description: Collects variables related to tracks
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: TrackAnalyzerPAT.cc,v 1.6 2010/10/18 14:34:46 sturdy Exp $
+// $Id: TrackAnalyzerPAT.cc,v 1.7 2010/11/08 15:30:00 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/TrackAnalyzerPAT.h"
@@ -41,7 +41,11 @@ TrackAnalyzerPAT::~TrackAnalyzerPAT() {
   delete mTrackData;
 }
 
-
+//
+//________________________________________________________________________________________
+void TrackAnalyzerPAT::beginRun(const edm::Run& run, const edm::EventSetup&es)
+{
+}
 //________________________________________________________________________________________
 // Method called to for each event
 bool TrackAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)

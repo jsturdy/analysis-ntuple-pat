@@ -14,7 +14,7 @@ Implementation:Uses the EventSelector interface for event selection and TFileSer
 //
 // Original Author:  Markus Stoye, (modified by Jared Sturdy from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: AnalysisNtuplePAT.cc,v 1.13 2011/03/07 18:10:11 sturdy Exp $
+// $Id: AnalysisNtuplePAT.cc,v 1.14 2011/03/07 19:01:28 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/AnalysisNtuplePAT.h"
@@ -28,10 +28,8 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
 
   //default parameters
   debug_     = pset.getUntrackedParameter<int>("debugDiJets",0);
-  doMCTruth_ = pset.getUntrackedParameter<int>("doMCTruth",false);
+  doMCTruth_ = pset.getUntrackedParameter<bool>("doMCTruth",false);
  
-
-  localPi = acos(-1.0);
 
   // Initialise plots [should improve in the future]
   initPlots();
@@ -53,7 +51,7 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
 
   //Photon information
   photons   = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("photonParameters"), mAllData);
-  pfphotons = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfphotonParameters"), mAllData);
+  //pfphotons = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfphotonParameters"), mAllData);
 
   //Lepton information
   leptons   = new LeptonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("leptonParameters"), mAllData);
@@ -71,7 +69,7 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
 
   //MC truth  information
   if (doMCTruth_)
-    geninfo  = new MCTruthAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("genParticleeParameters"), mAllData);
+    geninfo  = new MCTruthAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("mcTruthParameters"), mAllData);
 
   //Setup counters for filters
   passCaloJets[0]    = 0;
@@ -87,7 +85,7 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
   passLeptons[0]     = 0;
   passPFLeptons[0]   = 0;
   passPhotons[0]     = 0;
-  passPFPhotons[0]   = 0;
+  //passPFPhotons[0]   = 0;
   passVertex[0]      = 0;
   passTracks[0]      = 0;
   passTriggers[0]    = 0;
@@ -105,7 +103,7 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
   passLeptons[1]     = 0;
   passPFLeptons[1]   = 0;
   passPhotons[1]     = 0;
-  passPFPhotons[1]   = 0;
+  //passPFPhotons[1]   = 0;
   passVertex[1]      = 0;
   passTracks[1]      = 0;
   passTriggers[1]    = 0;
@@ -185,9 +183,9 @@ AnalysisNtuplePAT::analyze(const edm::Event& ev, const edm::EventSetup& sp)
   bool myphotonresult   = photons->filter(ev, sp);
 
   //
-  if (debug_)
-    std::cout<<"Getting the pf photon result"<<std::endl;
-  bool mypfphotonresult = pfphotons->filter(ev, sp);
+  //if (debug_)
+  //  std::cout<<"Getting the pf photon result"<<std::endl;
+  //bool mypfphotonresult = pfphotons->filter(ev, sp);
 
   //
   if (debug_) 
@@ -238,7 +236,7 @@ AnalysisNtuplePAT::analyze(const edm::Event& ev, const edm::EventSetup& sp)
   if (mypfleptonresult) ++passPFLeptons[0];
 
   if (myphotonresult)   ++passPhotons[0];
-  if (mypfphotonresult) ++passPFPhotons[0];
+  //if (mypfphotonresult) ++passPFPhotons[0];
 
   if (myvertexresult)  ++passVertex[0];
   if (mytrackresult)   ++passTracks[0];
@@ -271,6 +269,31 @@ AnalysisNtuplePAT::analyze(const edm::Event& ev, const edm::EventSetup& sp)
 
 //________________________________________________________________________________________
 void 
+AnalysisNtuplePAT::beginRun(const edm::Run& run, const edm::EventSetup&es) {
+  
+  calojetinfo      ->beginRun(run, es);
+  jptjetinfo       ->beginRun(run, es);
+  pfjetinfo        ->beginRun(run, es);
+  pf2patjetinfo    ->beginRun(run, es);
+  //trackjetinfo     ->beginRun(run, es);
+  calometinfo      ->beginRun(run, es);
+  calomettypeiiinfo->beginRun(run, es);
+  pfmetinfo        ->beginRun(run, es);
+  pfmettypeiinfo   ->beginRun(run, es);
+  tcmetinfo        ->beginRun(run, es);
+  photons          ->beginRun(run, es);
+  //pfphotons        ->beginRun(run, es);
+  leptons          ->beginRun(run, es);
+  pfleptons        ->beginRun(run, es);
+  vertex           ->beginRun(run, es);
+  tracks           ->beginRun(run, es);
+  triggers         ->beginRun(run, es);
+  geninfo          ->beginRun(run, es);
+
+}
+
+//________________________________________________________________________________________
+void 
 AnalysisNtuplePAT::beginJob() {
   //setup job before events
 }
@@ -279,7 +302,7 @@ AnalysisNtuplePAT::beginJob() {
 void 
 AnalysisNtuplePAT::endJob() {
   //cleanup after all events
-  printSummary();
+  //printSummary();
 }
 
 void

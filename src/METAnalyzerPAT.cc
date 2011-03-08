@@ -11,7 +11,7 @@
 //
 // Original Author:  Jared Sturdy
 //         Created:  Tue Feb 2 12:11:44 PDT 2010
-// $Id: METAnalyzerPAT.cc,v 1.10 2010/11/08 15:30:00 sturdy Exp $
+// $Id: METAnalyzerPAT.cc,v 1.11 2010/11/29 17:31:17 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/METAnalyzerPAT.h"
@@ -43,6 +43,11 @@ METAnalyzerPAT::~METAnalyzerPAT() {
   delete mMETData;
 }
 
+//
+//________________________________________________________________________________________
+void METAnalyzerPAT::beginRun(const edm::Run& run, const edm::EventSetup&es)
+{
+}
 
 //________________________________________________________________________________________
 // Method called to for each event

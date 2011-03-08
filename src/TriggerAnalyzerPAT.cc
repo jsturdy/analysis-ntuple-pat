@@ -13,7 +13,7 @@ Description: Collects the trigger results and performs a basic trigger selection
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: TriggerAnalyzerPAT.cc,v 1.10 2010/11/08 15:30:00 sturdy Exp $
+// $Id: TriggerAnalyzerPAT.cc,v 1.11 2011/03/02 07:56:40 sturdy Exp $
 //
 //
 //#include "SusyAnalysis/EventSelector/interface/BJetEventSelector.h"
@@ -57,7 +57,7 @@ TriggerAnalyzerPAT::TriggerAnalyzerPAT(const edm::ParameterSet& triggerParams, T
     hlTriggerResults_ = triggerParams.getUntrackedParameter<edm::InputTag>("hlTriggerResults");
   //key to help getting the hlt process from event provenance
   checkedProcess_ = false;
-
+  processName_    = "";
   // Initialise plots [should improve in the future]
   bookTTree();
 }
@@ -72,21 +72,14 @@ TriggerAnalyzerPAT::~TriggerAnalyzerPAT() {
 //________________________________________________________________________________________
 void TriggerAnalyzerPAT::beginRun(const edm::Run& run, const edm::EventSetup&es)
 {
-  bool changed(true);
-  //Do I want to pass a specifig HLT process into this init pulled from the config?
-  //if (hltConfig.init(run,es,hlTriggerResults_,changed)) {
+  bool changed = false;
   if (hltConfig.init(run,es,"HLT",changed)) {
-    // if init returns TRUE, initialisation has succeeded!
     if (changed) {
-      // The HLT config has actually changed wrt the previous Run, hence rebook your
-      // histograms or do anything else dependent on the revised HLT config
+      edm::LogWarning("TriggerAnalyzerPAT") << "beginRun: The HLT config has changed!";
     }
   }
   else {
-    // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
-    // with the file and/or code and needs to be investigated!
-    edm::LogError("TriggerEvent") << " HLT config extraction failure with process name " << hlTriggerResults_;
-    // In this case, all access methods will return empty values!
+    edm::LogError("TriggerEvent") << " HLT config extraction failure";
   }
 }
 //________________________________________________________________________________________
@@ -190,16 +183,20 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
    ******************************************************************/
   // Get the HLT results and check validity
   
-  edm::Handle<edm::TriggerResults> hltHandle;
-  if (!getHLTfromConfig_ && !checkedProcess_) {
-    //ev.getByLabel(hlTriggerResults_, hltHandle);
-    Handle<trigger::TriggerEvent> hltEventHandle;
-    ev.getByLabel("hltTriggerSummaryAOD", hltEventHandle);
-    if (debug_>5)
-      std::cout<<hltEventHandle.provenance()->processName()<<std::endl;
-    hlTriggerResults_ = InputTag("TriggerResults","",hltEventHandle.provenance()->processName());
-  }
+  //if (!getHLTfromConfig_ && !checkedProcess_) {
+  if (!getHLTfromConfig_) 
+    if (processName_=="") {
+      Handle<trigger::TriggerEvent> hltEventHandle;
+      ev.getByLabel("hltTriggerSummaryAOD", hltEventHandle);
+      processName_ = hltEventHandle.provenance()->processName();
+      if (debug_)
+      std::cout<<processName_<<std::endl;
+    }
+  hlTriggerResults_ = InputTag("TriggerResults","",processName_);
   
+  edm::LogInfo("HLTEventSelector") << "Using trigger results for InputTag " << hlTriggerResults_;
+
+  edm::Handle<edm::TriggerResults> hltHandle;
   ev.getByLabel(hlTriggerResults_, hltHandle);
   
   if ( !hltHandle.isValid() ) {
@@ -210,19 +207,26 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   }
 
   const edm::TriggerNames& trgNames = ev.triggerNames(*hltHandle);
-
+  
+  int          prescaleSet = hltConfig.prescaleSet(ev,es);
+  if (debug_)
+    std::cout<<"Prescale set is: "<<prescaleSet<<std::endl;
   for (unsigned int hltnum = 0; hltnum < trgNames.size(); ++hltnum) {
     std::string  tmpName     = trgNames.triggerName(hltnum);
-    int          trgIndex    = trgNames.triggerIndex(tmpName);
+    unsigned int trgIndex    = trgNames.triggerIndex(tmpName);
     int          trgResult   = hltHandle->accept(trgIndex);
     unsigned int trgPrescale = hltConfig.prescaleValue(ev,es,tmpName);
     hlttriggered[tmpName]    = trgResult;
     hltprescaled[tmpName]    = trgPrescale;
 
-    if (debug_>5) 
-      std::cout<<"HLT trigger named: "<<tmpName<<" has result "<<trgResult<<std::endl;
+    if (debug_) 
+      std::cout<<"HLT trigger named: "<<tmpName
+	       <<" has index "<<trgIndex
+	       <<" has result "<<trgResult
+	       <<" has prescale "<<trgPrescale
+	       <<std::endl;
   }
-
+  
   if (debug_>5)
     std::cout<<"Done analyzing triggers"<<std::endl;
   return trigger_result;
@@ -232,7 +236,6 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 //________________________________________________________________________________________
 
 void TriggerAnalyzerPAT::printHLTreport( void ) {
-
 
 }
 
