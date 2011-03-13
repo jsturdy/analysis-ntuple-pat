@@ -98,20 +98,20 @@ class VertexAnalyzerPAT {
   std::vector<double> vd_Vtxd0;
 
   void maintenance(const int& nVtx) {
-    vd_VtxNTrks.clear();
-    vd_VtxNRawTrks.clear();
-    vd_VtxChi2.clear();
-    vd_VtxNdof.clear();
-    vd_VtxIsValid.clear();
-    vd_VtxSumTrkPt.clear();
+    vd_VtxNTrks         .clear();
+    vd_VtxNRawTrks      .clear();
+    vd_VtxChi2          .clear();
+    vd_VtxNdof          .clear();
+    vd_VtxIsValid       .clear();
+    vd_VtxSumTrkPt      .clear();
     vd_VtxNormalizedChi2.clear();
-    vd_VtxX.clear();
-    vd_VtxY.clear();
-    vd_VtxZ.clear();
-    vd_VtxdX.clear();
-    vd_VtxdY.clear();
-    vd_VtxdZ.clear();
-    vd_Vtxd0.clear();
+    vd_VtxX             .clear();
+    vd_VtxY             .clear();
+    vd_VtxZ             .clear();
+    vd_VtxdX            .clear();
+    vd_VtxdY            .clear();
+    vd_VtxdZ            .clear();
+    vd_Vtxd0            .clear();
   }
 };
 

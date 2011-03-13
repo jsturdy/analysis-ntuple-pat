@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: LeptonAnalyzerPAT.cc,v 1.14 2011/03/07 18:04:37 sturdy Exp $
+// $Id: LeptonAnalyzerPAT.cc,v 1.15 2011/03/08 21:11:36 sturdy Exp $
 //
 //
 
@@ -657,7 +657,7 @@ void LeptonAnalyzerPAT::bookTTree() {
   mLeptonData->Branch(prefix_+"ElecVeto", &bool_ElecVeto, prefix_+"ElecVeto/O");
   //General electron information
   mLeptonData->Branch(prefix_+"ElectronP4", &v_elecP4);
-  mLeptonData->Branch(prefix_+"ElecN",      &i_ElecN,      prefix_+"ElecN/I");  
+  mLeptonData->Branch(prefix_+"ElecN",      &i_ElecN, prefix_+"ElecN/I");  
   
   mLeptonData->Branch(prefix_+"ElecCharge", &vd_ElecCharge);
   mLeptonData->Branch(prefix_+"ElecHOverE", &vd_ElecHOverE);
@@ -715,17 +715,17 @@ void LeptonAnalyzerPAT::bookTTree() {
   mLeptonData->Branch(prefix_+"ElecWidthClusterPhi",  &vd_ElecWidthClusterPhi);
   
   //Generator level information stored in the electron object
-  mLeptonData->Branch(prefix_+"ElecGenP4",     &v_genelecP4);
-  mLeptonData->Branch(prefix_+"ElecGenPdgId",   &vi_ElecGenPdgId);
-  mLeptonData->Branch(prefix_+"ElecGenStatus",  &vi_ElecGenStatus);
-  mLeptonData->Branch(prefix_+"ElecGenMother",  &vi_ElecGenMother);
+  mLeptonData->Branch(prefix_+"ElecGenP4",           &v_genelecP4);
+  mLeptonData->Branch(prefix_+"ElecGenPdgId",        &vi_ElecGenPdgId);
+  mLeptonData->Branch(prefix_+"ElecGenStatus",       &vi_ElecGenStatus);
+  mLeptonData->Branch(prefix_+"ElecGenMother",       &vi_ElecGenMother);
   mLeptonData->Branch(prefix_+"ElecGenMotherStatus", &vi_ElecGenMotherStatus);
 
   //add muons
   mLeptonData->Branch(prefix_+"MuonVeto", &bool_MuonVeto, prefix_+"MuonVeto/O");
   //General kinematic variables related to muons
   mLeptonData->Branch(prefix_+"MuonP4",        &v_muonP4);
-  mLeptonData->Branch(prefix_+"MuonN",         &i_MuonN,          prefix_+"MuonN/I");  
+  mLeptonData->Branch(prefix_+"MuonN",         &i_MuonN,  prefix_+"MuonN/I");  
   
   mLeptonData->Branch(prefix_+"MuonCharge",    &vd_MuonCharge);
   
@@ -808,17 +808,17 @@ void LeptonAnalyzerPAT::bookTTree() {
   mLeptonData->Branch(prefix_+"MuonTrkOuterR",    &vd_MuonTrkOuterR);
   
   //Generator level muon information
-  mLeptonData->Branch(prefix_+"MuonGenP4",     &v_genmuonP4);
-  mLeptonData->Branch(prefix_+"MuonGenPdgId",   &vi_MuonGenPdgId);
-  mLeptonData->Branch(prefix_+"MuonGenStatus",  &vi_MuonGenStatus);
-  mLeptonData->Branch(prefix_+"MuonGenMother",  &vi_MuonGenMother);
+  mLeptonData->Branch(prefix_+"MuonGenP4",           &v_genmuonP4);
+  mLeptonData->Branch(prefix_+"MuonGenPdgId",        &vi_MuonGenPdgId);
+  mLeptonData->Branch(prefix_+"MuonGenStatus",       &vi_MuonGenStatus);
+  mLeptonData->Branch(prefix_+"MuonGenMother",       &vi_MuonGenMother);
   mLeptonData->Branch(prefix_+"MuonGenMotherStatus", &vi_MuonGenMotherStatus);
   
   //add taus
   mLeptonData->Branch(prefix_+"TauVeto", &bool_TauVeto, prefix_+"TauVeto/O");
   //General tau information
   mLeptonData->Branch(prefix_+"TauP4", &v_tauP4);
-  mLeptonData->Branch(prefix_+"TauN",      &i_TauN,      prefix_+"TauN/I");  
+  mLeptonData->Branch(prefix_+"TauN",  &i_TauN,  prefix_+"TauN/I");  
   
   mLeptonData->Branch(prefix_+"TauCharge", &vd_TauCharge);
   
@@ -840,6 +840,7 @@ void LeptonAnalyzerPAT::bookTTree() {
   mLeptonData->Branch(prefix_+"TauIdNCfrFull",   &vf_TauIdNCfrFull);
   mLeptonData->Branch(prefix_+"TauIdNCfrHalf",   &vf_TauIdNCfrHalf);
   mLeptonData->Branch(prefix_+"TauIdNCfrQuarter",&vf_TauIdNCfrQuarter);
+  mLeptonData->Branch(prefix_+"TauIdNCfrTenth",  &vf_TauIdNCfrTenth);
 
   
   //Tau vertex information
@@ -852,13 +853,13 @@ void LeptonAnalyzerPAT::bookTTree() {
   mLeptonData->Branch(prefix_+"TauDz",     &vd_TauDz);
   
   //Generator level information stored in the tau object
-  mLeptonData->Branch(prefix_+"TauGenP4",    &v_gentauP4);
-  mLeptonData->Branch(prefix_+"TauGenJetP4", &v_gentaujetP4);
-  mLeptonData->Branch(prefix_+"TauGenPdgId",   &vi_TauGenPdgId);
-  mLeptonData->Branch(prefix_+"TauGenStatus",  &vi_TauGenStatus);
-  mLeptonData->Branch(prefix_+"TauGenMother",  &vi_TauGenMother);
+  mLeptonData->Branch(prefix_+"TauGenP4",           &v_gentauP4);
+  mLeptonData->Branch(prefix_+"TauGenJetP4",        &v_gentaujetP4);
+  mLeptonData->Branch(prefix_+"TauGenPdgId",        &vi_TauGenPdgId);
+  mLeptonData->Branch(prefix_+"TauGenStatus",       &vi_TauGenStatus);
+  mLeptonData->Branch(prefix_+"TauGenMother",       &vi_TauGenMother);
   mLeptonData->Branch(prefix_+"TauGenMotherStatus", &vi_TauGenMotherStatus);
-  mLeptonData->Branch(prefix_+"TauGen",      &vi_TauGen);
+  mLeptonData->Branch(prefix_+"TauGen",             &vi_TauGen);
   
   edm::LogInfo("LeptonEvent") << "Ntuple variables " << variables.str();
   

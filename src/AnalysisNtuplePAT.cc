@@ -14,7 +14,7 @@ Implementation:Uses the EventSelector interface for event selection and TFileSer
 //
 // Original Author:  Markus Stoye, (modified by Jared Sturdy from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: AnalysisNtuplePAT.cc,v 1.14 2011/03/07 19:01:28 sturdy Exp $
+// $Id: AnalysisNtuplePAT.cc,v 1.15 2011/03/08 21:11:36 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/AnalysisNtuplePAT.h"
@@ -295,12 +295,14 @@ AnalysisNtuplePAT::beginRun(const edm::Run& run, const edm::EventSetup&es) {
 //________________________________________________________________________________________
 void 
 AnalysisNtuplePAT::beginJob() {
+  nEvents_ = 0;
   //setup job before events
 }
 
 //________________________________________________________________________________________
 void 
 AnalysisNtuplePAT::endJob() {
+  mEventData->Fill();
   //cleanup after all events
   //printSummary();
 }
@@ -366,6 +368,9 @@ AnalysisNtuplePAT::initPlots() {
   
   // Register this ntuple
   edm::Service<TFileService> fs;
+  mEventData = fs->make<TTree>( "EventData", "data after preselection" );
+  mEventData->Branch("IsData",        &m_IsData,        "IsData/O");
+  mEventData->Branch("TotalEvents",   &nEvents_,        "TotalEvents/I");
 
   mAllData = fs->make<TTree>( "AllData", "data after preselection" );
   mAllData->SetAutoSave(10);
@@ -376,7 +381,6 @@ AnalysisNtuplePAT::initPlots() {
   mAllData->Branch("StoreN",        &m_StoreN,        "StoreN/I");
   mAllData->Branch("LumiSection",   &m_LumiSection,   "LumiSection/I");
   mAllData->Branch("BunchCrossing", &m_BunchCrossing, "BunchCrossing/I");
-  mAllData->Branch("IsData",        &m_IsData,        "IsData/O");
 
   //mJetData = fs->make<TTree>( "JetData", "Jet variables" );
   //mJetData->SetAutoSave(10);

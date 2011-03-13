@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.17 2011/03/07 18:04:37 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.18 2011/03/08 21:11:36 sturdy Exp $
 //
 //
 
@@ -385,6 +385,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 
 	if (debug_>5) std::cout<<"\n\nGetting corrections for calo jets\n\n"<<std::endl;
 
+	/*
 	//if (useCaloJets_) {
 	if (theJet.jecSetsAvailable()) {
 	  map_s_vd_correctionFactor["raw"].push_back(uncorrJet.jecFactor("Uncorrected"));
@@ -429,7 +430,8 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  map_s_vd_correctionFactor["part:c"].push_back(1);
 	  map_s_vd_correctionFactor["part:b"].push_back(1);
 	}
-
+	*/
+	
 	v_JetP4.push_back(theJet.p4());
 	v_RawJetP4.push_back(uncorrJet.p4());
 
@@ -673,7 +675,7 @@ void JetAnalyzerPAT::bookTTree() {
   mJetData->Branch(prefix_+"JetEtaPhiMoment",  &vd_JetEtaPhiMoment);
   mJetData->Branch(prefix_+"JetPhiPhiMoment",  &vd_JetPhiPhiMoment);
   //mJetData->Branch(prefix_+"JetHemi", &vi_JetHemi, prefix_+"JetHemi["+prefix_+"NJets]/I");
-  mJetData->Branch(prefix_+"JetCorrFactor",   &map_s_vd_correctionFactor);
+  //mJetData->Branch(prefix_+"JetCorrFactor",   &map_s_vd_correctionFactor);
   //mJetData->Branch(prefix_+"JetOverlaps",     &map_s_vi_JetOverlaps);
   //mJetData->Branch(prefix_+"JetNOverlaps",    &map_s_vi_JetNOverlaps);
   mJetData->Branch(prefix_+"AllJetElectronOverlaps",  &vi_JetElectronOverlaps);

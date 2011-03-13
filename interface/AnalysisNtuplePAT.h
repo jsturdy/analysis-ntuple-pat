@@ -68,11 +68,11 @@ private:
   int run_, event_;
 
   // Counters
-  unsigned int nrEventTotalRaw_;          ///< Raw number of events (+1 at each event)
-  double nrEventTotalWeighted_;           ///< Weighted #(events)
-  std::vector<float> nrEventSelected_;    ///< Selected #(events) for each module
-  std::vector<float> nrEventAllButOne_;   ///< All-but-one selected #(events) for each module
-  std::vector<float> nrEventCumulative_;  ///< Cumulative selected #(events) for each module
+  //unsigned int nrEventTotalRaw_;          ///< Raw number of events (+1 at each event)
+  //double nrEventTotalWeighted_;           ///< Weighted #(events)
+  //std::vector<float> nrEventSelected_;    ///< Selected #(events) for each module
+  //std::vector<float> nrEventAllButOne_;   ///< All-but-one selected #(events) for each module
+  //std::vector<float> nrEventCumulative_;  ///< Cumulative selected #(events) for each module
     
   // Plots
   TNtuple* ntuple_;      /// Will contain all the selector information we want to keep
@@ -86,8 +86,8 @@ private:
   //TTree * mGenParticleData;      /// Will contain the additional di-jet specific data
   //TTree * mTrackData;      /// Will contain the additional di-jet specific data
 
-  float* variables_;     ///< Container for the tree variables (from selectors)
-  bool   globalDec_;     ///< Global decision for event
+  //float* variables_;     ///< Container for the tree variables (from selectors)
+  //bool   globalDec_;     ///< Global decision for event
 
   int m_Run;
   int m_Event;
@@ -126,33 +126,33 @@ private:
   int passTriggers[2];
   //int passHemispheres[2];
   
-  JetAnalyzerPAT        * calojetinfo;
-  JetAnalyzerPAT        * jptjetinfo;
-  JetAnalyzerPAT        * pfjetinfo;
-  JetAnalyzerPAT        * pf2patjetinfo;
-  //JetAnalyzerPAT        * trackjetinfo;
+  JetAnalyzerPAT        *calojetinfo;
+  JetAnalyzerPAT        *jptjetinfo;
+  JetAnalyzerPAT        *pfjetinfo;
+  JetAnalyzerPAT        *pf2patjetinfo;
+  //JetAnalyzerPAT        *trackjetinfo;
 
-  METAnalyzerPAT        * calometinfo;
-  METAnalyzerPAT        * calomettypeiiinfo;
+  METAnalyzerPAT        *calometinfo;
+  METAnalyzerPAT        *calomettypeiiinfo;
 
-  METAnalyzerPAT        * pfmetinfo;
-  METAnalyzerPAT        * pfmettypeiinfo;
+  METAnalyzerPAT        *pfmetinfo;
+  METAnalyzerPAT        *pfmettypeiinfo;
 
-  METAnalyzerPAT        * tcmetinfo;
+  METAnalyzerPAT        *tcmetinfo;
 
-  //HemisphereAnalyzerPAT * heminfo;
+  //HemisphereAnalyzerPAT *heminfo;
 
-  PhotonAnalyzerPAT     * photons;
-  //PhotonAnalyzerPAT     * pfphotons;
+  PhotonAnalyzerPAT     *photons;
+  //PhotonAnalyzerPAT     *pfphotons;
 
-  LeptonAnalyzerPAT     * leptons;
-  LeptonAnalyzerPAT     * pfleptons;
+  LeptonAnalyzerPAT     *leptons;
+  LeptonAnalyzerPAT     *pfleptons;
 
-  VertexAnalyzerPAT     * vertex;
-  TrackAnalyzerPAT      * tracks;
-  TriggerAnalyzerPAT    * triggers;
+  VertexAnalyzerPAT     *vertex;
+  TrackAnalyzerPAT      *tracks;
+  TriggerAnalyzerPAT    *triggers;
 
-  MCTruthAnalyzerPAT    * geninfo;
+  MCTruthAnalyzerPAT    *geninfo;
 
 };
 #endif
