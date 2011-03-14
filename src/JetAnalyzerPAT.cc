@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.18 2011/03/08 21:11:36 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.19 2011/03/13 11:33:55 sturdy Exp $
 //
 //
 
@@ -153,11 +153,12 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   for (int k=0;k<i_NJets;k++){
 
     //const pat::Jet& theJet    = (*jetHandle)[k];
-    const pat::Jet& theJet    = (*jetHandle)[k].correctedJet(corrLevel);
+    //pat::Jet const& theJet    = (*jetHandle)[k].correctedJet(corrLevel);
+    pat::Jet const& theJet    = (*jetHandle)[k].correctedJet(corrLevel);
     //const pat::Jet& corrJet = theJet.correctedJet(corrLevel);
     
     //const pat::Jet& uncorrJet = (theJet.isCaloJet()) ? theJet.correctedJet("RAW"): theJet;
-    const pat::Jet& uncorrJet = (*jetHandle)[k].correctedJet("Uncorrected");
+    pat::Jet const& uncorrJet = (*jetHandle)[k].correctedJet("Uncorrected");
 
     /******************Construct the HT/MHT from the jet collection***************************/
     if (theJet.pt() > htMinPt_) {
@@ -326,12 +327,13 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 
 	vi_JetElectronNOverlaps.push_back(nElecOverlaps);
 	vi_JetElectronOverlaps .push_back(elecOverlap);
-	vi_JetMuonNOverlaps.push_back(nTauOverlaps);
-	vi_JetMuonOverlaps .push_back(tauOverlap);
-	vi_JetTauNOverlaps.push_back(nMuonOverlaps);
-	vi_JetTauOverlaps .push_back(muonOverlap);
-	vi_JetPhotonNOverlaps.push_back(nPhotOverlaps);
-	vi_JetPhotonOverlaps .push_back(photOverlap);
+	vi_JetMuonNOverlaps    .push_back(nTauOverlaps);
+	vi_JetMuonOverlaps     .push_back(tauOverlap);
+	vi_JetTauNOverlaps     .push_back(nMuonOverlaps);
+	vi_JetTauOverlaps      .push_back(muonOverlap);
+	vi_JetPhotonNOverlaps  .push_back(nPhotOverlaps);
+	vi_JetPhotonOverlaps   .push_back(photOverlap);
+
 	//JEC uncertainties  
 	//      if (jet.isJet()) {
 	jecUnc->setJetEta(theJet.eta());
@@ -388,47 +390,47 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	/*
 	//if (useCaloJets_) {
 	if (theJet.jecSetsAvailable()) {
-	  map_s_vd_correctionFactor["raw"].push_back(uncorrJet.jecFactor("Uncorrected"));
-	  //map_s_vd_correctionFactor["off"].push_back(uncorrJet.jecFactor("L1Offset"));
-	  map_s_vd_correctionFactor["rel"].push_back(uncorrJet.jecFactor("L2Relative"));
-	  map_s_vd_correctionFactor["abs"].push_back(uncorrJet.jecFactor("L3Absolute"));
+	  map_s_vf_correctionFactor["raw"].push_back(uncorrJet.jecFactor("Uncorrected"));
+	  //map_s_vf_correctionFactor["off"].push_back(uncorrJet.jecFactor("L1Offset"));
+	  map_s_vf_correctionFactor["rel"].push_back(uncorrJet.jecFactor("L2Relative"));
+	  map_s_vf_correctionFactor["abs"].push_back(uncorrJet.jecFactor("L3Absolute"));
 	  if (corrLevel=="L2L3Residual")
-	    map_s_vd_correctionFactor["residual"].push_back(uncorrJet.jecFactor("L2L3Residual"));
-	  //map_s_vd_correctionFactor["emf"].push_back(uncorrJet.jecFactor("L4Emf"));
-	  //map_s_vd_correctionFactor["had:glu"].push_back(uncorrJet.jecFactor("L5Flavor", "gluon"));
-	  //map_s_vd_correctionFactor["had:uds"].push_back(uncorrJet.jecFactor("L5Flavor", "uds"));
-	  //map_s_vd_correctionFactor["had:c"].push_back(uncorrJet.jecFactor("L5Flavor", "c"));
-	  //map_s_vd_correctionFactor["had:b"].push_back(uncorrJet.jecFactor("L5Flavor", "b"));
-	  //map_s_vd_correctionFactor["ue:glu"].push_back(uncorrJet.jecFactor("L6UE", "gluon"));
-	  //map_s_vd_correctionFactor["ue:uds"].push_back(uncorrJet.jecFactor("L6UE", "uds"));
-	  //map_s_vd_correctionFactor["ue:c"].push_back(uncorrJet.jecFactor("L6UE", "c"));
-	  //map_s_vd_correctionFactor["ue:b"].push_back(uncorrJet.jecFactor("L6UE", "b"));
-	  //map_s_vd_correctionFactor["part:glu"].push_back(uncorrJet.jecFactor("L7Parton", "gluon"));
-	  //map_s_vd_correctionFactor["part:uds"].push_back(uncorrJet.jecFactor("L7Parton", "uds"));
-	  //map_s_vd_correctionFactor["part:c"].push_back(uncorrJet.jecFactor("L7Parton", "c"));
-	  //map_s_vd_correctionFactor["part:b"].push_back(uncorrJet.jecFactor("L7Parton", "b"));
+	    map_s_vf_correctionFactor["residual"].push_back(uncorrJet.jecFactor("L2L3Residual"));
+	  //map_s_vf_correctionFactor["emf"].push_back(uncorrJet.jecFactor("L4Emf"));
+	  //map_s_vf_correctionFactor["had:glu"].push_back(uncorrJet.jecFactor("L5Flavor", "gluon"));
+	  //map_s_vf_correctionFactor["had:uds"].push_back(uncorrJet.jecFactor("L5Flavor", "uds"));
+	  //map_s_vf_correctionFactor["had:c"].push_back(uncorrJet.jecFactor("L5Flavor", "c"));
+	  //map_s_vf_correctionFactor["had:b"].push_back(uncorrJet.jecFactor("L5Flavor", "b"));
+	  //map_s_vf_correctionFactor["ue:glu"].push_back(uncorrJet.jecFactor("L6UE", "gluon"));
+	  //map_s_vf_correctionFactor["ue:uds"].push_back(uncorrJet.jecFactor("L6UE", "uds"));
+	  //map_s_vf_correctionFactor["ue:c"].push_back(uncorrJet.jecFactor("L6UE", "c"));
+	  //map_s_vf_correctionFactor["ue:b"].push_back(uncorrJet.jecFactor("L6UE", "b"));
+	  //map_s_vf_correctionFactor["part:glu"].push_back(uncorrJet.jecFactor("L7Parton", "gluon"));
+	  //map_s_vf_correctionFactor["part:uds"].push_back(uncorrJet.jecFactor("L7Parton", "uds"));
+	  //map_s_vf_correctionFactor["part:c"].push_back(uncorrJet.jecFactor("L7Parton", "c"));
+	  //map_s_vf_correctionFactor["part:b"].push_back(uncorrJet.jecFactor("L7Parton", "b"));
 	}
 
 	else {
 	  if (debug_>5) std::cout<<"\n\nGetting corrections for other jets\n\n"<<std::endl;
 
-	  map_s_vd_correctionFactor["raw"].push_back(1);
-	  map_s_vd_correctionFactor["off"].push_back(1);
-	  map_s_vd_correctionFactor["rel"].push_back(1);
-	  map_s_vd_correctionFactor["abs"].push_back(1);
-	  map_s_vd_correctionFactor["emf"].push_back(1);
-	  map_s_vd_correctionFactor["had:glu"].push_back(1);
-	  map_s_vd_correctionFactor["had:uds"].push_back(1);
-	  map_s_vd_correctionFactor["had:c"].push_back(1);
-	  map_s_vd_correctionFactor["had:b"].push_back(1);
-	  map_s_vd_correctionFactor["ue:glu"].push_back(1);
-	  map_s_vd_correctionFactor["ue:uds"].push_back(1);
-	  map_s_vd_correctionFactor["ue:c"].push_back(1);
-	  map_s_vd_correctionFactor["ue:b"].push_back(1);
-	  map_s_vd_correctionFactor["part:glu"].push_back(1);
-	  map_s_vd_correctionFactor["part:uds"].push_back(1);
-	  map_s_vd_correctionFactor["part:c"].push_back(1);
-	  map_s_vd_correctionFactor["part:b"].push_back(1);
+	  map_s_vf_correctionFactor["raw"].push_back(1);
+	  map_s_vf_correctionFactor["off"].push_back(1);
+	  map_s_vf_correctionFactor["rel"].push_back(1);
+	  map_s_vf_correctionFactor["abs"].push_back(1);
+	  map_s_vf_correctionFactor["emf"].push_back(1);
+	  map_s_vf_correctionFactor["had:glu"].push_back(1);
+	  map_s_vf_correctionFactor["had:uds"].push_back(1);
+	  map_s_vf_correctionFactor["had:c"].push_back(1);
+	  map_s_vf_correctionFactor["had:b"].push_back(1);
+	  map_s_vf_correctionFactor["ue:glu"].push_back(1);
+	  map_s_vf_correctionFactor["ue:uds"].push_back(1);
+	  map_s_vf_correctionFactor["ue:c"].push_back(1);
+	  map_s_vf_correctionFactor["ue:b"].push_back(1);
+	  map_s_vf_correctionFactor["part:glu"].push_back(1);
+	  map_s_vf_correctionFactor["part:uds"].push_back(1);
+	  map_s_vf_correctionFactor["part:c"].push_back(1);
+	  map_s_vf_correctionFactor["part:b"].push_back(1);
 	}
 	*/
 	
@@ -451,8 +453,8 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	if (debug_>5) 
 	  std::cout<<"\n\nSetting up jetid\n\n"<<std::endl;
 	if (useCaloJets_ || useJPTJets_) {
-	  JetIDSelectionFunctor jetIDMinimal( JetIDSelectionFunctor::PURE09,
-	  				      JetIDSelectionFunctor::MINIMAL );
+	  //JetIDSelectionFunctor jetIDMinimal( JetIDSelectionFunctor::PURE09,
+	  //			      JetIDSelectionFunctor::MINIMAL );
 	  
 	  JetIDSelectionFunctor jetIDLoose( JetIDSelectionFunctor::PURE09,
 	  				    JetIDSelectionFunctor::LOOSE );
@@ -460,7 +462,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  JetIDSelectionFunctor jetIDTight( JetIDSelectionFunctor::PURE09,
 	  				    JetIDSelectionFunctor::TIGHT );
 	  
-	  retmin = jetIDMinimal.getBitTemplate();
+	  //retmin = jetIDMinimal.getBitTemplate();
 	  retloo = jetIDLoose.getBitTemplate();
 	  rettig = jetIDTight.getBitTemplate();
 	  
@@ -477,8 +479,8 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  //thejetid.JetfHPD = theJet.jetID().fHPD;
 	  //thejetid.JetfRBX = theJet.jetID().fRBX;
 	  
-	  retmin.set(false);
-	  vb_JetIDMinimal.push_back(jetIDMinimal(theJet, retmin));
+	  //retmin.set(false);
+	  //vb_JetIDMinimal.push_back(jetIDMinimal(theJet, retmin));
 	  retloo.set(false);
 	  vb_JetIDLoose.push_back(jetIDLoose(theJet, retloo));
 	  rettig.set(false);
@@ -661,7 +663,6 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 void JetAnalyzerPAT::bookTTree() {
 
   std::ostringstream variables; // Container for all variables
-  
 
   mJetData->Branch(prefix_+"NJets",   &i_NJets,   prefix_+"NJets/I");  
   //mJetData->Branch(prefix_+"JetMHt",  &JetMHt);
@@ -675,7 +676,7 @@ void JetAnalyzerPAT::bookTTree() {
   mJetData->Branch(prefix_+"JetEtaPhiMoment",  &vd_JetEtaPhiMoment);
   mJetData->Branch(prefix_+"JetPhiPhiMoment",  &vd_JetPhiPhiMoment);
   //mJetData->Branch(prefix_+"JetHemi", &vi_JetHemi, prefix_+"JetHemi["+prefix_+"NJets]/I");
-  //mJetData->Branch(prefix_+"JetCorrFactor",   &map_s_vd_correctionFactor);
+  //mJetData->Branch(prefix_+"JetCorrFactor",   &map_s_vf_correctionFactor);
   //mJetData->Branch(prefix_+"JetOverlaps",     &map_s_vi_JetOverlaps);
   //mJetData->Branch(prefix_+"JetNOverlaps",    &map_s_vi_JetNOverlaps);
   mJetData->Branch(prefix_+"AllJetElectronOverlaps",  &vi_JetElectronOverlaps);
@@ -728,7 +729,7 @@ void JetAnalyzerPAT::bookTTree() {
   mJetData->Branch(prefix_+"JetFhad",   &vd_JetFhad);
   mJetData->Branch(prefix_+"JetCharge", &vd_JetCharge);
   mJetData->Branch(prefix_+"JetNConst", &vi_JetNConst);
-  mJetData->Branch(prefix_+"JetIDMinimal", &vb_JetIDMinimal);
+  //mJetData->Branch(prefix_+"JetIDMinimal", &vb_JetIDMinimal);
   mJetData->Branch(prefix_+"JetIDLoose",   &vb_JetIDLoose);
   mJetData->Branch(prefix_+"JetIDTight",   &vb_JetIDTight);
   

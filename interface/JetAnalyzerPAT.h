@@ -43,7 +43,7 @@
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 
-                                                                                                                                                                                                                   
+
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
@@ -74,7 +74,7 @@ class JetAnalyzerPAT {
   } MYMHT;
 
   typedef struct {
-    bool   JetIDMinimal;
+    //bool   JetIDMinimal;
     bool   JetIDLoose;
     bool   JetIDTight;
   
@@ -174,7 +174,7 @@ class JetAnalyzerPAT {
   // Plots
   TTree * mJetData;      /// Will contain the data passing the jet selection
 
-  std::map<std::string, std::vector<float> > map_s_vd_correctionFactor;
+  std::map<std::string, std::vector<float> > map_s_vf_correctionFactor;
   //std::map<std::string, std::vector<int> >   map_s_vi_JetOverlaps;
   //std::map<std::string, std::vector<int> >   map_s_vi_JetNOverlaps;
   std::vector<int>                           vi_JetElectronOverlaps;
@@ -209,11 +209,11 @@ class JetAnalyzerPAT {
   std::vector<double> vd_JetPhiPhiMoment;
 
   //JetID variables
-  pat::strbitset retmin;
+  //pat::strbitset retmin;
   pat::strbitset retloo;
   pat::strbitset rettig;
 
-  std::vector<bool>   vb_JetIDMinimal;
+  //std::vector<bool>   vb_JetIDMinimal;
   std::vector<bool>   vb_JetIDLoose;
   std::vector<bool>   vb_JetIDTight;
   
@@ -289,7 +289,7 @@ class JetAnalyzerPAT {
 
   void maintenance(const int& nJets) {
     //Setup the vectors
-    map_s_vd_correctionFactor.clear();
+    map_s_vf_correctionFactor.clear();
 
     //map_s_vi_JetNOverlaps.clear();
     //map_s_vi_JetOverlaps.clear();
@@ -314,7 +314,7 @@ class JetAnalyzerPAT {
     vd_JetEtaPhiMoment.clear();
     vd_JetPhiPhiMoment.clear();
     
-    vb_JetIDMinimal.clear();
+    //vb_JetIDMinimal.clear();
     vb_JetIDLoose.clear();
     vb_JetIDTight.clear();
     
@@ -374,6 +374,93 @@ class JetAnalyzerPAT {
     vi_JetPartonMother.clear();
     vi_JetPartonMotherStatus.clear();
     vi_JetPartonFlavour.clear();
+
+    ////
+    std::map<std::string,std::vector<float> >().swap(map_s_vf_correctionFactor);
+
+    //std::map<std::string,std::vector<int> >().swap(map_s_vi_JetNOverlaps);
+    //std::map<std::string,std::vector<int> >().swap(map_s_vi_JetOverlaps);
+
+    std::vector<int>().swap(vi_JetElectronNOverlaps);
+    std::vector<int>().swap(vi_JetElectronOverlaps);
+    std::vector<int>().swap(vi_JetMuonNOverlaps);
+    std::vector<int>().swap(vi_JetMuonOverlaps);
+    std::vector<int>().swap(vi_JetTauNOverlaps);
+    std::vector<int>().swap(vi_JetTauOverlaps);
+    std::vector<int>().swap(vi_JetPhotonNOverlaps);
+    std::vector<int>().swap(vi_JetPhotonOverlaps);
+
+    std::vector<float>().swap(vf_JECUncPlus);
+    std::vector<float>().swap(vf_JECUncMinus);
+    
+    std::vector<reco::Candidate::LorentzVector>().swap(v_JetP4);
+    std::vector<reco::Candidate::LorentzVector>().swap(v_RawJetP4);
+    std::vector<reco::Candidate::LorentzVector>().swap(v_GenJetP4);
+    
+    std::vector<double>().swap(vd_JetEtaEtaMoment);
+    std::vector<double>().swap(vd_JetEtaPhiMoment);
+    std::vector<double>().swap(vd_JetPhiPhiMoment);
+    
+    //std::vector<bool>().swap(vb_JetIDMinimal);
+    std::vector<bool>().swap(vb_JetIDLoose);
+    std::vector<bool>().swap(vb_JetIDTight);
+    
+    std::vector<double>().swap(vd_JetFem);
+    std::vector<double>().swap(vd_JetFhad);
+    std::vector<double>().swap(vd_JetCharge);
+    std::vector<int>().swap(vi_JetHemi);
+    std::vector<int>().swap(vi_JetNConst);
+    std::vector<double>().swap(vd_JetfHPD);
+    std::vector<double>().swap(vd_JetfRBX);
+    std::vector<double>().swap(vd_JetN90);
+    
+    std::vector<double>().swap(vd_JetChargedFem);
+    std::vector<double>().swap(vd_JetNeutralFem);
+    std::vector<double>().swap(vd_JetChargedFhad);
+    std::vector<double>().swap(vd_JetNeutralFhad);
+    std::vector<double>().swap(vd_JetChargedMult);
+    std::vector<double>().swap(vd_JetNeutralMult);
+    std::vector<double>().swap(vd_JetElecMult);
+    std::vector<double>().swap(vd_JetMuonMult);
+    
+    std::vector<double>().swap(vd_JetChargedFmu);
+    std::vector<double>().swap(vd_JetChargedFele);
+    std::vector<double>().swap(vd_JetChargedFpho);
+    std::vector<double>().swap(vd_JetHFFem);
+    std::vector<double>().swap(vd_JetHFFhad);
+    std::vector<double>().swap(vd_JetChargedHadMult);
+    std::vector<double>().swap(vd_JetNeutralHadMult);
+    std::vector<double>().swap(vd_JetHFHadMult);
+    std::vector<double>().swap(vd_JetHFEMMult);
+    std::vector<double>().swap(vd_JetHFMult);
+    std::vector<double>().swap(vd_JetPhotonMult);
+    
+    std::vector<int>().swap(vi_JetTrackNo);
+    std::vector<double>().swap(vd_JetTrackPhi);
+    std::vector<double>().swap(vd_JetTrackPhiWeighted);
+    std::vector<double>().swap(vd_JetTrackPt);
+    
+    std::vector<double>().swap(vd_JetMCCorrFactor);
+    std::vector<double>().swap(vd_JetJPTCorrFactor);
+    
+    std::vector<double>().swap(vd_JetBTag_TCHE);
+    std::vector<double>().swap(vd_JetBTag_TCHP);
+    std::vector<double>().swap(vd_JetBTag_jetProb);
+    std::vector<double>().swap(vd_JetBTag_jetBProb);
+    std::vector<double>().swap(vd_JetBTag_SSVHE);
+    std::vector<double>().swap(vd_JetBTag_SSVHP);
+    std::vector<double>().swap(vd_JetBTag_CSV);
+    std::vector<double>().swap(vd_JetBTag_CSVMVA);
+    std::vector<double>().swap(vd_JetBTag_SoftLepton);
+    std::vector<double>().swap(vd_JetBTag_SoftLeptonByIP);
+    std::vector<double>().swap(vd_JetBTag_SoftLeptonByPt);
+    
+    std::vector<reco::Candidate::LorentzVector>().swap(v_JetPartonP4);
+    std::vector<int>().swap(vi_JetPartonId);
+    std::vector<int>().swap(vi_JetPartonStatus);
+    std::vector<int>().swap(vi_JetPartonMother);
+    std::vector<int>().swap(vi_JetPartonMotherStatus);
+    std::vector<int>().swap(vi_JetPartonFlavour);
   }
 };
 #endif

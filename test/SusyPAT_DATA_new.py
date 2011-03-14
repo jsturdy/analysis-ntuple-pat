@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PAT")
+#process = cms.Process("NTUPLE")
 
 #-- VarParsing ----------------------------------------------------------------
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -41,7 +42,56 @@ print("hltname:"+options.hltname)
 
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0001/2CA3BE43-200E-E011-9899-00261894389E.root'),
+    fileNames = cms.untracked.vstring(
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/0217C878-BB0D-E011-B7D2-003048678B14.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/02FE72AD-DB0D-E011-814A-0018F3D096A4.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/0C274620-C70D-E011-A6C7-001A92971BD6.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/160C265E-B50D-E011-B18D-0026189437E8.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/1855D63E-ED0D-E011-B5E0-001A928116EE.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/1C3A372C-CF0D-E011-A0D6-003048D15E2C.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/1C854310-DA0D-E011-A8BF-002618FDA210.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/1E180735-E40D-E011-AB2B-0026189438DE.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/24D5AA5A-D00D-E011-B833-001A92971B96.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/28576202-E60D-E011-BD95-002618943870.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/2C2733AA-E90D-E011-90DF-002618943870.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/2C4F4445-CF0D-E011-A473-0018F3D096BA.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/30FC8258-D10D-E011-BC95-002618943950.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/32B08C1E-DD0D-E011-8063-00304867904E.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/44C67412-C50D-E011-8EC5-003048678D52.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/4644E549-010E-E011-8214-00261894387E.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/4A05893F-CB0D-E011-9C34-003048678F92.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/4A204987-F80D-E011-9DAB-00304867C0C4.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/4C13F7A9-BF0D-E011-A34C-003048678DA2.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/4C37A366-D30D-E011-9FDA-0026189438B0.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/5A6A6C22-C20D-E011-9258-00304867BED8.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/5CBF9D4E-D10D-E011-8D7F-001A9281170C.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/62625828-D00D-E011-9C5A-002618943950.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/64A78527-F30D-E011-A7E3-0018F3D096F6.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/68F3C4F3-D80D-E011-8891-00304867C1BA.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/7247BFA2-EF0D-E011-9237-003048678F02.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/743647B1-DB0D-E011-A8BC-001A92971B96.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/822B117A-D20D-E011-962E-002618943885.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/863D7935-DA0D-E011-89B0-003048679214.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/8CCEAF45-010E-E011-B15C-002354EF3BE3.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/8CF873F0-AE0D-E011-A380-0026189438B0.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/92C336BE-D90D-E011-A381-00304867C1BA.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/94F8DFB5-C00D-E011-BC08-002618943864.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/9AD0BD9C-BE0D-E011-BF31-0018F3D0970A.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/A467A738-CF0D-E011-82F6-003048678FF4.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/A615C775-B30D-E011-9AC6-0030486792B6.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/B27FCB43-E30D-E011-909F-003048678FDE.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/BE26312B-C50D-E011-B796-0030486790B0.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/C2685434-DA0D-E011-B6E5-0018F3D09692.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/C6DFC096-FE0D-E011-8E83-001A92971B7E.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/C83B269D-020E-E011-A42F-003048D15DDA.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/CAA64DC3-AC0D-E011-AAF3-003048D15DB6.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/DC696035-CB0D-E011-950B-003048678D52.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/E6EAEE81-E20D-E011-B91F-001A92811702.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/F64BF2B1-E80D-E011-A7DF-002354EF3BE0.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/F6888514-F70D-E011-9488-001A92971B48.root',
+    '/store/data/Run2010B/Photon/RECO/Dec22ReReco_v1/0000/F6B2C77C-B40D-E011-B2A7-0018F3D0962C.root'
+    #'file:/tmp/sturdy/SUSYPAT_V9_DATA.root'
+    ),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
 process.JPTAntiKt5JetExtender = cms.EDProducer("JetExtender",
@@ -18035,7 +18085,8 @@ process.susyStep = cms.Sequence(process.susyPatDefaultSequence)
 
 process.p = cms.Path(process.cleanEvents*process.susyStep*process.theNtupler)
 
-
+#process.p = cms.Path(process.cleanEvents*process.theNtupler)
+#process.p = cms.Path(process.cleanEvents*process.susyStep)
 #process.outpath = cms.EndPath(process.out)
 
 
@@ -20802,9 +20853,9 @@ process.combinedSecondaryVertexCommon = cms.PSet(
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.34 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('SUSY pattuple definition'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/PhysicsTools/Configuration/test/SUSY_pattuple_cfg.py,v $')
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/UserCode/JSturdy/SUSY/AnalysisNtuplePAT/test/SusyPAT_DATA_new.py,v $')
 )
 
 process.fieldScaling = cms.PSet(
@@ -20966,7 +21017,7 @@ process.looseSoftPFElectronCleanerForwardCuts = cms.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(5000)
 )
 
 process.mcTruthAnalyzerPAT = cms.untracked.PSet(

@@ -130,6 +130,10 @@ class METAnalyzerPAT {
     corrX.clear();
     corrY.clear();
     corrSumET.clear();
+
+    std::map<std::string,float>().swap(corrX);
+    std::map<std::string,float>().swap(corrY);
+    std::map<std::string,float>().swap(corrSumET);
   }
 };
 

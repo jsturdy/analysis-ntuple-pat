@@ -98,6 +98,7 @@ class VertexAnalyzerPAT {
   std::vector<double> vd_Vtxd0;
 
   void maintenance(const int& nVtx) {
+    //for c++0x?
     vd_VtxNTrks         .clear();
     vd_VtxNRawTrks      .clear();
     vd_VtxChi2          .clear();
@@ -112,6 +113,38 @@ class VertexAnalyzerPAT {
     vd_VtxdY            .clear();
     vd_VtxdZ            .clear();
     vd_Vtxd0            .clear();
+
+    //vd_VtxNTrks         .shrink_to_fit();
+    //vd_VtxNRawTrks      .shrink_to_fit();
+    //vd_VtxChi2          .shrink_to_fit();
+    //vd_VtxNdof          .shrink_to_fit();
+    //vd_VtxIsValid       .shrink_to_fit();
+    //vd_VtxSumTrkPt      .shrink_to_fit();
+    //vd_VtxNormalizedChi2.shrink_to_fit();
+    //vd_VtxX             .shrink_to_fit();
+    //vd_VtxY             .shrink_to_fit();
+    //vd_VtxZ             .shrink_to_fit();
+    //vd_VtxdX            .shrink_to_fit();
+    //vd_VtxdY            .shrink_to_fit();
+    //vd_VtxdZ            .shrink_to_fit();
+    //vd_Vtxd0            .shrink_to_fit();
+
+    //for c++03?
+    std::vector<double>().swap(vd_VtxNTrks         );
+    std::vector<double>().swap(vd_VtxNRawTrks      );
+    std::vector<double>().swap(vd_VtxChi2          );
+    std::vector<double>().swap(vd_VtxNdof          );
+    std::vector<double>().swap(vd_VtxIsValid       );
+    std::vector<double>().swap(vd_VtxSumTrkPt      );
+    std::vector<double>().swap(vd_VtxNormalizedChi2);
+    std::vector<double>().swap(vd_VtxX             );
+    std::vector<double>().swap(vd_VtxY             );
+    std::vector<double>().swap(vd_VtxZ             );
+    std::vector<double>().swap(vd_VtxdX            );
+    std::vector<double>().swap(vd_VtxdY            );
+    std::vector<double>().swap(vd_VtxdZ            );
+    std::vector<double>().swap(vd_Vtxd0            );
+
   }
 };
 

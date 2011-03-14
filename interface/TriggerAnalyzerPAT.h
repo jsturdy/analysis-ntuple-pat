@@ -35,7 +35,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 
 
-//to access trigger names                                                                                                                                                                                                                   
+//to access trigger names
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
@@ -100,6 +100,11 @@ private:
     l1prescaled.clear();
     hlttriggered.clear();
     hltprescaled.clear();
+
+    std::map<std::string,bool>().swap(l1triggered);
+    std::map<std::string,int>() .swap(l1prescaled);
+    std::map<std::string,bool>().swap(hlttriggered);
+    std::map<std::string,int>() .swap(hltprescaled);
   }
 };
 

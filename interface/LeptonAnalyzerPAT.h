@@ -355,6 +355,69 @@ private:
     
     vd_ElecECalIsoDeposit.clear();
     vd_ElecHCalIsoDeposit.clear();
+
+
+    /////
+    std::vector<reco::Candidate::LorentzVector>().swap(v_elecP4);
+    std::vector<reco::Candidate::LorentzVector>().swap(v_genelecP4);
+    
+    std::vector<double>().swap(vd_ElecTrkIso);
+    std::vector<double>().swap(vd_ElecECalIso);
+    std::vector<double>().swap(vd_ElecHCalIso);
+    std::vector<double>().swap(vd_ElecAllIso);
+
+    std::vector<double>().swap(vd_ElecPFAllParticleIso);
+    std::vector<double>().swap(vd_ElecPFChargedHadronIso);
+    std::vector<double>().swap(vd_ElecPFNeutralHadronIso);
+    std::vector<double>().swap(vd_ElecPFGammaIso);
+
+    std::vector<double>().swap(vd_ElecTrkChiNorm);
+    std::vector<double>().swap(vd_ElecCharge);
+    
+    std::vector<float>().swap(vf_ElecIdLoose);
+    std::vector<float>().swap(vf_ElecIdTight);
+    std::vector<float>().swap(vf_ElecIdRobLoose);
+    std::vector<float>().swap(vf_ElecIdRobTight);
+    std::vector<float>().swap(vf_ElecIdRobHighE);
+    std::vector<double>().swap(vd_ElecChargeMode);
+    std::vector<double>().swap(vd_ElecPtTrkMode);
+    std::vector<double>().swap(vd_ElecQOverPErrTrkMode);
+    
+    std::vector<double>().swap(vd_ElecE2OverE9);
+    std::vector<double>().swap(vd_ElecSwissCross);
+    //std::vector<double>().swap(vd_ElecTSeed);
+    std::vector<double>().swap(vd_ElecSigmaIetaIeta);
+    std::vector<double>().swap(vd_ElecHadOverEM);
+
+    std::vector<int>().swap(vi_ElecGenPdgId);
+    std::vector<int>().swap(vi_ElecGenStatus);
+    std::vector<int>().swap(vi_ElecGenMother);
+    std::vector<int>().swap(vi_ElecGenMotherStatus);
+    
+    std::vector<double>().swap(vd_ElecCaloEnergy);
+    std::vector<double>().swap(vd_ElecHOverE);
+    std::vector<double>().swap(vd_ElecVx);
+    std::vector<double>().swap(vd_ElecVy);
+    std::vector<double>().swap(vd_ElecVz);
+    std::vector<double>().swap(vd_ElecD0);
+    std::vector<double>().swap(vd_ElecD0Err);
+    std::vector<double>().swap(vd_ElecDz);
+    std::vector<double>().swap(vd_ElecPtTrk);
+    std::vector<double>().swap(vd_ElecQOverPErrTrk);
+    std::vector<double>().swap(vd_ElecLostHits);
+    std::vector<double>().swap(vd_ElecValidHits);
+    //std::vector<double>().swap(vd_ElecNCluster);
+    std::vector<double>().swap(vd_ElecEtaTrk);
+    std::vector<double>().swap(vd_ElecPhiTrk);
+    std::vector<double>().swap(vd_ElecWidthClusterEta);
+    std::vector<double>().swap(vd_ElecWidthClusterPhi);
+    std::vector<double>().swap(vd_ElecPinTrk);
+    std::vector<double>().swap(vd_ElecPoutTrk);
+    std::vector<double>().swap(vd_ElecNormChi2);
+    //std::vector<bool>().swap(vb_ccElecAssoc);
+    
+    std::vector<double>().swap(vd_ElecECalIsoDeposit);
+    std::vector<double>().swap(vd_ElecHCalIsoDeposit);
   }
 
   void maintenanceMuons(const int& nMuons) {
@@ -442,6 +505,93 @@ private:
     vi_MuonGenStatus.clear();
     vi_MuonGenMother.clear();
     vi_MuonGenMotherStatus.clear();
+
+
+    //////
+    std::vector<reco::Candidate::LorentzVector>().swap(v_muonP4);
+    std::vector<reco::Candidate::LorentzVector>().swap(v_genmuonP4);
+
+    std::vector<double>().swap(vd_MuonTrkIso);
+    std::vector<double>().swap(vd_MuonECalIso);
+    std::vector<double>().swap(vd_MuonHCalIso);
+    std::vector<double>().swap(vd_MuonAllIso);
+
+    std::vector<double>().swap(vd_MuonPFAllParticleIso);
+    std::vector<double>().swap(vd_MuonPFChargedHadronIso);
+    std::vector<double>().swap(vd_MuonPFNeutralHadronIso);
+    std::vector<double>().swap(vd_MuonPFGammaIso);
+
+    std::vector<double>().swap(vd_MuonTrkChiNorm);
+    std::vector<double>().swap(vd_MuonCharge);
+
+    std::vector<bool>().swap(vb_MuonIsGlobal);
+    std::vector<bool>().swap(vb_MuonIsStandAlone);
+    std::vector<bool>().swap(vb_MuonIsTracker);
+
+    std::vector<bool>().swap(vb_MuonGlobalMuonPromptTight);
+
+    std::vector<bool>().swap(vb_MuonAllArbitrated);
+    std::vector<bool>().swap(vb_MuonTrackerMuonArbitrated);
+    std::vector<bool>().swap(vb_MuonGMTkKinkTight);
+    std::vector<bool>().swap(vb_MuonGMTkChiCompatibility);
+    std::vector<bool>().swap(vb_MuonGMStaChiCompatibility);
+    std::vector<bool>().swap(vb_MuonTM2DCompatibilityLoose);
+    std::vector<bool>().swap(vb_MuonTM2DCompatibilityTight);
+    std::vector<bool>().swap(vb_MuonTMOneStationLoose);
+    std::vector<bool>().swap(vb_MuonTMOneStationTight);
+    std::vector<bool>().swap(vb_MuonTMLastStationLoose);
+    std::vector<bool>().swap(vb_MuonTMLastStationTight);
+    std::vector<bool>().swap(vb_MuonTMLastStationAngLoose);
+    std::vector<bool>().swap(vb_MuonTMLastStationAngTight);
+    std::vector<bool>().swap(vb_MuonTMLastStationOptimizedLowPtLoose);
+    std::vector<bool>().swap(vb_MuonTMLastStationOptimizedLowPtTight);
+    std::vector<bool>().swap(vb_MuonTMLastStationOptimizedBarrelLowPtLoose);
+    std::vector<bool>().swap(vb_MuonTMLastStationOptimizedBarrelLowPtTight);
+
+    std::vector<double>().swap(vd_MuonECalIsoDeposit);
+    std::vector<double>().swap(vd_MuonHCalIsoDeposit);
+  
+    std::vector<double>().swap(vd_MuonCombChi2);
+    std::vector<double>().swap(vd_MuonCombNdof);
+    std::vector<double>().swap(vd_MuonTrkD0);
+    std::vector<double>().swap(vd_MuonTrkD0Err);
+  
+    std::vector<double>().swap(vd_MuonId);
+    std::vector<double>().swap(vd_MuonCombVx);
+    std::vector<double>().swap(vd_MuonCombVy);
+    std::vector<double>().swap(vd_MuonCombVz);
+    std::vector<double>().swap(vd_MuonCombD0);
+    std::vector<double>().swap(vd_MuonCombD0Err);
+    std::vector<double>().swap(vd_MuonCombDz);
+
+    std::vector<double>().swap(vd_MuonStandValidHits);
+    std::vector<double>().swap(vd_MuonStandLostHits);
+    std::vector<double>().swap(vd_MuonStandPt);
+    std::vector<double>().swap(vd_MuonStandPz);
+    std::vector<double>().swap(vd_MuonStandP);
+    std::vector<double>().swap(vd_MuonStandEta);
+    std::vector<double>().swap(vd_MuonStandPhi);
+    std::vector<double>().swap(vd_MuonStandChi);
+    std::vector<double>().swap(vd_MuonStandCharge);
+    std::vector<double>().swap(vd_MuonStandQOverPErr);
+
+    std::vector<double>().swap(vd_MuonTrkValidHits);
+    std::vector<double>().swap(vd_MuonTrkLostHits);
+    std::vector<double>().swap(vd_MuonTrkPt);
+    std::vector<double>().swap(vd_MuonTrkPz);
+    std::vector<double>().swap(vd_MuonTrkP);
+    std::vector<double>().swap(vd_MuonTrkEta);
+    std::vector<double>().swap(vd_MuonTrkPhi);
+    std::vector<double>().swap(vd_MuonTrkChi);
+    std::vector<double>().swap(vd_MuonTrkCharge);
+    std::vector<double>().swap(vd_MuonTrkQOverPErr);
+    std::vector<double>().swap(vd_MuonTrkOuterZ);
+    std::vector<double>().swap(vd_MuonTrkOuterR);
+
+    std::vector<int>().swap(vi_MuonGenPdgId);
+    std::vector<int>().swap(vi_MuonGenStatus);
+    std::vector<int>().swap(vi_MuonGenMother);
+    std::vector<int>().swap(vi_MuonGenMotherStatus);
   }
 
   void maintenanceTaus(const int& nTaus) {
@@ -483,6 +633,46 @@ private:
     vf_TauIdNCfrQuarter.clear();
     vf_TauIdNCfrTenth.clear();
     vf_TauIdNCfrFull.clear();
+
+    ///////
+    std::map<std::string,TauIDType>().swap(tauidMap);
+  
+    std::vector<reco::Candidate::LorentzVector>().swap(v_tauP4);
+    std::vector<reco::Candidate::LorentzVector>().swap(v_gentauP4);
+    std::vector<reco::Candidate::LorentzVector>().swap(v_gentaujetP4);
+    std::vector<double>().swap(vd_TauCharge);
+
+    std::vector<int>().swap(vi_TauGenPdgId);
+    std::vector<int>().swap(vi_TauGenStatus);
+    std::vector<int>().swap(vi_TauGenMother);
+    std::vector<int>().swap(vi_TauGenMotherStatus);
+    std::vector<int>().swap(vi_TauGen);
+    
+    std::vector<double>().swap(vd_TauTrkIso);
+    std::vector<double>().swap(vd_TauECalIso);
+    std::vector<double>().swap(vd_TauHCalIso);
+    std::vector<double>().swap(vd_TauAllIso);
+
+    std::vector<double>().swap(vd_TauPFAllParticleIso);
+    std::vector<double>().swap(vd_TauPFChargedHadronIso);
+    std::vector<double>().swap(vd_TauPFNeutralHadronIso);
+    std::vector<double>().swap(vd_TauPFGammaIso);
+
+    std::vector<double>().swap(vd_TauVx);
+    std::vector<double>().swap(vd_TauVy);
+    std::vector<double>().swap(vd_TauVz);
+    std::vector<double>().swap(vd_TauD0);
+    std::vector<double>().swap(vd_TauD0Err);
+    std::vector<double>().swap(vd_TauDz);
+
+
+    std::vector<float>().swap(vf_TauIdElec);
+    std::vector<float>().swap(vf_TauIdMuon);
+    std::vector<float>().swap(vf_TauIdIso);
+    std::vector<float>().swap(vf_TauIdNCfrHalf);
+    std::vector<float>().swap(vf_TauIdNCfrQuarter);
+    std::vector<float>().swap(vf_TauIdNCfrTenth);
+    std::vector<float>().swap(vf_TauIdNCfrFull);
   }  
 };
 

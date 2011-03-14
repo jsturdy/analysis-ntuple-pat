@@ -87,6 +87,18 @@ private:
     vi_genParticleRefs     .clear();
     vi_genParticleStatus   .clear();
     vi_genParticleDaughters.clear();
+
+    std::vector<reco::Candidate::LorentzVector>().swap(v_genP4);
+    std::vector<int>().swap(vi_genIds      );
+    std::vector<int>().swap(vi_genRefs     );
+    std::vector<int>().swap(vi_genStatus   );
+    std::vector<int>().swap(vi_genDaughters);
+    
+    std::vector<reco::Candidate::LorentzVector>().swap(v_genParticleP4);
+    std::vector<int>().swap(vi_genParticleIds      );
+    std::vector<int>().swap(vi_genParticleRefs     );
+    std::vector<int>().swap(vi_genParticleStatus   );
+    std::vector<int>().swap(vi_genParticleDaughters);
   }
 
 };
