@@ -13,7 +13,7 @@ Description: Collects variables related to vertices, performs a primary vertex c
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: VertexAnalyzerPAT.cc,v 1.9 2010/11/02 13:55:18 sturdy Exp $
+// $Id: VertexAnalyzerPAT.cc,v 1.10 2011/03/08 21:11:36 sturdy Exp $
 //
 //
 
@@ -112,7 +112,7 @@ bool VertexAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   int numVtx   = 0;
   int tmpNtrks = 0;
   if (tmpnVtx > 10) tmpnVtx = 10;
-  maintenance(tmpnVtx);
+  maintenance();
   vd_VtxSumTrkPt.resize(tmpnVtx);
   for (int i=0; i< tmpnVtx; i++){  
     const reco::Vertex& pVertex = (*vertices)[i];

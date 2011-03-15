@@ -74,7 +74,7 @@ class JetAnalyzerPAT {
   } MYMHT;
 
   typedef struct {
-    //bool   JetIDMinimal;
+    bool   JetIDMinimal;
     bool   JetIDLoose;
     bool   JetIDTight;
   
@@ -209,13 +209,13 @@ class JetAnalyzerPAT {
   std::vector<double> vd_JetPhiPhiMoment;
 
   //JetID variables
-  //pat::strbitset retmin;
+  pat::strbitset retmin;
   pat::strbitset retloo;
   pat::strbitset rettig;
 
-  //std::vector<bool>   vb_JetIDMinimal;
-  std::vector<bool>   vb_JetIDLoose;
-  std::vector<bool>   vb_JetIDTight;
+  std::vector<int>   vb_JetIDMinimal;
+  std::vector<int>   vb_JetIDLoose;
+  std::vector<int>   vb_JetIDTight;
   
   std::vector<double> vd_JetFem;
   std::vector<double> vd_JetFhad;
@@ -287,7 +287,8 @@ class JetAnalyzerPAT {
   //Result of some predefined preselection
   bool   bool_JetPreselection;
 
-  void maintenance(const int& nJets) {
+ public:
+  void maintenance() {
     //Setup the vectors
     map_s_vf_correctionFactor.clear();
 
@@ -314,7 +315,7 @@ class JetAnalyzerPAT {
     vd_JetEtaPhiMoment.clear();
     vd_JetPhiPhiMoment.clear();
     
-    //vb_JetIDMinimal.clear();
+    vb_JetIDMinimal.clear();
     vb_JetIDLoose.clear();
     vb_JetIDTight.clear();
     
@@ -401,9 +402,9 @@ class JetAnalyzerPAT {
     std::vector<double>().swap(vd_JetEtaPhiMoment);
     std::vector<double>().swap(vd_JetPhiPhiMoment);
     
-    //std::vector<bool>().swap(vb_JetIDMinimal);
-    std::vector<bool>().swap(vb_JetIDLoose);
-    std::vector<bool>().swap(vb_JetIDTight);
+    std::vector<int>().swap(vb_JetIDMinimal);
+    std::vector<int>().swap(vb_JetIDLoose);
+    std::vector<int>().swap(vb_JetIDTight);
     
     std::vector<double>().swap(vd_JetFem);
     std::vector<double>().swap(vd_JetFhad);

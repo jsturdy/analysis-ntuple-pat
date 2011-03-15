@@ -75,7 +75,8 @@ private:
   std::vector<int>  vi_genParticleStatus;
   std::vector<int>  vi_genParticleDaughters;
 
-  void maintenance(const int& nParts) {
+ public:
+  void maintenance() {
     v_genP4        .clear();
     vi_genIds      .clear();
     vi_genRefs     .clear();

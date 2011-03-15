@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: PhotonAnalyzerPAT.cc,v 1.12 2011/03/07 18:04:37 sturdy Exp $
+// $Id: PhotonAnalyzerPAT.cc,v 1.13 2011/03/08 21:11:36 sturdy Exp $
 //
 //
 
@@ -84,6 +84,7 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   bool_PhotVeto      = false;
   bool photon_result = true;
   edm::LogVerbatim("PhotonEvent") << " Start  " << std::endl;
+  maintenancePhots();
 
   std::ostringstream dbg;
   
@@ -105,7 +106,6 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   ev.getByLabel( "ecalRecHit","EcalRecHitsEB", recHits);
   
   const EcalRecHitCollection *myRecHits = recHits.product();
-  
 
   edm::LogVerbatim("PhotonEvent") << " start reading in photons " << std::endl;
   // Add the photons
@@ -114,7 +114,6 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   if ( i_PhotN > 50 )
     i_PhotN = 50;
   if (debug_) edm::LogVerbatim("PhotonEvent")<<logmessage<<std::endl;
-  maintenancePhots(i_PhotN);
 
   for (int i=0;i<i_PhotN;i++) {
     const pat::Photon thePhoton = (*photHandle)[i];
@@ -143,13 +142,16 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       //vd_PhotPFChargedHadronIsoDeposit.push_back(thePhoton.userIsoDeposit(pat::PfChargedHadronIso)->candEnergy());
       //vd_PhotPFNeutralHadronIsoDeposit.push_back(thePhoton.userIsoDeposit(pat::PfNeutralHadronIso)->candEnergy());
       //vd_PhotPFGammaIsoDeposit        .push_back(thePhoton.userIsoDeposit(pat::PfGammaIso)->candEnergy());
-
-      vb_PhotIsEB.push_back(thePhoton.isEB());
-      vb_PhotIsEE.push_back(thePhoton.isEE());
+      int photIsEB = thePhoton.isEB() ? 1 : 0;
+      int photIsEE = thePhoton.isEE() ? 1 : 0;
+      vb_PhotIsEB.push_back(photIsEB);
+      vb_PhotIsEE.push_back(photIsEE);
 
       //vb_PhotLooseEM.push_back(thePhoton.photonID("PhotonCutBasedIDLooseEM"));
-      vb_PhotLoosePhoton.push_back(thePhoton.photonID("PhotonCutBasedIDLoose"));
-      vb_PhotTightPhoton.push_back(thePhoton.photonID("PhotonCutBasedIDTight"));
+      int photIDLoose = thePhoton.photonID("PhotonCutBasedIDLoose") ? 1 : 0;
+      int photIDTight = thePhoton.photonID("PhotonCutBasedIDTight") ? 1 : 0;
+      vb_PhotLoosePhoton.push_back(photIDLoose);
+      vb_PhotTightPhoton.push_back(photIDTight);
 
       double mySwissCross = -999;
       double myE2OverE9   = -999;
@@ -157,8 +159,8 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 
       //if (thePhoton.ecalDrivenSeed()>0 && fabs(thePhoton.superCluster()->eta())<1.4442) {
       if (true) {
-	const reco::CaloClusterPtr    seed =    thePhoton.superCluster()->seed(); // seed cluster
-	const           DetId seedId = seed->seed();
+	const reco::CaloClusterPtr    seed   = thePhoton.superCluster()->seed(); // seed cluster
+	const       DetId             seedId = seed->seed();
 	EcalSeverityLevelAlgo severity;
 	mySwissCross =  severity.swissCross(seedId, *myRecHits) ;
 	myE2OverE9   =  severity.swissCross(seedId, *myRecHits) ;
@@ -169,8 +171,10 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       //vd_PhotTSeed.push_back(severity.swissCross(seedID, *recHits));
       vd_PhotSigmaIetaIeta.push_back(thePhoton.sigmaIetaIeta());
 
-      vb_PhotHasPixelSeed.push_back(thePhoton.hasPixelSeed());
-      vb_PhotHasConversionTracks.push_back(thePhoton.hasConversionTracks());
+      int photHasSeed   = thePhoton.hasPixelSeed()        ? 1 : 0;
+      int photHasTracks = thePhoton.hasConversionTracks() ? 1 : 0;
+      vb_PhotHasPixelSeed.push_back(photHasSeed);
+      vb_PhotHasConversionTracks.push_back(photHasTracks);
 
       vd_PhotHadOverEM.push_back(thePhoton.hadronicOverEm());
       

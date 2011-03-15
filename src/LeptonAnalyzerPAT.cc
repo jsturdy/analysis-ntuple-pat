@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: LeptonAnalyzerPAT.cc,v 1.15 2011/03/08 21:11:36 sturdy Exp $
+// $Id: LeptonAnalyzerPAT.cc,v 1.16 2011/03/13 11:33:55 sturdy Exp $
 //
 //
 
@@ -115,7 +115,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   if (debug_) std::cout<<i_ElecN<<" Electron results for InputTag " << elecTag_<<std::endl;
   
   if ( i_ElecN > 50 ) i_ElecN = 50;
-  maintenanceElecs(i_ElecN);
+  maintenanceElecs();
 
   bool_spike = false;
     
@@ -287,7 +287,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   if (debug_) std::cout<<i_MuonN<<" Muon results for InputTag " << muonTag_<<std::endl;
 
   if ( i_MuonN > 50 ) i_MuonN = 50;
-  maintenanceMuons(i_MuonN);
+  maintenanceMuons();
   int mu = 0;
 
   if (debug_) edm::LogVerbatim("LeptonEvent")<<logmessage<<std::endl;
@@ -317,36 +317,50 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       vd_MuonHCalIsoDeposit.push_back(theMuon.isolationR03().hadVetoEt);
 
       //Muon classification variables
-      vb_MuonIsGlobal.push_back(theMuon.isGlobalMuon());
-      vb_MuonIsStandAlone.push_back(theMuon.isStandAloneMuon());
-      vb_MuonIsTracker.push_back(theMuon.isTrackerMuon());
-      
-      vb_MuonGlobalMuonPromptTight.push_back(theMuon.muonID("GlobalMuonPromptTight"));
-      						     
-      vb_MuonAllArbitrated.push_back(theMuon.muonID("AllArbitrated"));
-      vb_MuonTrackerMuonArbitrated.push_back(theMuon.muonID("TrackerMuonArbitrated"));
+      int muonIDisGlobal  = theMuon.isGlobalMuon() ? 1 : 0;
+      int muonIDisSA      = theMuon.isStandAloneMuon() ? 1 : 0;
+      int muonIDisTrk     = theMuon.isTrackerMuon() ? 1 : 0;
+      int muonIDGMPT      = theMuon.muonID("GlobalMuonPromptTight") ? 1 : 0;
+      int muonIDAA        = theMuon.muonID("AllArbitrated") ? 1 : 0;
+      int muonIDTMA       = theMuon.muonID("TrackerMuonArbitrated") ? 1 : 0;
+      int muonIDTMSL      = theMuon.muonID("TMLastStationLoose") ? 1 : 0;
+      int muonIDTMST      = theMuon.muonID("TMLastStationTight") ? 1 : 0;
+      int muonIDTM2CL     = theMuon.muonID("TM2DCompatibilityLoose") ? 1 : 0;
+      int muonIDTM2CT     = theMuon.muonID("TM2DCompatibilityTight") ? 1 : 0;
+      int muonIDTMOSL     = theMuon.muonID("TMOneStationLoose") ? 1 : 0;
+      int muonIDTMOST     = theMuon.muonID("TMOneStationTight") ? 1 : 0;
+      int muonIDTMLSOL    = theMuon.muonID("TMLastStationOptimizedLowPtLoose") ? 1 : 0;
+      int muonIDTMLSOT    = theMuon.muonID("TMLastStationOptimizedLowPtTight") ? 1 : 0;
+      int muonIDGMTrkChiC = theMuon.muonID("GMTkChiCompatibility") ? 1 : 0;
+      int muonIDGMStaChiC = theMuon.muonID("GMStaChiCompatibility") ? 1 : 0;
+      int muonIDGMTkKT    = theMuon.muonID("GMTkKinkTight") ? 1 : 0;
+      int muonIDTMLSAngL  = theMuon.muonID("TMLastStationAngLoose") ? 1 : 0;
+      int muonIDTMLSAngT  = theMuon.muonID("TMLastStationAngTight") ? 1 : 0;
+      int muonIDTMLSLSOBL = theMuon.muonID("TMLastStationOptimizedBarrelLowPtLoose") ? 1 : 0;
+      int muonIDTMLSLSOBT = theMuon.muonID("TMLastStationOptimizedBarrelLowPtTight") ? 1 : 0;
 
-      vb_MuonTMLastStationLoose.push_back(theMuon.muonID("TMLastStationLoose"));
-      vb_MuonTMLastStationTight.push_back(theMuon.muonID("TMLastStationTight"));
 
-      vb_MuonTM2DCompatibilityLoose.push_back(theMuon.muonID("TM2DCompatibilityLoose"));
-      vb_MuonTM2DCompatibilityTight.push_back(theMuon.muonID("TM2DCompatibilityTight"));
-
-      vb_MuonTMOneStationLoose.push_back(theMuon.muonID("TMOneStationLoose"));
-      vb_MuonTMOneStationTight.push_back(theMuon.muonID("TMOneStationTight"));
-
-      vb_MuonTMLastStationOptimizedLowPtLoose.push_back(theMuon.muonID("TMLastStationOptimizedLowPtLoose"));
-      vb_MuonTMLastStationOptimizedLowPtTight.push_back(theMuon.muonID("TMLastStationOptimizedLowPtTight"));
-
-      vb_MuonGMTkChiCompatibility.push_back(theMuon.muonID("GMTkChiCompatibility"));
-      vb_MuonGMStaChiCompatibility.push_back(theMuon.muonID("GMStaChiCompatibility"));
-      vb_MuonGMTkKinkTight.push_back(theMuon.muonID("GMTkKinkTight"));
-
-      vb_MuonTMLastStationAngLoose.push_back(theMuon.muonID("TMLastStationAngLoose"));
-      vb_MuonTMLastStationAngTight.push_back(theMuon.muonID("TMLastStationAngTight"));
-
-      vb_MuonTMLastStationOptimizedBarrelLowPtLoose.push_back(theMuon.muonID("TMLastStationOptimizedBarrelLowPtLoose"));
-      vb_MuonTMLastStationOptimizedBarrelLowPtTight.push_back(theMuon.muonID("TMLastStationOptimizedBarrelLowPtTight"));
+      vb_MuonIsGlobal                              .push_back(muonIDisGlobal  );
+      vb_MuonIsStandAlone                          .push_back(muonIDisSA      );
+      vb_MuonIsTracker                             .push_back(muonIDisTrk     );
+      vb_MuonGlobalMuonPromptTight                 .push_back(muonIDGMPT      );
+      vb_MuonAllArbitrated                         .push_back(muonIDAA        );
+      vb_MuonTrackerMuonArbitrated                 .push_back(muonIDTMA       );
+      vb_MuonTMLastStationLoose                    .push_back(muonIDTMSL      );
+      vb_MuonTMLastStationTight                    .push_back(muonIDTMST      );
+      vb_MuonTM2DCompatibilityLoose                .push_back(muonIDTM2CL     );
+      vb_MuonTM2DCompatibilityTight                .push_back(muonIDTM2CT     );
+      vb_MuonTMOneStationLoose                     .push_back(muonIDTMOSL     );
+      vb_MuonTMOneStationTight                     .push_back(muonIDTMOST     );
+      vb_MuonTMLastStationOptimizedLowPtLoose      .push_back(muonIDTMLSOL    );
+      vb_MuonTMLastStationOptimizedLowPtTight      .push_back(muonIDTMLSOT    );
+      vb_MuonGMTkChiCompatibility                  .push_back(muonIDGMTrkChiC );
+      vb_MuonGMStaChiCompatibility                 .push_back(muonIDGMStaChiC );
+      vb_MuonGMTkKinkTight                         .push_back(muonIDGMTkKT    );
+      vb_MuonTMLastStationAngLoose                 .push_back(muonIDTMLSAngL  );
+      vb_MuonTMLastStationAngTight                 .push_back(muonIDTMLSAngT  );
+      vb_MuonTMLastStationOptimizedBarrelLowPtLoose.push_back(muonIDTMLSLSOBL );
+      vb_MuonTMLastStationOptimizedBarrelLowPtTight.push_back(muonIDTMLSLSOBT );
       
     
       //Muon Vertex information
@@ -491,7 +505,7 @@ bool LeptonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   if (debug_) std::cout<<i_TauN<<" Tau results for InputTag " << tauTag_<<std::endl;
   
   if ( i_TauN > 50 ) i_TauN = 50;
-  maintenanceTaus(i_TauN);
+  maintenanceTaus();
   
   tauidMap["electron"       ] = Electron;
   tauidMap["muon"           ] = Muon;

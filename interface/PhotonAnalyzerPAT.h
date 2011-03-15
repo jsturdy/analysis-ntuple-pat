@@ -85,19 +85,19 @@ private:
   //std::vector<double>  vd_PhotPFGammaIsoDeposit;
 
   //bool m_ccPhotAssoc[50];
-  std::vector<bool>  vb_PhotIsEB;
-  std::vector<bool>  vb_PhotIsEE;
-  //std::vector<bool>  vb_PhotLooseEM;
-  std::vector<bool>  vb_PhotLoosePhoton;
-  std::vector<bool>  vb_PhotTightPhoton;
+  std::vector<int>  vb_PhotIsEB;
+  std::vector<int>  vb_PhotIsEE;
+  //std::vector<int>  vb_PhotLooseEM;
+  std::vector<int>  vb_PhotLoosePhoton;
+  std::vector<int>  vb_PhotTightPhoton;
 
   std::vector<double>  vd_PhotHadOverEM;
   std::vector<double>  vd_PhotE2OverE9;
   std::vector<double>  vd_PhotSwissCross;
   //std::vector<double>  vd_PhotTSeed;
   std::vector<double>  vd_PhotSigmaIetaIeta;
-  std::vector<bool>    vb_PhotHasPixelSeed;
-  std::vector<bool>    vb_PhotHasConversionTracks;
+  std::vector<int>    vb_PhotHasPixelSeed;
+  std::vector<int>    vb_PhotHasConversionTracks;
 
   std::vector<reco::Candidate::LorentzVector> v_genphotP4;
 
@@ -107,7 +107,7 @@ private:
   std::vector<int> vi_PhotGenMotherStatus;
   //
 
-  void maintenancePhots(const int& nPhots) {
+  void maintenancePhots() {
     v_photP4.clear();
 
     vd_PhotTrkIso.clear();
@@ -171,18 +171,18 @@ private:
     //std::vector<double>().swap(vd_PhotPFNeutralHadronIsoDeposit);
     //std::vector<double>().swap(vd_PhotPFGammaIsoDeposit);
 
-    std::vector<bool>().swap(vb_PhotIsEB);
-    std::vector<bool>().swap(vb_PhotIsEE);
-    //std::vector<bool>().swap(vb_PhotLooseEM);
-    std::vector<bool>().swap(vb_PhotLoosePhoton);
-    std::vector<bool>().swap(vb_PhotTightPhoton);
+    std::vector<int>().swap(vb_PhotIsEB);
+    std::vector<int>().swap(vb_PhotIsEE);
+    //std::vector<int>().swap(vb_PhotLooseEM);
+    std::vector<int>().swap(vb_PhotLoosePhoton);
+    std::vector<int>().swap(vb_PhotTightPhoton);
 
     std::vector<double>().swap(vd_PhotE2OverE9);
     std::vector<double>().swap(vd_PhotSwissCross);
     //std::vector<double>().swap(vd_PhotTSeed);
     std::vector<double>().swap(vd_PhotSigmaIetaIeta);
-    std::vector<bool>().swap(vb_PhotHasPixelSeed);
-    std::vector<bool>().swap(vb_PhotHasConversionTracks);
+    std::vector<int>()   .swap(vb_PhotHasPixelSeed);
+    std::vector<int>()   .swap(vb_PhotHasConversionTracks);
     std::vector<double>().swap(vd_PhotHadOverEM);
 
     std::vector<reco::Candidate::LorentzVector>().swap(v_genphotP4);

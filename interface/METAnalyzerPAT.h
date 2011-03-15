@@ -100,29 +100,29 @@ class METAnalyzerPAT {
   std::map<std::string, float> corrY;
   std::map<std::string, float> corrSumET;
   
-  double m_MET_Fullcorr_nocc[3];
-  double m_METpt_Fullcorr_nocc;
-  double m_METphi_Fullcorr_nocc;
-  double m_METsumEt_Fullcorr_nocc;
-  double m_METsignificance_Fullcorr_nocc;
+  double m_MET_Fullcorr[3];
+  double m_METpt_Fullcorr;
+  double m_METphi_Fullcorr;
+  double m_METsumEt_Fullcorr;
+  double m_METsignificance_Fullcorr;
 
-  double m_MET_Nocorr_nocc[2];
-  double m_METpt_Nocorr_nocc;
-  double m_METphi_Nocorr_nocc;
-  double m_METsumEt_Nocorr_nocc;
-  double m_METsignificance_Nocorr_nocc;
+  double m_MET_Nocorr[2];
+  double m_METpt_Nocorr;
+  double m_METphi_Nocorr;
+  double m_METsumEt_Nocorr;
+  double m_METsignificance_Nocorr;
 
-  double m_MET_Muoncorr_nocc[2];
-  double m_METpt_Muoncorr_nocc;
-  double m_METphi_Muoncorr_nocc;
-  double m_METsumEt_Muoncorr_nocc;
-  double m_METsignificance_Muoncorr_nocc;
+  double m_MET_Muoncorr[2];
+  double m_METpt_Muoncorr;
+  double m_METphi_Muoncorr;
+  double m_METsumEt_Muoncorr;
+  double m_METsignificance_Muoncorr;
 
-  double m_MET_JEScorr_nocc[2];
-  double m_METpt_JEScorr_nocc;
-  double m_METphi_JEScorr_nocc;
-  double m_METsumEt_JEScorr_nocc;
-  double m_METsignificance_JEScorr_nocc;
+  double m_MET_JEScorr[2];
+  double m_METpt_JEScorr;
+  double m_METphi_JEScorr;
+  double m_METsumEt_JEScorr;
+  double m_METsignificance_JEScorr;
 
   double localPi;
   

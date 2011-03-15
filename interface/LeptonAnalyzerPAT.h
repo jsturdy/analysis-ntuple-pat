@@ -143,7 +143,7 @@ private:
   std::vector<double> vd_ElecPinTrk;
   std::vector<double> vd_ElecPoutTrk;
   std::vector<double> vd_ElecNormChi2;
-  //std::vector<bool> vb_ccElecAssoc;
+  //std::vector<int> vb_ccElecAssoc;
 
   std::vector<double> vd_ElecECalIsoDeposit;
   std::vector<double> vd_ElecHCalIsoDeposit;
@@ -166,29 +166,29 @@ private:
   std::vector<double> vd_MuonTrkChiNorm;
   std::vector<double> vd_MuonCharge;
 
-  std::vector<bool> vb_MuonIsGlobal;
-  std::vector<bool> vb_MuonIsStandAlone;
-  std::vector<bool> vb_MuonIsTracker;
+  std::vector<int> vb_MuonIsGlobal;
+  std::vector<int> vb_MuonIsStandAlone;
+  std::vector<int> vb_MuonIsTracker;
 
-  std::vector<bool> vb_MuonGlobalMuonPromptTight;
+  std::vector<int> vb_MuonGlobalMuonPromptTight;
 
-  std::vector<bool> vb_MuonAllArbitrated;
-  std::vector<bool> vb_MuonTrackerMuonArbitrated;
-  std::vector<bool> vb_MuonGMTkKinkTight;
-  std::vector<bool> vb_MuonGMTkChiCompatibility;
-  std::vector<bool> vb_MuonGMStaChiCompatibility;
-  std::vector<bool> vb_MuonTM2DCompatibilityLoose;
-  std::vector<bool> vb_MuonTM2DCompatibilityTight;
-  std::vector<bool> vb_MuonTMOneStationLoose;
-  std::vector<bool> vb_MuonTMOneStationTight;
-  std::vector<bool> vb_MuonTMLastStationLoose;
-  std::vector<bool> vb_MuonTMLastStationTight;
-  std::vector<bool> vb_MuonTMLastStationAngLoose;
-  std::vector<bool> vb_MuonTMLastStationAngTight;
-  std::vector<bool> vb_MuonTMLastStationOptimizedLowPtLoose;
-  std::vector<bool> vb_MuonTMLastStationOptimizedLowPtTight;
-  std::vector<bool> vb_MuonTMLastStationOptimizedBarrelLowPtLoose;
-  std::vector<bool> vb_MuonTMLastStationOptimizedBarrelLowPtTight;
+  std::vector<int> vb_MuonAllArbitrated;
+  std::vector<int> vb_MuonTrackerMuonArbitrated;
+  std::vector<int> vb_MuonGMTkKinkTight;
+  std::vector<int> vb_MuonGMTkChiCompatibility;
+  std::vector<int> vb_MuonGMStaChiCompatibility;
+  std::vector<int> vb_MuonTM2DCompatibilityLoose;
+  std::vector<int> vb_MuonTM2DCompatibilityTight;
+  std::vector<int> vb_MuonTMOneStationLoose;
+  std::vector<int> vb_MuonTMOneStationTight;
+  std::vector<int> vb_MuonTMLastStationLoose;
+  std::vector<int> vb_MuonTMLastStationTight;
+  std::vector<int> vb_MuonTMLastStationAngLoose;
+  std::vector<int> vb_MuonTMLastStationAngTight;
+  std::vector<int> vb_MuonTMLastStationOptimizedLowPtLoose;
+  std::vector<int> vb_MuonTMLastStationOptimizedLowPtTight;
+  std::vector<int> vb_MuonTMLastStationOptimizedBarrelLowPtLoose;
+  std::vector<int> vb_MuonTMLastStationOptimizedBarrelLowPtTight;
 
   std::vector<double> vd_MuonECalIsoDeposit;
   std::vector<double> vd_MuonHCalIsoDeposit;
@@ -294,7 +294,8 @@ private:
   std::vector<float> vf_TauIdNCfrFull;
 
 
-  void maintenanceElecs(const int& nElecs) {
+ public:
+  void maintenanceElecs() {
     v_elecP4.clear();
     v_genelecP4.clear();
     
@@ -414,13 +415,13 @@ private:
     std::vector<double>().swap(vd_ElecPinTrk);
     std::vector<double>().swap(vd_ElecPoutTrk);
     std::vector<double>().swap(vd_ElecNormChi2);
-    //std::vector<bool>().swap(vb_ccElecAssoc);
+    //std::vector<int>().swap(vb_ccElecAssoc);
     
     std::vector<double>().swap(vd_ElecECalIsoDeposit);
     std::vector<double>().swap(vd_ElecHCalIsoDeposit);
   }
 
-  void maintenanceMuons(const int& nMuons) {
+  void maintenanceMuons() {
     v_muonP4.clear();
     v_genmuonP4.clear();
 
@@ -524,29 +525,29 @@ private:
     std::vector<double>().swap(vd_MuonTrkChiNorm);
     std::vector<double>().swap(vd_MuonCharge);
 
-    std::vector<bool>().swap(vb_MuonIsGlobal);
-    std::vector<bool>().swap(vb_MuonIsStandAlone);
-    std::vector<bool>().swap(vb_MuonIsTracker);
+    std::vector<int>().swap(vb_MuonIsGlobal);
+    std::vector<int>().swap(vb_MuonIsStandAlone);
+    std::vector<int>().swap(vb_MuonIsTracker);
 
-    std::vector<bool>().swap(vb_MuonGlobalMuonPromptTight);
+    std::vector<int>().swap(vb_MuonGlobalMuonPromptTight);
 
-    std::vector<bool>().swap(vb_MuonAllArbitrated);
-    std::vector<bool>().swap(vb_MuonTrackerMuonArbitrated);
-    std::vector<bool>().swap(vb_MuonGMTkKinkTight);
-    std::vector<bool>().swap(vb_MuonGMTkChiCompatibility);
-    std::vector<bool>().swap(vb_MuonGMStaChiCompatibility);
-    std::vector<bool>().swap(vb_MuonTM2DCompatibilityLoose);
-    std::vector<bool>().swap(vb_MuonTM2DCompatibilityTight);
-    std::vector<bool>().swap(vb_MuonTMOneStationLoose);
-    std::vector<bool>().swap(vb_MuonTMOneStationTight);
-    std::vector<bool>().swap(vb_MuonTMLastStationLoose);
-    std::vector<bool>().swap(vb_MuonTMLastStationTight);
-    std::vector<bool>().swap(vb_MuonTMLastStationAngLoose);
-    std::vector<bool>().swap(vb_MuonTMLastStationAngTight);
-    std::vector<bool>().swap(vb_MuonTMLastStationOptimizedLowPtLoose);
-    std::vector<bool>().swap(vb_MuonTMLastStationOptimizedLowPtTight);
-    std::vector<bool>().swap(vb_MuonTMLastStationOptimizedBarrelLowPtLoose);
-    std::vector<bool>().swap(vb_MuonTMLastStationOptimizedBarrelLowPtTight);
+    std::vector<int>().swap(vb_MuonAllArbitrated);
+    std::vector<int>().swap(vb_MuonTrackerMuonArbitrated);
+    std::vector<int>().swap(vb_MuonGMTkKinkTight);
+    std::vector<int>().swap(vb_MuonGMTkChiCompatibility);
+    std::vector<int>().swap(vb_MuonGMStaChiCompatibility);
+    std::vector<int>().swap(vb_MuonTM2DCompatibilityLoose);
+    std::vector<int>().swap(vb_MuonTM2DCompatibilityTight);
+    std::vector<int>().swap(vb_MuonTMOneStationLoose);
+    std::vector<int>().swap(vb_MuonTMOneStationTight);
+    std::vector<int>().swap(vb_MuonTMLastStationLoose);
+    std::vector<int>().swap(vb_MuonTMLastStationTight);
+    std::vector<int>().swap(vb_MuonTMLastStationAngLoose);
+    std::vector<int>().swap(vb_MuonTMLastStationAngTight);
+    std::vector<int>().swap(vb_MuonTMLastStationOptimizedLowPtLoose);
+    std::vector<int>().swap(vb_MuonTMLastStationOptimizedLowPtTight);
+    std::vector<int>().swap(vb_MuonTMLastStationOptimizedBarrelLowPtLoose);
+    std::vector<int>().swap(vb_MuonTMLastStationOptimizedBarrelLowPtTight);
 
     std::vector<double>().swap(vd_MuonECalIsoDeposit);
     std::vector<double>().swap(vd_MuonHCalIsoDeposit);
@@ -594,7 +595,7 @@ private:
     std::vector<int>().swap(vi_MuonGenMotherStatus);
   }
 
-  void maintenanceTaus(const int& nTaus) {
+  void maintenanceTaus() {
     tauidMap.clear();
   
     v_tauP4.clear();

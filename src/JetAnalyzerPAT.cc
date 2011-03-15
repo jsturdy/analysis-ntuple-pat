@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.19 2011/03/13 11:33:55 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.20 2011/03/14 19:57:53 sturdy Exp $
 //
 //
 
@@ -136,7 +136,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   double gensumpt = 0;
 
   if ( i_NJets >50 ) i_NJets = 50;
-  maintenance(i_NJets);
+  maintenance();
   /////////
   
   std::string corrLevel;
@@ -453,8 +453,8 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	if (debug_>5) 
 	  std::cout<<"\n\nSetting up jetid\n\n"<<std::endl;
 	if (useCaloJets_ || useJPTJets_) {
-	  //JetIDSelectionFunctor jetIDMinimal( JetIDSelectionFunctor::PURE09,
-	  //			      JetIDSelectionFunctor::MINIMAL );
+	  JetIDSelectionFunctor jetIDMinimal( JetIDSelectionFunctor::PURE09,
+	  			      JetIDSelectionFunctor::MINIMAL );
 	  
 	  JetIDSelectionFunctor jetIDLoose( JetIDSelectionFunctor::PURE09,
 	  				    JetIDSelectionFunctor::LOOSE );
@@ -462,7 +462,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  JetIDSelectionFunctor jetIDTight( JetIDSelectionFunctor::PURE09,
 	  				    JetIDSelectionFunctor::TIGHT );
 	  
-	  //retmin = jetIDMinimal.getBitTemplate();
+	  retmin = jetIDMinimal.getBitTemplate();
 	  retloo = jetIDLoose.getBitTemplate();
 	  rettig = jetIDTight.getBitTemplate();
 	  
@@ -479,12 +479,16 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  //thejetid.JetfHPD = theJet.jetID().fHPD;
 	  //thejetid.JetfRBX = theJet.jetID().fRBX;
 	  
-	  //retmin.set(false);
-	  //vb_JetIDMinimal.push_back(jetIDMinimal(theJet, retmin));
+	  retmin.set(false);
+	  int jetIDMin = jetIDMinimal(theJet, retmin);
 	  retloo.set(false);
-	  vb_JetIDLoose.push_back(jetIDLoose(theJet, retloo));
+	  int jetIDLoo = jetIDLoose(theJet, retloo);
 	  rettig.set(false);
-	  vb_JetIDTight.push_back(jetIDTight(theJet, rettig));
+	  int jetIDTig = jetIDTight(theJet, rettig);
+
+	  vb_JetIDMinimal.push_back(jetIDMin);
+	  vb_JetIDLoose  .push_back(jetIDLoo);
+	  vb_JetIDTight  .push_back(jetIDTig);
 	  
 	  vd_JetFem.push_back(theJet.emEnergyFraction());
 	  vd_JetFhad.push_back(theJet.energyFractionHadronic());
@@ -555,9 +559,12 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  //thejetid.JetChargedFpho = theJet.photonEnergyFraction();
 
 	  retloo.set(false);
-	  vb_JetIDLoose.push_back(jetIDLoose(theJet, retloo));
+	  int jetIDLoo = jetIDLoose(theJet, retloo);
 	  rettig.set(false);
-	  vb_JetIDTight.push_back(jetIDTight(theJet, rettig));
+	  int jetIDTig = jetIDTight(theJet, rettig);
+
+	  vb_JetIDLoose  .push_back(jetIDLoo);
+	  vb_JetIDTight  .push_back(jetIDTig);
 	  
 	  vd_JetHFFem .push_back(theJet.HFEMEnergyFraction());
 	  vd_JetHFFhad.push_back(theJet.HFHadronEnergyFraction());
@@ -652,6 +659,13 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   d_GenHt  =  gensumpt;
   GenMHtP4.SetPxPyPzE(-gensumpx, -gensumpy, -gensumpz, -gensume);
   
+  
+  if (vb_JetIDLoose.size()>1)
+    if (vb_JetIDLoose.at(0) && vb_JetIDLoose.at(1))
+      if (v_JetP4.at(1).pt()> 50)
+	if (fabs(v_JetP4.at(0).eta()) < 3.0 && fabs(v_JetP4.at(1).eta()) < 3.0)
+	  bool_JetPreselection = true;
+
   jet_result = bool_JetPreselection;
   if (debug_ > 5)
     std::cout<<"Done analyzing all the jets"<<std::endl;
@@ -681,13 +695,13 @@ void JetAnalyzerPAT::bookTTree() {
   //mJetData->Branch(prefix_+"JetNOverlaps",    &map_s_vi_JetNOverlaps);
   mJetData->Branch(prefix_+"AllJetElectronOverlaps",  &vi_JetElectronOverlaps);
   mJetData->Branch(prefix_+"AllJetElectronNOverlaps", &vi_JetElectronNOverlaps);
-  mJetData->Branch(prefix_+"AllJetMuonOverlaps",  &vi_JetMuonOverlaps);
-  mJetData->Branch(prefix_+"AllJetMuonNOverlaps", &vi_JetMuonNOverlaps);
-  mJetData->Branch(prefix_+"AllJetTauOverlaps",  &vi_JetTauOverlaps);
-  mJetData->Branch(prefix_+"AllJetTauNOverlaps", &vi_JetTauNOverlaps);
-  mJetData->Branch(prefix_+"AllJetPhotonOverlaps",  &vi_JetPhotonOverlaps);
-  mJetData->Branch(prefix_+"AllJetPhotonNOverlaps", &vi_JetPhotonNOverlaps);
-  mJetData->Branch(prefix_+"JetPreselection", &bool_JetPreselection, prefix_+"JetPreselection/O");
+  mJetData->Branch(prefix_+"AllJetMuonOverlaps",      &vi_JetMuonOverlaps);
+  mJetData->Branch(prefix_+"AllJetMuonNOverlaps",     &vi_JetMuonNOverlaps);
+  mJetData->Branch(prefix_+"AllJetTauOverlaps",       &vi_JetTauOverlaps);
+  mJetData->Branch(prefix_+"AllJetTauNOverlaps",      &vi_JetTauNOverlaps);
+  mJetData->Branch(prefix_+"AllJetPhotonOverlaps",    &vi_JetPhotonOverlaps);
+  mJetData->Branch(prefix_+"AllJetPhotonNOverlaps",   &vi_JetPhotonNOverlaps);
+  mJetData->Branch(prefix_+"JetPreselection",         &bool_JetPreselection, prefix_+"JetPreselection/O");
 
   mJetData->Branch(prefix_+"JECUncPlus",  &vf_JECUncPlus);
   mJetData->Branch(prefix_+"JECUncMinus", &vf_JECUncMinus);
@@ -729,7 +743,7 @@ void JetAnalyzerPAT::bookTTree() {
   mJetData->Branch(prefix_+"JetFhad",   &vd_JetFhad);
   mJetData->Branch(prefix_+"JetCharge", &vd_JetCharge);
   mJetData->Branch(prefix_+"JetNConst", &vi_JetNConst);
-  //mJetData->Branch(prefix_+"JetIDMinimal", &vb_JetIDMinimal);
+  mJetData->Branch(prefix_+"JetIDMinimal", &vb_JetIDMinimal);
   mJetData->Branch(prefix_+"JetIDLoose",   &vb_JetIDLoose);
   mJetData->Branch(prefix_+"JetIDTight",   &vb_JetIDTight);
   

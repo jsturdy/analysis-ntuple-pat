@@ -95,6 +95,7 @@ private:
 
   int debug_;
 
+ public:
   void maintenance() {
     l1triggered.clear();
     l1prescaled.clear();
