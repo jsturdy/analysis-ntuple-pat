@@ -13,7 +13,7 @@ Description: Collects the trigger results and performs a basic trigger selection
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: TriggerAnalyzerPAT.cc,v 1.11 2011/03/02 07:56:40 sturdy Exp $
+// $Id: TriggerAnalyzerPAT.cc,v 1.12 2011/03/08 21:11:36 sturdy Exp $
 //
 //
 //#include "SusyAnalysis/EventSelector/interface/BJetEventSelector.h"
@@ -229,6 +229,7 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   
   if (debug_>5)
     std::cout<<"Done analyzing triggers"<<std::endl;
+  //mTriggerData->Fill();
   return trigger_result;
 }
 

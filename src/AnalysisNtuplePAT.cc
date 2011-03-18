@@ -14,7 +14,7 @@ Implementation:Uses the EventSelector interface for event selection and TFileSer
 //
 // Original Author:  Markus Stoye, (modified by Jared Sturdy from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: AnalysisNtuplePAT.cc,v 1.16 2011/03/13 11:33:55 sturdy Exp $
+// $Id: AnalysisNtuplePAT.cc,v 1.17 2011/03/14 19:57:53 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/AnalysisNtuplePAT.h"
@@ -43,11 +43,9 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
   //MET information
   calometinfo       = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometParameters"),       mMETData);
   calomettypeiiinfo = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("calometTypeIIParameters"), mMETData);
-
-  pfmetinfo      = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfmetParameters"),      mMETData);
-  pfmettypeiinfo = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfmetTypeIParameters"), mMETData);
-
-  tcmetinfo      = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("tcmetParameters"), mMETData);
+  pfmetinfo         = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfmetParameters"),         mMETData);
+  pfmettypeiinfo    = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfmetTypeIParameters"),    mMETData);
+  tcmetinfo         = new METAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("tcmetParameters"),         mMETData);
 
   //Photon information
   photons   = new PhotonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("photonParameters"), mPhotonData);
@@ -58,13 +56,12 @@ AnalysisNtuplePAT::AnalysisNtuplePAT(const edm::ParameterSet& pset)
   pfleptons = new LeptonAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("pfleptonParameters"), mLeptonData);
 
   //Vertex information
-  vertex   = new VertexAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("vertexParameters"), mVertexData);
-
+  vertex   = new VertexAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("vertexParameters"),   mVertexData);
   //Track information
-  tracks   = new TrackAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackParameters"), mTrackData);
-
+  tracks   = new TrackAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("trackParameters"),     mTrackData);
   //Trigger information
   triggers = new TriggerAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("triggerParameters"), mTriggerData);
+
   //heminfo  = new HemisphereAnalyzerPAT(pset.getUntrackedParameter<edm::ParameterSet>("hemisphereParameters"), mAllData));
 
   //MC truth  information
@@ -263,17 +260,26 @@ AnalysisNtuplePAT::analyze(const edm::Event& ev, const edm::EventSetup& sp)
   ++nEvents_;
 
   
-  mAllData->Fill();
-  mJetData->Fill();
-  mMETData->Fill();
-  mPhotonData->Fill();
-  mLeptonData->Fill();
-  mTrackData->Fill();
-  mVertexData->Fill();
-  mTriggerData->Fill();
+  if (mAllData)
+    mAllData->Fill();
+  if (mJetData)
+    mJetData->Fill();
+  if (mMETData)
+    mMETData->Fill();
+  if (mPhotonData)
+    mPhotonData->Fill();
+  if (mLeptonData)
+    mLeptonData->Fill();
+  if (mTrackData)
+    mTrackData->Fill();
+  if (mVertexData)
+    mVertexData->Fill();
+  if (mTriggerData)
+    mTriggerData->Fill();
   
   if (doMCTruth_)
-    mGenParticleData->Fill();
+    if (mGenParticleData)
+      mGenParticleData->Fill();
   //}
 }
 

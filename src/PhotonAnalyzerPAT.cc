@@ -12,7 +12,7 @@ Description: Variable collector/ntupler for SUSY search with Jets + MET
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: PhotonAnalyzerPAT.cc,v 1.13 2011/03/08 21:11:36 sturdy Exp $
+// $Id: PhotonAnalyzerPAT.cc,v 1.14 2011/03/15 14:55:52 sturdy Exp $
 //
 //
 
@@ -134,14 +134,41 @@ bool PhotonAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       vd_PhotPFNeutralHadronIso.push_back(thePhoton.userIsolation(pat::PfNeutralHadronIso));
       vd_PhotPFGammaIso        .push_back(thePhoton.userIsolation(pat::PfGammaIso));
       
-      //vd_PhotTrkIsoDeposit .push_back(thePhoton.trackIsoDeposit()->candEnergy());
-      //vd_PhotECalIsoDeposit.push_back(thePhoton.ecalIsoDeposit()->candEnergy());
-      //vd_PhotHCalIsoDeposit.push_back(thePhoton.hcalIsoDeposit()->candEnergy());
-      //
-      //vd_PhotPFAllParticleIsoDeposit  .push_back(thePhoton.userIsoDeposit(pat::PfAllParticleIso)->candEnergy());
-      //vd_PhotPFChargedHadronIsoDeposit.push_back(thePhoton.userIsoDeposit(pat::PfChargedHadronIso)->candEnergy());
-      //vd_PhotPFNeutralHadronIsoDeposit.push_back(thePhoton.userIsoDeposit(pat::PfNeutralHadronIso)->candEnergy());
-      //vd_PhotPFGammaIsoDeposit        .push_back(thePhoton.userIsoDeposit(pat::PfGammaIso)->candEnergy());
+      if (thePhoton.trackIsoDeposit())
+	vd_PhotTrkIsoDeposit .push_back(thePhoton.trackIsoDeposit()->candEnergy());
+      else
+	vd_PhotTrkIsoDeposit .push_back(-999);
+
+      if (thePhoton.ecalIsoDeposit())
+	vd_PhotECalIsoDeposit .push_back(thePhoton.ecalIsoDeposit()->candEnergy());
+      else
+	vd_PhotECalIsoDeposit .push_back(-999);
+
+      if (thePhoton.hcalIsoDeposit())
+	vd_PhotHCalIsoDeposit .push_back(thePhoton.hcalIsoDeposit()->candEnergy());
+      else
+	vd_PhotHCalIsoDeposit .push_back(-999);
+
+      if (thePhoton.userIsoDeposit(pat::PfAllParticleIso))
+	vd_PhotPFAllParticleIsoDeposit .push_back(thePhoton.userIsoDeposit(pat::PfAllParticleIso)->candEnergy());
+      else
+	vd_PhotPFAllParticleIsoDeposit .push_back(-999);
+
+      if (thePhoton.userIsoDeposit(pat::PfChargedHadronIso))
+	vd_PhotPFChargedHadronIsoDeposit .push_back(thePhoton.userIsoDeposit(pat::PfChargedHadronIso)->candEnergy());
+      else
+	vd_PhotPFChargedHadronIsoDeposit .push_back(-999);
+
+      if (thePhoton.userIsoDeposit(pat::PfNeutralHadronIso))
+	vd_PhotPFNeutralHadronIsoDeposit .push_back(thePhoton.userIsoDeposit(pat::PfNeutralHadronIso)->candEnergy());
+      else
+	vd_PhotPFNeutralHadronIsoDeposit .push_back(-999);
+
+      if (thePhoton.userIsoDeposit(pat::PfGammaIso))
+	vd_PhotPFGammaIsoDeposit .push_back(thePhoton.userIsoDeposit(pat::PfGammaIso)->candEnergy());
+      else
+	vd_PhotPFGammaIsoDeposit .push_back(-999);
+      
       int photIsEB = thePhoton.isEB() ? 1 : 0;
       int photIsEE = thePhoton.isEE() ? 1 : 0;
       vb_PhotIsEB.push_back(photIsEB);

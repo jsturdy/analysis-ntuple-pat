@@ -11,7 +11,7 @@
 //
 // Original Author:  Jared Sturdy
 //         Created:  Tue Feb 2 12:11:44 PDT 2010
-// $Id: METAnalyzerPAT.cc,v 1.12 2011/03/08 21:11:36 sturdy Exp $
+// $Id: METAnalyzerPAT.cc,v 1.13 2011/03/15 14:55:52 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/METAnalyzerPAT.h"
@@ -30,6 +30,8 @@ METAnalyzerPAT::METAnalyzerPAT(const edm::ParameterSet& metParams, TTree* tmpAll
   doMCData_  = metParams.getUntrackedParameter<bool>("doMCMET",false);
   // get the data tags
   metTag_   = metParams.getUntrackedParameter<edm::InputTag>("metTag");
+  useCaloMET_ = metParams.getUntrackedParameter<bool>("useCaloMET",false);
+  usePFMET_   = metParams.getUntrackedParameter<bool>("usePFMET",false);
 
   localPi = acos(-1.0);
 
@@ -96,6 +98,24 @@ bool METAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   m_METphi_Fullcorr          = metphi;
   m_METsumEt_Fullcorr        = sumet;
   m_METsignificance_Fullcorr = metsig;
+
+  if (theMET.isCaloMET()) {
+    METmaxEt_em   = theMET.maxEtInEmTowers();
+    METmaxEt_had  = theMET.maxEtInHadTowers();
+    METetFrac_had = theMET.etFractionHadronic();
+    METetFrac_em  = theMET.emEtFraction();
+    METmetSig     = theMET.metSignificance();
+  }
+
+  if (theMET.isPFMET()) {
+    METFrac_neutralEM  = theMET.NeutralEMFraction();
+    METFrac_neutralHad = theMET.NeutralHadEtFraction();
+    METFrac_chargedEM  = theMET.ChargedEMEtFraction();
+    METFrac_chargedHad = theMET.ChargedHadEtFraction();
+    METFrac_muon = theMET.MuonEtFraction();
+    METFrac_type6 = theMET.Type6EtFraction();
+    METFrac_type7 = theMET.Type7EtFraction();
+  }
 
   if (debug_>5) std::cout<<"Number of corrections applied to MET object "<<metTag_<<"  "<<theMET.nCorrections()<<std::endl;
   // Do the MET save for no corr no cc MET
@@ -224,7 +244,25 @@ void METAnalyzerPAT::bookTTree() {
   //mMETData->Branch(prefix_+"METphi_Fullcorr",          &m_METphi_Fullcorr,          prefix_+"METphi_Fullcorr/D");
   mMETData->Branch(prefix_+"METsumEt_Fullcorr",        &m_METsumEt_Fullcorr,        prefix_+"METsumEt_Fullcorr/D");
   mMETData->Branch(prefix_+"METsignificance_Fullcorr", &m_METsignificance_Fullcorr, prefix_+"METsignificance_Fullcorr/D");
-  
+
+  if (useCaloMET_) {
+    mMETData->Branch(prefix_+"METmaxEt_em"  , &METmaxEt_em  , prefix_+"METmaxEt_em/D"  );
+    mMETData->Branch(prefix_+"METmaxEt_had" , &METmaxEt_had , prefix_+"METmaxEt_had/D"  );
+    mMETData->Branch(prefix_+"METetFrac_em" , &METetFrac_em , prefix_+"METetFrac_em/D"  );
+    mMETData->Branch(prefix_+"METetFrac_had", &METetFrac_had, prefix_+"METetFrac_had/D"  );
+    mMETData->Branch(prefix_+"METmetSig",     &METmetSig    , prefix_+"METmetSig/D"  );
+  }
+
+  if (usePFMET_) {
+    mMETData->Branch(prefix_+"METFrac_neutralEM" , &METFrac_neutralEM , prefix_+"METFrac_neutralEM/D"  );
+    mMETData->Branch(prefix_+"METFrac_neutralHad", &METFrac_neutralHad, prefix_+"METFrac_neutralHad/D" );
+    mMETData->Branch(prefix_+"METFrac_chargedEM" , &METFrac_chargedEM , prefix_+"METFrac_chargedEM/D"  );
+    mMETData->Branch(prefix_+"METFrac_chargedHad", &METFrac_chargedHad, prefix_+"METFrac_chargedHad/D" );
+    mMETData->Branch(prefix_+"METFrac_muon"      , &METFrac_muon      , prefix_+"METFrac_muon/D"       );
+    mMETData->Branch(prefix_+"METFrac_type6"     , &METFrac_type6     , prefix_+"METFrac_type6/D"      );
+    mMETData->Branch(prefix_+"METFrac_type7"     , &METFrac_type7     , prefix_+"METFrac_type7/D"      );
+  }
+
   mMETData->Branch(prefix_+"MET_Nocorr",       m_MET_Nocorr,      prefix_+"MET_Nocorr[nUncorr"+prefix_+"MET]/D");
   mMETData->Branch(prefix_+"METpt_Nocorr",    &m_METpt_Nocorr,    prefix_+"METpt_Nocorr/D");
   mMETData->Branch(prefix_+"METphi_Nocorr",   &m_METphi_Nocorr,   prefix_+"METphi_Nocorr/D");

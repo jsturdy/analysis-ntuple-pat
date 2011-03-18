@@ -40,6 +40,10 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 //#include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 
 //#include "UserCode/AnalysisTools/test/ALPGENParticleId.cc"
@@ -68,6 +72,8 @@ private:
   edm::InputTag elecTag_;
   edm::InputTag muonTag_;
   edm::InputTag tauTag_;
+  edm::InputTag _vtxTag;
+  edm::InputTag _beamspotTag;
 
   double elecMaxEta_, elecMaxEt_, elecMinEt_, elecRelIso_;  /// for preselection cuts on electrons
   double muonMaxEta_, muonMaxEt_, muonMinEt_, muonRelIso_;  /// for preselection cuts on muons
@@ -89,6 +95,9 @@ private:
   bool   bool_ElecVeto;
   bool   bool_spike;
   
+  std::vector<double> vd_ElecdB;
+  std::vector<double> vd_ElecdBerr;
+
   std::vector<double> vd_ElecTrkIso;
   std::vector<double> vd_ElecECalIso;
   std::vector<double> vd_ElecHCalIso;
@@ -98,6 +107,15 @@ private:
   std::vector<double> vd_ElecPFChargedHadronIso;
   std::vector<double> vd_ElecPFNeutralHadronIso;
   std::vector<double> vd_ElecPFGammaIso;
+
+  std::vector<double> vd_ElecTrkIsoDeposit;
+  std::vector<double> vd_ElecECalIsoDeposit;
+  std::vector<double> vd_ElecHCalIsoDeposit;
+
+  std::vector<double> vd_ElecPFAllParticleIsoDeposit;
+  std::vector<double> vd_ElecPFChargedHadronIsoDeposit;
+  std::vector<double> vd_ElecPFNeutralHadronIsoDeposit;
+  std::vector<double> vd_ElecPFGammaIsoDeposit;
 
   std::vector<double> vd_ElecTrkChiNorm;
   std::vector<double> vd_ElecCharge;
@@ -128,9 +146,14 @@ private:
   std::vector<double> vd_ElecVx;
   std::vector<double> vd_ElecVy;
   std::vector<double> vd_ElecVz;
+  std::vector<double> vd_ElecPVDxy;
+  std::vector<double> vd_ElecBSDxy;
+  std::vector<double> vd_ElecDxy;
+  std::vector<double> vd_ElecDxyErr;
   std::vector<double> vd_ElecD0;
   std::vector<double> vd_ElecD0Err;
   std::vector<double> vd_ElecDz;
+  std::vector<double> vd_ElecDzErr;
   std::vector<double> vd_ElecPtTrk;
   std::vector<double> vd_ElecQOverPErrTrk;
   std::vector<double> vd_ElecLostHits;
@@ -145,13 +168,13 @@ private:
   std::vector<double> vd_ElecNormChi2;
   //std::vector<int> vb_ccElecAssoc;
 
-  std::vector<double> vd_ElecECalIsoDeposit;
-  std::vector<double> vd_ElecHCalIsoDeposit;
-
   std::vector<reco::Candidate::LorentzVector> v_muonP4;
   std::vector<reco::Candidate::LorentzVector> v_genmuonP4;
   int    i_MuonN;
   bool   bool_MuonVeto;
+
+  std::vector<double> vd_MuondB;
+  std::vector<double> vd_MuondBerr;
 
   std::vector<double> vd_MuonTrkIso;
   std::vector<double> vd_MuonECalIso;
@@ -163,9 +186,18 @@ private:
   std::vector<double> vd_MuonPFNeutralHadronIso;
   std::vector<double> vd_MuonPFGammaIso;
 
-  std::vector<double> vd_MuonTrkChiNorm;
-  std::vector<double> vd_MuonCharge;
+  std::vector<double> vd_MuonTrkIsoDeposit;
+  std::vector<double> vd_MuonECalIsoDeposit;
+  std::vector<double> vd_MuonHCalIsoDeposit;
+  std::vector<double> vd_MuonECalIsoDepositR03;
+  std::vector<double> vd_MuonHCalIsoDepositR03;
 
+  std::vector<double> vd_MuonPFAllParticleIsoDeposit;
+  std::vector<double> vd_MuonPFChargedHadronIsoDeposit;
+  std::vector<double> vd_MuonPFNeutralHadronIsoDeposit;
+  std::vector<double> vd_MuonPFGammaIsoDeposit;
+
+  //Muon ID results
   std::vector<int> vb_MuonIsGlobal;
   std::vector<int> vb_MuonIsStandAlone;
   std::vector<int> vb_MuonIsTracker;
@@ -190,22 +222,32 @@ private:
   std::vector<int> vb_MuonTMLastStationOptimizedBarrelLowPtLoose;
   std::vector<int> vb_MuonTMLastStationOptimizedBarrelLowPtTight;
 
-  std::vector<double> vd_MuonECalIsoDeposit;
-  std::vector<double> vd_MuonHCalIsoDeposit;
-  
-  std::vector<double> vd_MuonCombChi2;
-  std::vector<double> vd_MuonCombNdof;
-  std::vector<double> vd_MuonTrkD0;
-  std::vector<double> vd_MuonTrkD0Err;
-  
   std::vector<double> vd_MuonId;
+
+  //Variables for combined muons
   std::vector<double> vd_MuonCombVx;
   std::vector<double> vd_MuonCombVy;
   std::vector<double> vd_MuonCombVz;
+  std::vector<double> vd_MuonCombPVDxy;
+  std::vector<double> vd_MuonCombBSDxy;
+  std::vector<double> vd_MuonCombDxy;
+  std::vector<double> vd_MuonCombDxyErr;
   std::vector<double> vd_MuonCombD0;
   std::vector<double> vd_MuonCombD0Err;
   std::vector<double> vd_MuonCombDz;
+  std::vector<double> vd_MuonCombDzErr;
+  std::vector<double> vd_MuonCombChi2;
+  std::vector<double> vd_MuonCombNdof;
+  std::vector<double> vd_MuonCombPt;
+  std::vector<double> vd_MuonCombPz;
+  std::vector<double> vd_MuonCombP;
+  std::vector<double> vd_MuonCombEta;
+  std::vector<double> vd_MuonCombPhi;
+  std::vector<double> vd_MuonCombChi;
+  std::vector<double> vd_MuonCombCharge;
+  std::vector<double> vd_MuonCombQOverPErr;
 
+  //Variables for Stand alone muons
   std::vector<double> vd_MuonStandValidHits;
   std::vector<double> vd_MuonStandLostHits;
   std::vector<double> vd_MuonStandPt;
@@ -217,8 +259,18 @@ private:
   std::vector<double> vd_MuonStandCharge;
   std::vector<double> vd_MuonStandQOverPErr;
 
+  std::vector<double> vd_MuonTrkChiNorm;
+  std::vector<double> vd_MuonCharge;
   std::vector<double> vd_MuonTrkValidHits;
   std::vector<double> vd_MuonTrkLostHits;
+  std::vector<double> vd_MuonTrkPVDxy;
+  std::vector<double> vd_MuonTrkBSDxy;
+  std::vector<double> vd_MuonTrkDxy;
+  std::vector<double> vd_MuonTrkDxyErr;
+  std::vector<double> vd_MuonTrkD0;
+  std::vector<double> vd_MuonTrkD0Err;
+  std::vector<double> vd_MuonTrkDz;
+  std::vector<double> vd_MuonTrkDzErr;
   std::vector<double> vd_MuonTrkPt;
   std::vector<double> vd_MuonTrkPz;
   std::vector<double> vd_MuonTrkP;
@@ -229,6 +281,52 @@ private:
   std::vector<double> vd_MuonTrkQOverPErr;
   std::vector<double> vd_MuonTrkOuterZ;
   std::vector<double> vd_MuonTrkOuterR;
+
+  std::vector<double> vd_MuonPickyTrkChiNorm;
+  std::vector<double> vd_MuonPickyCharge;
+  std::vector<double> vd_MuonPickyTrkValidHits;
+  std::vector<double> vd_MuonPickyTrkLostHits;
+  std::vector<double> vd_MuonPickyTrkPVDxy;
+  std::vector<double> vd_MuonPickyTrkBSDxy;
+  std::vector<double> vd_MuonPickyTrkDxy;
+  std::vector<double> vd_MuonPickyTrkDxyErr;
+  std::vector<double> vd_MuonPickyTrkD0;
+  std::vector<double> vd_MuonPickyTrkD0Err;
+  std::vector<double> vd_MuonPickyTrkDz;
+  std::vector<double> vd_MuonPickyTrkDzErr;
+  std::vector<double> vd_MuonPickyTrkPt;
+  std::vector<double> vd_MuonPickyTrkPz;
+  std::vector<double> vd_MuonPickyTrkP;
+  std::vector<double> vd_MuonPickyTrkEta;
+  std::vector<double> vd_MuonPickyTrkPhi;
+  std::vector<double> vd_MuonPickyTrkChi;
+  std::vector<double> vd_MuonPickyTrkCharge;
+  std::vector<double> vd_MuonPickyTrkQOverPErr;
+  std::vector<double> vd_MuonPickyTrkOuterZ;
+  std::vector<double> vd_MuonPickyTrkOuterR;
+
+  std::vector<double> vd_MuonTPFMSTrkChiNorm;
+  std::vector<double> vd_MuonTPFMSCharge;
+  std::vector<double> vd_MuonTPFMSTrkValidHits;
+  std::vector<double> vd_MuonTPFMSTrkLostHits;
+  std::vector<double> vd_MuonTPFMSTrkPVDxy;
+  std::vector<double> vd_MuonTPFMSTrkBSDxy;
+  std::vector<double> vd_MuonTPFMSTrkDxy;
+  std::vector<double> vd_MuonTPFMSTrkDxyErr;
+  std::vector<double> vd_MuonTPFMSTrkD0;
+  std::vector<double> vd_MuonTPFMSTrkD0Err;
+  std::vector<double> vd_MuonTPFMSTrkDz;
+  std::vector<double> vd_MuonTPFMSTrkDzErr;
+  std::vector<double> vd_MuonTPFMSTrkPt;
+  std::vector<double> vd_MuonTPFMSTrkPz;
+  std::vector<double> vd_MuonTPFMSTrkP;
+  std::vector<double> vd_MuonTPFMSTrkEta;
+  std::vector<double> vd_MuonTPFMSTrkPhi;
+  std::vector<double> vd_MuonTPFMSTrkChi;
+  std::vector<double> vd_MuonTPFMSTrkCharge;
+  std::vector<double> vd_MuonTPFMSTrkQOverPErr;
+  std::vector<double> vd_MuonTPFMSTrkOuterZ;
+  std::vector<double> vd_MuonTPFMSTrkOuterR;
 
   std::vector<int>    vi_MuonGenPdgId;
   std::vector<int>    vi_MuonGenStatus;
@@ -278,12 +376,27 @@ private:
   std::vector<double> vd_TauPFNeutralHadronIso;
   std::vector<double> vd_TauPFGammaIso;
 
+  std::vector<double> vd_TauTrkIsoDeposit;
+  std::vector<double> vd_TauECalIsoDeposit;
+  std::vector<double> vd_TauHCalIsoDeposit;
+
+  std::vector<double> vd_TauPFAllParticleIsoDeposit;
+  std::vector<double> vd_TauPFChargedHadronIsoDeposit;
+  std::vector<double> vd_TauPFNeutralHadronIsoDeposit;
+  std::vector<double> vd_TauPFGammaIsoDeposit;
+
+
   std::vector<double> vd_TauVx;
   std::vector<double> vd_TauVy;
   std::vector<double> vd_TauVz;
+  std::vector<double> vd_TauPVDxy;
+  std::vector<double> vd_TauBSDxy;
+  std::vector<double> vd_TauDxy;
+  std::vector<double> vd_TauDxyErr;
   std::vector<double> vd_TauD0;
   std::vector<double> vd_TauD0Err;
   std::vector<double> vd_TauDz;
+  std::vector<double> vd_TauDzErr;
 
   std::vector<float> vf_TauIdElec;
   std::vector<float> vf_TauIdMuon;
@@ -293,12 +406,41 @@ private:
   std::vector<float> vf_TauIdNCfrTenth;
   std::vector<float> vf_TauIdNCfrFull;
 
+  std::vector<float> vf_TauCaloLeadTrkSignedIP      ;
+  std::vector<float> vf_TauCaloLeadTrkHcal3x3EtSum  ;
+  std::vector<float> vf_TauCaloLeadTrkHcal3x3HotDEta;
+  std::vector<float> vf_TauCaloSignalTrkMInv        ;
+  std::vector<float> vf_TauCaloTrkMInv              ;
+  std::vector<float> vf_TauCaloIsoTrkPtSum          ;
+  std::vector<float> vf_TauCaloIsoEcalEtSum         ;
+  std::vector<float> vf_TauCaloMaxEtHCAL            ;
+  
+  std::vector<float> vf_TrkPFIsoChargedHadPtSum;
+  std::vector<float> vf_TrkPFIsoGammaEtSum     ;
+  std::vector<float> vf_TrkPFHcalClusterMaxEt  ;
+  std::vector<float> vf_TrkPFEFrac_em          ;
+  std::vector<float> vf_TrkPFHcalTotalOverPLead;
+  std::vector<float> vf_TrkPFHcalMaxOverPLead  ;
+  std::vector<float> vf_TrkPFHcal3x3OverPLead  ;
+  std::vector<float> vf_TrkPFEcalStripOverPLead;
+  std::vector<float> vf_TrkPFBremRecOverPLead  ;
+  std::vector<float> vf_TrkPFElePreIDOut       ;
+  std::vector<float> vf_TrkPFMuonCaloComp      ;
+  std::vector<float> vf_TrkPFMuonSegComp       ;
+  
+  std::vector<float> vf_TauEtaEtaMom;
+  std::vector<float> vf_TauPhiPhiMom;
+  std::vector<float> vf_TauEtaPhiMom;
+
 
  public:
   void maintenanceElecs() {
     v_elecP4.clear();
     v_genelecP4.clear();
     
+    vd_ElecdB.clear();
+    vd_ElecdBerr.clear();
+
     vd_ElecTrkIso.clear();
     vd_ElecECalIso.clear();
     vd_ElecHCalIso.clear();
@@ -308,6 +450,15 @@ private:
     vd_ElecPFChargedHadronIso.clear();
     vd_ElecPFNeutralHadronIso.clear();
     vd_ElecPFGammaIso.clear();
+
+    vd_ElecTrkIsoDeposit.clear();
+    vd_ElecECalIsoDeposit.clear();
+    vd_ElecHCalIsoDeposit.clear();
+
+    vd_ElecPFAllParticleIsoDeposit.clear();
+    vd_ElecPFChargedHadronIsoDeposit.clear();
+    vd_ElecPFNeutralHadronIsoDeposit.clear();
+    vd_ElecPFGammaIsoDeposit.clear();
 
     vd_ElecTrkChiNorm.clear();
     vd_ElecCharge.clear();
@@ -337,9 +488,14 @@ private:
     vd_ElecVx.clear();
     vd_ElecVy.clear();
     vd_ElecVz.clear();
+    vd_ElecPVDxy.clear();
+    vd_ElecBSDxy.clear();
+    vd_ElecDxy.clear();
+    vd_ElecDxyErr.clear();
     vd_ElecD0.clear();
     vd_ElecD0Err.clear();
     vd_ElecDz.clear();
+    vd_ElecDzErr.clear();
     vd_ElecPtTrk.clear();
     vd_ElecQOverPErrTrk.clear();
     vd_ElecLostHits.clear();
@@ -353,77 +509,14 @@ private:
     vd_ElecPoutTrk.clear();
     vd_ElecNormChi2.clear();
     //vb_ccElecAssoc.clear();
-    
-    vd_ElecECalIsoDeposit.clear();
-    vd_ElecHCalIsoDeposit.clear();
-
-
-    /////
-    std::vector<reco::Candidate::LorentzVector>().swap(v_elecP4);
-    std::vector<reco::Candidate::LorentzVector>().swap(v_genelecP4);
-    
-    std::vector<double>().swap(vd_ElecTrkIso);
-    std::vector<double>().swap(vd_ElecECalIso);
-    std::vector<double>().swap(vd_ElecHCalIso);
-    std::vector<double>().swap(vd_ElecAllIso);
-
-    std::vector<double>().swap(vd_ElecPFAllParticleIso);
-    std::vector<double>().swap(vd_ElecPFChargedHadronIso);
-    std::vector<double>().swap(vd_ElecPFNeutralHadronIso);
-    std::vector<double>().swap(vd_ElecPFGammaIso);
-
-    std::vector<double>().swap(vd_ElecTrkChiNorm);
-    std::vector<double>().swap(vd_ElecCharge);
-    
-    std::vector<float>().swap(vf_ElecIdLoose);
-    std::vector<float>().swap(vf_ElecIdTight);
-    std::vector<float>().swap(vf_ElecIdRobLoose);
-    std::vector<float>().swap(vf_ElecIdRobTight);
-    std::vector<float>().swap(vf_ElecIdRobHighE);
-    std::vector<double>().swap(vd_ElecChargeMode);
-    std::vector<double>().swap(vd_ElecPtTrkMode);
-    std::vector<double>().swap(vd_ElecQOverPErrTrkMode);
-    
-    std::vector<double>().swap(vd_ElecE2OverE9);
-    std::vector<double>().swap(vd_ElecSwissCross);
-    //std::vector<double>().swap(vd_ElecTSeed);
-    std::vector<double>().swap(vd_ElecSigmaIetaIeta);
-    std::vector<double>().swap(vd_ElecHadOverEM);
-
-    std::vector<int>().swap(vi_ElecGenPdgId);
-    std::vector<int>().swap(vi_ElecGenStatus);
-    std::vector<int>().swap(vi_ElecGenMother);
-    std::vector<int>().swap(vi_ElecGenMotherStatus);
-    
-    std::vector<double>().swap(vd_ElecCaloEnergy);
-    std::vector<double>().swap(vd_ElecHOverE);
-    std::vector<double>().swap(vd_ElecVx);
-    std::vector<double>().swap(vd_ElecVy);
-    std::vector<double>().swap(vd_ElecVz);
-    std::vector<double>().swap(vd_ElecD0);
-    std::vector<double>().swap(vd_ElecD0Err);
-    std::vector<double>().swap(vd_ElecDz);
-    std::vector<double>().swap(vd_ElecPtTrk);
-    std::vector<double>().swap(vd_ElecQOverPErrTrk);
-    std::vector<double>().swap(vd_ElecLostHits);
-    std::vector<double>().swap(vd_ElecValidHits);
-    //std::vector<double>().swap(vd_ElecNCluster);
-    std::vector<double>().swap(vd_ElecEtaTrk);
-    std::vector<double>().swap(vd_ElecPhiTrk);
-    std::vector<double>().swap(vd_ElecWidthClusterEta);
-    std::vector<double>().swap(vd_ElecWidthClusterPhi);
-    std::vector<double>().swap(vd_ElecPinTrk);
-    std::vector<double>().swap(vd_ElecPoutTrk);
-    std::vector<double>().swap(vd_ElecNormChi2);
-    //std::vector<int>().swap(vb_ccElecAssoc);
-    
-    std::vector<double>().swap(vd_ElecECalIsoDeposit);
-    std::vector<double>().swap(vd_ElecHCalIsoDeposit);
   }
 
   void maintenanceMuons() {
     v_muonP4.clear();
     v_genmuonP4.clear();
+
+    vd_MuondB.clear();
+    vd_MuondBerr.clear();
 
     vd_MuonTrkIso.clear();
     vd_MuonECalIso.clear();
@@ -434,6 +527,17 @@ private:
     vd_MuonPFChargedHadronIso.clear();
     vd_MuonPFNeutralHadronIso.clear();
     vd_MuonPFGammaIso.clear();
+
+    vd_MuonTrkIsoDeposit.clear();
+    vd_MuonECalIsoDeposit.clear();
+    vd_MuonHCalIsoDeposit.clear();
+    vd_MuonECalIsoDepositR03.clear();
+    vd_MuonHCalIsoDepositR03.clear();
+
+    vd_MuonPFAllParticleIsoDeposit.clear();
+    vd_MuonPFChargedHadronIsoDeposit.clear();
+    vd_MuonPFNeutralHadronIsoDeposit.clear();
+    vd_MuonPFGammaIsoDeposit.clear();
 
     vd_MuonTrkChiNorm.clear();
     vd_MuonCharge.clear();
@@ -462,21 +566,29 @@ private:
     vb_MuonTMLastStationOptimizedBarrelLowPtLoose.clear();
     vb_MuonTMLastStationOptimizedBarrelLowPtTight.clear();
 
-    vd_MuonECalIsoDeposit.clear();
-    vd_MuonHCalIsoDeposit.clear();
-  
     vd_MuonCombChi2.clear();
     vd_MuonCombNdof.clear();
-    vd_MuonTrkD0.clear();
-    vd_MuonTrkD0Err.clear();
   
     vd_MuonId.clear();
     vd_MuonCombVx.clear();
     vd_MuonCombVy.clear();
     vd_MuonCombVz.clear();
+    vd_MuonCombPVDxy.clear();
+    vd_MuonCombBSDxy.clear();
+    vd_MuonCombDxy.clear();
+    vd_MuonCombDxyErr.clear();
     vd_MuonCombD0.clear();
     vd_MuonCombD0Err.clear();
     vd_MuonCombDz.clear();
+    vd_MuonCombDzErr.clear();
+    vd_MuonCombPt.clear();
+    vd_MuonCombPz.clear();
+    vd_MuonCombP.clear();
+    vd_MuonCombEta.clear();
+    vd_MuonCombPhi.clear();
+    vd_MuonCombChi.clear();
+    vd_MuonCombCharge.clear();
+    vd_MuonCombQOverPErr.clear();
 
     vd_MuonStandValidHits.clear();
     vd_MuonStandLostHits.clear();
@@ -491,6 +603,14 @@ private:
 
     vd_MuonTrkValidHits.clear();
     vd_MuonTrkLostHits.clear();
+    vd_MuonTrkPVDxy.clear();
+    vd_MuonTrkBSDxy.clear();
+    vd_MuonTrkDxy.clear();
+    vd_MuonTrkDxyErr.clear();
+    vd_MuonTrkD0.clear();
+    vd_MuonTrkD0Err.clear();
+    vd_MuonTrkDz.clear();
+    vd_MuonTrkDzErr.clear();
     vd_MuonTrkPt.clear();
     vd_MuonTrkPz.clear();
     vd_MuonTrkP.clear();
@@ -502,97 +622,52 @@ private:
     vd_MuonTrkOuterZ.clear();
     vd_MuonTrkOuterR.clear();
 
+    vd_MuonPickyTrkValidHits.clear();
+    vd_MuonPickyTrkLostHits.clear();
+    vd_MuonPickyTrkPVDxy.clear();
+    vd_MuonPickyTrkBSDxy.clear();
+    vd_MuonPickyTrkDxy.clear();
+    vd_MuonPickyTrkDxyErr.clear();
+    vd_MuonPickyTrkD0.clear();
+    vd_MuonPickyTrkD0Err.clear();
+    vd_MuonPickyTrkDz.clear();
+    vd_MuonPickyTrkDzErr.clear();
+    vd_MuonPickyTrkPt.clear();
+    vd_MuonPickyTrkPz.clear();
+    vd_MuonPickyTrkP.clear();
+    vd_MuonPickyTrkEta.clear();
+    vd_MuonPickyTrkPhi.clear();
+    vd_MuonPickyTrkChi.clear();
+    vd_MuonPickyTrkCharge.clear();
+    vd_MuonPickyTrkQOverPErr.clear();
+    vd_MuonPickyTrkOuterZ.clear();
+    vd_MuonPickyTrkOuterR.clear();
+
+    vd_MuonTPFMSTrkValidHits.clear();
+    vd_MuonTPFMSTrkLostHits.clear();
+    vd_MuonTPFMSTrkPVDxy.clear();
+    vd_MuonTPFMSTrkBSDxy.clear();
+    vd_MuonTPFMSTrkDxy.clear();
+    vd_MuonTPFMSTrkDxyErr.clear();
+    vd_MuonTPFMSTrkD0.clear();
+    vd_MuonTPFMSTrkD0Err.clear();
+    vd_MuonTPFMSTrkDz.clear();
+    vd_MuonTPFMSTrkDzErr.clear();
+    vd_MuonTPFMSTrkPt.clear();
+    vd_MuonTPFMSTrkPz.clear();
+    vd_MuonTPFMSTrkP.clear();
+    vd_MuonTPFMSTrkEta.clear();
+    vd_MuonTPFMSTrkPhi.clear();
+    vd_MuonTPFMSTrkChi.clear();
+    vd_MuonTPFMSTrkCharge.clear();
+    vd_MuonTPFMSTrkQOverPErr.clear();
+    vd_MuonTPFMSTrkOuterZ.clear();
+    vd_MuonTPFMSTrkOuterR.clear();
+
     vi_MuonGenPdgId.clear();
     vi_MuonGenStatus.clear();
     vi_MuonGenMother.clear();
     vi_MuonGenMotherStatus.clear();
-
-
-    //////
-    std::vector<reco::Candidate::LorentzVector>().swap(v_muonP4);
-    std::vector<reco::Candidate::LorentzVector>().swap(v_genmuonP4);
-
-    std::vector<double>().swap(vd_MuonTrkIso);
-    std::vector<double>().swap(vd_MuonECalIso);
-    std::vector<double>().swap(vd_MuonHCalIso);
-    std::vector<double>().swap(vd_MuonAllIso);
-
-    std::vector<double>().swap(vd_MuonPFAllParticleIso);
-    std::vector<double>().swap(vd_MuonPFChargedHadronIso);
-    std::vector<double>().swap(vd_MuonPFNeutralHadronIso);
-    std::vector<double>().swap(vd_MuonPFGammaIso);
-
-    std::vector<double>().swap(vd_MuonTrkChiNorm);
-    std::vector<double>().swap(vd_MuonCharge);
-
-    std::vector<int>().swap(vb_MuonIsGlobal);
-    std::vector<int>().swap(vb_MuonIsStandAlone);
-    std::vector<int>().swap(vb_MuonIsTracker);
-
-    std::vector<int>().swap(vb_MuonGlobalMuonPromptTight);
-
-    std::vector<int>().swap(vb_MuonAllArbitrated);
-    std::vector<int>().swap(vb_MuonTrackerMuonArbitrated);
-    std::vector<int>().swap(vb_MuonGMTkKinkTight);
-    std::vector<int>().swap(vb_MuonGMTkChiCompatibility);
-    std::vector<int>().swap(vb_MuonGMStaChiCompatibility);
-    std::vector<int>().swap(vb_MuonTM2DCompatibilityLoose);
-    std::vector<int>().swap(vb_MuonTM2DCompatibilityTight);
-    std::vector<int>().swap(vb_MuonTMOneStationLoose);
-    std::vector<int>().swap(vb_MuonTMOneStationTight);
-    std::vector<int>().swap(vb_MuonTMLastStationLoose);
-    std::vector<int>().swap(vb_MuonTMLastStationTight);
-    std::vector<int>().swap(vb_MuonTMLastStationAngLoose);
-    std::vector<int>().swap(vb_MuonTMLastStationAngTight);
-    std::vector<int>().swap(vb_MuonTMLastStationOptimizedLowPtLoose);
-    std::vector<int>().swap(vb_MuonTMLastStationOptimizedLowPtTight);
-    std::vector<int>().swap(vb_MuonTMLastStationOptimizedBarrelLowPtLoose);
-    std::vector<int>().swap(vb_MuonTMLastStationOptimizedBarrelLowPtTight);
-
-    std::vector<double>().swap(vd_MuonECalIsoDeposit);
-    std::vector<double>().swap(vd_MuonHCalIsoDeposit);
-  
-    std::vector<double>().swap(vd_MuonCombChi2);
-    std::vector<double>().swap(vd_MuonCombNdof);
-    std::vector<double>().swap(vd_MuonTrkD0);
-    std::vector<double>().swap(vd_MuonTrkD0Err);
-  
-    std::vector<double>().swap(vd_MuonId);
-    std::vector<double>().swap(vd_MuonCombVx);
-    std::vector<double>().swap(vd_MuonCombVy);
-    std::vector<double>().swap(vd_MuonCombVz);
-    std::vector<double>().swap(vd_MuonCombD0);
-    std::vector<double>().swap(vd_MuonCombD0Err);
-    std::vector<double>().swap(vd_MuonCombDz);
-
-    std::vector<double>().swap(vd_MuonStandValidHits);
-    std::vector<double>().swap(vd_MuonStandLostHits);
-    std::vector<double>().swap(vd_MuonStandPt);
-    std::vector<double>().swap(vd_MuonStandPz);
-    std::vector<double>().swap(vd_MuonStandP);
-    std::vector<double>().swap(vd_MuonStandEta);
-    std::vector<double>().swap(vd_MuonStandPhi);
-    std::vector<double>().swap(vd_MuonStandChi);
-    std::vector<double>().swap(vd_MuonStandCharge);
-    std::vector<double>().swap(vd_MuonStandQOverPErr);
-
-    std::vector<double>().swap(vd_MuonTrkValidHits);
-    std::vector<double>().swap(vd_MuonTrkLostHits);
-    std::vector<double>().swap(vd_MuonTrkPt);
-    std::vector<double>().swap(vd_MuonTrkPz);
-    std::vector<double>().swap(vd_MuonTrkP);
-    std::vector<double>().swap(vd_MuonTrkEta);
-    std::vector<double>().swap(vd_MuonTrkPhi);
-    std::vector<double>().swap(vd_MuonTrkChi);
-    std::vector<double>().swap(vd_MuonTrkCharge);
-    std::vector<double>().swap(vd_MuonTrkQOverPErr);
-    std::vector<double>().swap(vd_MuonTrkOuterZ);
-    std::vector<double>().swap(vd_MuonTrkOuterR);
-
-    std::vector<int>().swap(vi_MuonGenPdgId);
-    std::vector<int>().swap(vi_MuonGenStatus);
-    std::vector<int>().swap(vi_MuonGenMother);
-    std::vector<int>().swap(vi_MuonGenMotherStatus);
   }
 
   void maintenanceTaus() {
@@ -619,12 +694,26 @@ private:
     vd_TauPFNeutralHadronIso.clear();
     vd_TauPFGammaIso.clear();
 
+    vd_TauTrkIsoDeposit.clear();
+    vd_TauECalIsoDeposit.clear();
+    vd_TauHCalIsoDeposit.clear();
+
+    vd_TauPFAllParticleIsoDeposit.clear();
+    vd_TauPFChargedHadronIsoDeposit.clear();
+    vd_TauPFNeutralHadronIsoDeposit.clear();
+    vd_TauPFGammaIsoDeposit.clear();
+
     vd_TauVx.clear();
     vd_TauVy.clear();
     vd_TauVz.clear();
+    vd_TauPVDxy.clear();
+    vd_TauBSDxy.clear();
+    vd_TauDxy.clear();
+    vd_TauDxyErr.clear();
     vd_TauD0.clear();
     vd_TauD0Err.clear();
     vd_TauDz.clear();
+    vd_TauDzErr.clear();
 
 
     vf_TauIdElec.clear();
@@ -635,46 +724,33 @@ private:
     vf_TauIdNCfrTenth.clear();
     vf_TauIdNCfrFull.clear();
 
-    ///////
-    std::map<std::string,TauIDType>().swap(tauidMap);
-  
-    std::vector<reco::Candidate::LorentzVector>().swap(v_tauP4);
-    std::vector<reco::Candidate::LorentzVector>().swap(v_gentauP4);
-    std::vector<reco::Candidate::LorentzVector>().swap(v_gentaujetP4);
-    std::vector<double>().swap(vd_TauCharge);
 
-    std::vector<int>().swap(vi_TauGenPdgId);
-    std::vector<int>().swap(vi_TauGenStatus);
-    std::vector<int>().swap(vi_TauGenMother);
-    std::vector<int>().swap(vi_TauGenMotherStatus);
-    std::vector<int>().swap(vi_TauGen);
+    vf_TauCaloLeadTrkSignedIP      .clear();
+    vf_TauCaloLeadTrkHcal3x3EtSum  .clear();
+    vf_TauCaloLeadTrkHcal3x3HotDEta.clear();
+    vf_TauCaloSignalTrkMInv        .clear();
+    vf_TauCaloTrkMInv              .clear();
+    vf_TauCaloIsoTrkPtSum          .clear();
+    vf_TauCaloIsoEcalEtSum         .clear();
+    vf_TauCaloMaxEtHCAL            .clear();
     
-    std::vector<double>().swap(vd_TauTrkIso);
-    std::vector<double>().swap(vd_TauECalIso);
-    std::vector<double>().swap(vd_TauHCalIso);
-    std::vector<double>().swap(vd_TauAllIso);
-
-    std::vector<double>().swap(vd_TauPFAllParticleIso);
-    std::vector<double>().swap(vd_TauPFChargedHadronIso);
-    std::vector<double>().swap(vd_TauPFNeutralHadronIso);
-    std::vector<double>().swap(vd_TauPFGammaIso);
-
-    std::vector<double>().swap(vd_TauVx);
-    std::vector<double>().swap(vd_TauVy);
-    std::vector<double>().swap(vd_TauVz);
-    std::vector<double>().swap(vd_TauD0);
-    std::vector<double>().swap(vd_TauD0Err);
-    std::vector<double>().swap(vd_TauDz);
-
-
-    std::vector<float>().swap(vf_TauIdElec);
-    std::vector<float>().swap(vf_TauIdMuon);
-    std::vector<float>().swap(vf_TauIdIso);
-    std::vector<float>().swap(vf_TauIdNCfrHalf);
-    std::vector<float>().swap(vf_TauIdNCfrQuarter);
-    std::vector<float>().swap(vf_TauIdNCfrTenth);
-    std::vector<float>().swap(vf_TauIdNCfrFull);
-  }  
+    vf_TrkPFIsoChargedHadPtSum.clear();
+    vf_TrkPFIsoGammaEtSum     .clear();
+    vf_TrkPFHcalClusterMaxEt  .clear();
+    vf_TrkPFEFrac_em          .clear();
+    vf_TrkPFHcalTotalOverPLead.clear();
+    vf_TrkPFHcalMaxOverPLead  .clear();
+    vf_TrkPFHcal3x3OverPLead  .clear();
+    vf_TrkPFEcalStripOverPLead.clear();
+    vf_TrkPFBremRecOverPLead  .clear();
+    vf_TrkPFElePreIDOut       .clear();
+    vf_TrkPFMuonCaloComp      .clear();
+    vf_TrkPFMuonSegComp       .clear();
+    
+    vf_TauEtaEtaMom.clear();
+    vf_TauPhiPhiMom.clear();
+    vf_TauEtaPhiMom.clear();
+  }
 };
 
 #endif

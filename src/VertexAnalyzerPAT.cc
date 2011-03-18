@@ -13,7 +13,7 @@ Description: Collects variables related to vertices, performs a primary vertex c
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: VertexAnalyzerPAT.cc,v 1.10 2011/03/08 21:11:36 sturdy Exp $
+// $Id: VertexAnalyzerPAT.cc,v 1.11 2011/03/15 14:55:52 sturdy Exp $
 //
 //
 
@@ -72,7 +72,7 @@ bool VertexAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   ev.getByLabel(_beamspotTag,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;   
-
+  
   m_Beamspot_x0    = bs.x0();
   m_Beamspot_y0    = bs.y0();
   m_Beamspot_z0    = bs.z0();
@@ -111,7 +111,7 @@ bool VertexAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   int tmpnVtx  = (*vertices).size();
   int numVtx   = 0;
   int tmpNtrks = 0;
-  if (tmpnVtx > 10) tmpnVtx = 10;
+  if (tmpnVtx > 50) tmpnVtx = 50;
   maintenance();
   vd_VtxSumTrkPt.resize(tmpnVtx);
   for (int i=0; i< tmpnVtx; i++){  
@@ -158,6 +158,7 @@ bool VertexAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	if (vd_VtxZ.at(0)<=_maxVtxZ)
 	  if (vd_Vtxd0.at(0)<=_maxVtxd0)
 	  vertexDecision = true;
+
   
   //mVertexData->Fill();
   if (_debug)

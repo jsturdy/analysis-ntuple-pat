@@ -14,7 +14,7 @@ Description: Collects variables related to jets, performs dijet preselection
 //
 // Original Author:  Jared Sturdy
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: JetAnalyzerPAT.cc,v 1.20 2011/03/14 19:57:53 sturdy Exp $
+// $Id: JetAnalyzerPAT.cc,v 1.21 2011/03/15 14:55:52 sturdy Exp $
 //
 //
 
@@ -387,28 +387,27 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 
 	if (debug_>5) std::cout<<"\n\nGetting corrections for calo jets\n\n"<<std::endl;
 
-	/*
 	//if (useCaloJets_) {
 	if (theJet.jecSetsAvailable()) {
 	  map_s_vf_correctionFactor["raw"].push_back(uncorrJet.jecFactor("Uncorrected"));
-	  //map_s_vf_correctionFactor["off"].push_back(uncorrJet.jecFactor("L1Offset"));
+	  map_s_vf_correctionFactor["off"].push_back(uncorrJet.jecFactor("L1Offset"));
 	  map_s_vf_correctionFactor["rel"].push_back(uncorrJet.jecFactor("L2Relative"));
 	  map_s_vf_correctionFactor["abs"].push_back(uncorrJet.jecFactor("L3Absolute"));
 	  if (corrLevel=="L2L3Residual")
 	    map_s_vf_correctionFactor["residual"].push_back(uncorrJet.jecFactor("L2L3Residual"));
 	  //map_s_vf_correctionFactor["emf"].push_back(uncorrJet.jecFactor("L4Emf"));
-	  //map_s_vf_correctionFactor["had:glu"].push_back(uncorrJet.jecFactor("L5Flavor", "gluon"));
-	  //map_s_vf_correctionFactor["had:uds"].push_back(uncorrJet.jecFactor("L5Flavor", "uds"));
-	  //map_s_vf_correctionFactor["had:c"].push_back(uncorrJet.jecFactor("L5Flavor", "c"));
-	  //map_s_vf_correctionFactor["had:b"].push_back(uncorrJet.jecFactor("L5Flavor", "b"));
+	  map_s_vf_correctionFactor["had:glu"].push_back(uncorrJet.jecFactor("L5Flavor", "gluon"));
+	  map_s_vf_correctionFactor["had:uds"].push_back(uncorrJet.jecFactor("L5Flavor", "uds"));
+	  map_s_vf_correctionFactor["had:c"]  .push_back(uncorrJet.jecFactor("L5Flavor", "charm"));
+	  map_s_vf_correctionFactor["had:b"]  .push_back(uncorrJet.jecFactor("L5Flavor", "bottom"));
 	  //map_s_vf_correctionFactor["ue:glu"].push_back(uncorrJet.jecFactor("L6UE", "gluon"));
 	  //map_s_vf_correctionFactor["ue:uds"].push_back(uncorrJet.jecFactor("L6UE", "uds"));
 	  //map_s_vf_correctionFactor["ue:c"].push_back(uncorrJet.jecFactor("L6UE", "c"));
 	  //map_s_vf_correctionFactor["ue:b"].push_back(uncorrJet.jecFactor("L6UE", "b"));
-	  //map_s_vf_correctionFactor["part:glu"].push_back(uncorrJet.jecFactor("L7Parton", "gluon"));
-	  //map_s_vf_correctionFactor["part:uds"].push_back(uncorrJet.jecFactor("L7Parton", "uds"));
-	  //map_s_vf_correctionFactor["part:c"].push_back(uncorrJet.jecFactor("L7Parton", "c"));
-	  //map_s_vf_correctionFactor["part:b"].push_back(uncorrJet.jecFactor("L7Parton", "b"));
+	  map_s_vf_correctionFactor["part:glu"].push_back(uncorrJet.jecFactor("L7Parton", "gluon"));
+	  map_s_vf_correctionFactor["part:uds"].push_back(uncorrJet.jecFactor("L7Parton", "uds"));
+	  map_s_vf_correctionFactor["part:c"]  .push_back(uncorrJet.jecFactor("L7Parton", "charm"));
+	  map_s_vf_correctionFactor["part:b"]  .push_back(uncorrJet.jecFactor("L7Parton", "bottom"));
 	}
 
 	else {
@@ -418,21 +417,22 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  map_s_vf_correctionFactor["off"].push_back(1);
 	  map_s_vf_correctionFactor["rel"].push_back(1);
 	  map_s_vf_correctionFactor["abs"].push_back(1);
-	  map_s_vf_correctionFactor["emf"].push_back(1);
+	  if (corrLevel=="L2L3Residual")
+	    map_s_vf_correctionFactor["residual"].push_back(1);
+	  //map_s_vf_correctionFactor["emf"].push_back(1);
 	  map_s_vf_correctionFactor["had:glu"].push_back(1);
 	  map_s_vf_correctionFactor["had:uds"].push_back(1);
 	  map_s_vf_correctionFactor["had:c"].push_back(1);
 	  map_s_vf_correctionFactor["had:b"].push_back(1);
-	  map_s_vf_correctionFactor["ue:glu"].push_back(1);
-	  map_s_vf_correctionFactor["ue:uds"].push_back(1);
-	  map_s_vf_correctionFactor["ue:c"].push_back(1);
-	  map_s_vf_correctionFactor["ue:b"].push_back(1);
+	  //map_s_vf_correctionFactor["ue:glu"].push_back(1);
+	  //map_s_vf_correctionFactor["ue:uds"].push_back(1);
+	  //map_s_vf_correctionFactor["ue:c"].push_back(1);
+	  //map_s_vf_correctionFactor["ue:b"].push_back(1);
 	  map_s_vf_correctionFactor["part:glu"].push_back(1);
 	  map_s_vf_correctionFactor["part:uds"].push_back(1);
 	  map_s_vf_correctionFactor["part:c"].push_back(1);
 	  map_s_vf_correctionFactor["part:b"].push_back(1);
 	}
-	*/
 	
 	v_JetP4.push_back(theJet.p4());
 	v_RawJetP4.push_back(uncorrJet.p4());
@@ -452,7 +452,7 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	//Calo jet type specific
 	if (debug_>5) 
 	  std::cout<<"\n\nSetting up jetid\n\n"<<std::endl;
-	if (useCaloJets_ || useJPTJets_) {
+	if (theJet.isCaloJet() || theJet.isJPTJet()) {
 	  JetIDSelectionFunctor jetIDMinimal( JetIDSelectionFunctor::PURE09,
 	  			      JetIDSelectionFunctor::MINIMAL );
 	  
@@ -490,19 +490,18 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  vb_JetIDLoose  .push_back(jetIDLoo);
 	  vb_JetIDTight  .push_back(jetIDTig);
 	  
-	  vd_JetFem.push_back(theJet.emEnergyFraction());
-	  vd_JetFhad.push_back(theJet.energyFractionHadronic());
+	  vd_JetEFrac_em .push_back(theJet.emEnergyFraction());
+	  vd_JetEFrac_had.push_back(theJet.energyFractionHadronic());
 	  
 	  vd_JetN90 .push_back(theJet.jetID().n90Hits);
 	  vd_JetfHPD.push_back(theJet.jetID().fHPD);
 	  vd_JetfRBX.push_back(theJet.jetID().fRBX);
 	}
 
-	if (useJPTJets_ ) {
-	  //thejetid.JetElecMult = theJet.elecMultiplicity();
-	  vd_JetElecMult      .push_back(theJet.elecMultiplicity());
+	if (theJet.isJPTJet() ) {
+	  vd_JetElectronMult.push_back(theJet.elecMultiplicity());
 	}
-	if (useJPTJets_ || usePFJets_) {
+	if (theJet.isJPTJet() || theJet.isPFJet()) {
 	  //thejetid.JetChargedFem  = theJet.chargedEmEnergyFraction();
 	  //thejetid.JetNeutralFem  = theJet.neutralEmEnergyFraction();
 	  //thejetid.JetChargedFhad = theJet.chargedHadronEnergyFraction();
@@ -514,22 +513,28 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  //thejetid.JetFhad = theJet.neutralHadronEnergyFraction()+
 	  //  theJet.chargedHadronEnergyFraction();
 	  
-	  vd_JetChargedFem .push_back(theJet.chargedEmEnergyFraction());
-	  vd_JetNeutralFem .push_back(theJet.neutralEmEnergyFraction());
-	  vd_JetChargedFhad.push_back(theJet.chargedHadronEnergyFraction());
-	  vd_JetNeutralFhad.push_back(theJet.neutralHadronEnergyFraction());
-	  
 	  vd_JetChargedMult.push_back(theJet.chargedMultiplicity());
 	  vd_JetMuonMult   .push_back(theJet.muonMultiplicity());
 	  
-	  vd_JetFem .push_back(theJet.neutralEmEnergyFraction()+
+	  vd_JetChargedFrac_em .push_back(theJet.chargedEmEnergyFraction());
+	  vd_JetNeutralFrac_em .push_back(theJet.neutralEmEnergyFraction());
+	  vd_JetChargedFrac_had.push_back(theJet.chargedHadronEnergyFraction());
+	  vd_JetNeutralFrac_had.push_back(theJet.neutralHadronEnergyFraction());
+	  
+	  vd_JetEFrac_em .push_back(theJet.neutralEmEnergyFraction()+
 	  		       theJet.chargedEmEnergyFraction());
-	  vd_JetFhad.push_back(theJet.neutralHadronEnergyFraction()+
+	  vd_JetEFrac_had.push_back(theJet.neutralHadronEnergyFraction()+
 	  		       theJet.chargedHadronEnergyFraction());
+
+	  vd_JetChargedEn_em .push_back(theJet.chargedEmEnergy());
+	  vd_JetNeutralEn_em .push_back(theJet.neutralEmEnergy());
+	  vd_JetChargedEn_had.push_back(theJet.chargedHadronEnergy());
+	  vd_JetNeutralEn_had.push_back(theJet.neutralHadronEnergy());
+	  
 	}
 
 	//PF jet type specific variables
-	if (usePFJets_) {
+	if (theJet.isPFJet()) {
 	  PFJetIDSelectionFunctor jetIDLoose( PFJetIDSelectionFunctor::FIRSTDATA,
 	  				      PFJetIDSelectionFunctor::LOOSE );
 	  
@@ -539,25 +544,6 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  retloo = jetIDLoose.getBitTemplate();
 	  rettig = jetIDTight.getBitTemplate();
 	
-	  //retloo.set(false);
-	  //thejetid.JetIDLoose = jetIDLoose(theJet, retloo);
-	  //rettig.set(false);
-	  //thejetid.JetIDTight = jetIDTight(theJet, rettig);
-	  //
-	  //thejetid.JetHFFem  = theJet.HFEMEnergyFraction();
-	  //thejetid.JetHFFhad = theJet.HFHadronEnergyFraction();
-	  //
-	  //thejetid.JetNeutralMult = theJet.neutralMultiplicity();
-	  //
-	  //thejetid.JetChargedHadMult = theJet.chargedHadronMultiplicity();
-	  //thejetid.JetNeutralHadMult = theJet.neutralHadronMultiplicity();
-	  //thejetid.JetPhotonMult     = theJet.photonMultiplicity();
-	  //thejetid.JetElecMult       = theJet.electronMultiplicity();
-	  //
-	  //thejetid.JetChargedFmu  = theJet.muonEnergyFraction();
-	  //thejetid.JetChargedFele = theJet.electronEnergy() / theJet.energy();
-	  //thejetid.JetChargedFpho = theJet.photonEnergyFraction();
-
 	  retloo.set(false);
 	  int jetIDLoo = jetIDLoose(theJet, retloo);
 	  rettig.set(false);
@@ -566,19 +552,28 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	  vb_JetIDLoose  .push_back(jetIDLoo);
 	  vb_JetIDTight  .push_back(jetIDTig);
 	  
-	  vd_JetHFFem .push_back(theJet.HFEMEnergyFraction());
-	  vd_JetHFFhad.push_back(theJet.HFHadronEnergyFraction());
+
+	  vd_JetHFMult_had     .push_back(theJet.HFHadronMultiplicity());
+	  vd_JetHFMult_em      .push_back(theJet.HFEMMultiplicity());
+	  vd_JetChargedMult_had.push_back(theJet.chargedHadronMultiplicity());
+	  vd_JetNeutralMult_had.push_back(theJet.neutralHadronMultiplicity());
+	  vd_JetPhotonMult     .push_back(theJet.photonMultiplicity());
+	  vd_JetElectronMult   .push_back(theJet.electronMultiplicity());
+	  vd_JetNeutralMult    .push_back(theJet.neutralMultiplicity());
 	  
-	  vd_JetNeutralMult.push_back(theJet.neutralMultiplicity());
-	  
-	  vd_JetChargedHadMult.push_back(theJet.chargedHadronMultiplicity());
-	  vd_JetNeutralHadMult.push_back(theJet.neutralHadronMultiplicity());
-	  vd_JetPhotonMult    .push_back(theJet.photonMultiplicity());
-	  vd_JetElecMult      .push_back(theJet.electronMultiplicity());
-	  
-	  vd_JetChargedFmu .push_back(theJet.muonEnergyFraction());
-	  vd_JetChargedFele.push_back(theJet.electronEnergy() / theJet.energy());
-	  vd_JetChargedFpho.push_back(theJet.photonEnergyFraction());
+	  vd_JetHFFrac_em       .push_back(theJet.HFEMEnergyFraction());
+	  vd_JetHFFrac_had      .push_back(theJet.HFHadronEnergyFraction());
+	  vd_JetEFrac_muon      .push_back(theJet.muonEnergyFraction());
+	  vd_JetChargedFrac_muon.push_back(theJet.chargedMuEnergyFraction());
+	  vd_JetEFrac_electron  .push_back(theJet.electronEnergy() / theJet.energy());
+	  vd_JetEFrac_photon    .push_back(theJet.photonEnergyFraction());
+
+	  vd_JetHFEn_em       .push_back(theJet.HFEMEnergy());
+	  vd_JetHFEn_had      .push_back(theJet.HFHadronEnergy());
+	  vd_JetEn_muon       .push_back(theJet.muonEnergy());
+	  vd_JetChargedEn_muon.push_back(theJet.chargedMuEnergy());
+	  vd_JetEn_electron   .push_back(theJet.electronEnergy());
+	  vd_JetEn_photon     .push_back(theJet.photonEnergy());
 
  	}
 	
@@ -587,21 +582,6 @@ bool JetAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 	vi_JetPartonFlavour  .push_back(theJet.partonFlavour());
 
 	////get b-tagging information
-	//BTAGINFO thebjetinfo;
-	//
-	//thebjetinfo.JetBTag_TCHE           = theJet.bDiscriminator("trackCountingHighEffBJetTags");
-	//thebjetinfo.JetBTag_TCHP           = theJet.bDiscriminator("trackCountingHighPurBJetTags");
-	//thebjetinfo.JetBTag_jetProb        = theJet.bDiscriminator("jetProbabilityBJetTags");
-	//thebjetinfo.JetBTag_jetBProb       = theJet.bDiscriminator("jetBProbabilityBJetTags");
-	//thebjetinfo.JetBTag_SSVHE          = theJet.bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
-	//thebjetinfo.JetBTag_SSVHP          = theJet.bDiscriminator("simpleSecondaryVertexHighPurBJetTags");
-	//thebjetinfo.JetBTag_CSV            = theJet.bDiscriminator("combinedSecondaryVertexBJetTags");
-	//thebjetinfo.JetBTag_CSVMVA         = theJet.bDiscriminator("combinedSecondaryVertexMVABJetTags");
-	//thebjetinfo.JetBTag_SoftLepton     = theJet.bDiscriminator("softMuonBJetTags");
-	//thebjetinfo.JetBTag_SoftLeptonByIP = theJet.bDiscriminator("softMuonByIP3dBJetTags");
-	//thebjetinfo.JetBTag_SoftLeptonByPt = theJet.bDiscriminator("softMuonByPtBJetTags");
-	//
-	//vbtag_JetBtag.push_back(thebjetinfo);
 
 	vd_JetBTag_TCHE          .push_back(theJet.bDiscriminator("trackCountingHighEffBJetTags"));
 	vd_JetBTag_TCHP          .push_back(theJet.bDiscriminator("trackCountingHighPurBJetTags"));
@@ -693,14 +673,15 @@ void JetAnalyzerPAT::bookTTree() {
   //mJetData->Branch(prefix_+"JetCorrFactor",   &map_s_vf_correctionFactor);
   //mJetData->Branch(prefix_+"JetOverlaps",     &map_s_vi_JetOverlaps);
   //mJetData->Branch(prefix_+"JetNOverlaps",    &map_s_vi_JetNOverlaps);
-  mJetData->Branch(prefix_+"AllJetElectronOverlaps",  &vi_JetElectronOverlaps);
-  mJetData->Branch(prefix_+"AllJetElectronNOverlaps", &vi_JetElectronNOverlaps);
-  mJetData->Branch(prefix_+"AllJetMuonOverlaps",      &vi_JetMuonOverlaps);
-  mJetData->Branch(prefix_+"AllJetMuonNOverlaps",     &vi_JetMuonNOverlaps);
-  mJetData->Branch(prefix_+"AllJetTauOverlaps",       &vi_JetTauOverlaps);
-  mJetData->Branch(prefix_+"AllJetTauNOverlaps",      &vi_JetTauNOverlaps);
-  mJetData->Branch(prefix_+"AllJetPhotonOverlaps",    &vi_JetPhotonOverlaps);
-  mJetData->Branch(prefix_+"AllJetPhotonNOverlaps",   &vi_JetPhotonNOverlaps);
+  mJetData->Branch(prefix_+"ElectronOverlaps",  &vi_JetElectronOverlaps);
+  mJetData->Branch(prefix_+"ElectronNOverlaps", &vi_JetElectronNOverlaps);
+  mJetData->Branch(prefix_+"MuonOverlaps",      &vi_JetMuonOverlaps);
+  mJetData->Branch(prefix_+"MuonNOverlaps",     &vi_JetMuonNOverlaps);
+  mJetData->Branch(prefix_+"TauOverlaps",       &vi_JetTauOverlaps);
+  mJetData->Branch(prefix_+"TauNOverlaps",      &vi_JetTauNOverlaps);
+  mJetData->Branch(prefix_+"PhotonOverlaps",    &vi_JetPhotonOverlaps);
+  mJetData->Branch(prefix_+"PhotonNOverlaps",   &vi_JetPhotonNOverlaps);
+
   mJetData->Branch(prefix_+"JetPreselection",         &bool_JetPreselection, prefix_+"JetPreselection/O");
 
   mJetData->Branch(prefix_+"JECUncPlus",  &vf_JECUncPlus);
@@ -739,10 +720,10 @@ void JetAnalyzerPAT::bookTTree() {
     
   
   //mJetData->Branch(prefix_+"JetIDInfo",    &vjid_JetID);
-  mJetData->Branch(prefix_+"JetFem",    &vd_JetFem);
-  mJetData->Branch(prefix_+"JetFhad",   &vd_JetFhad);
-  mJetData->Branch(prefix_+"JetCharge", &vd_JetCharge);
-  mJetData->Branch(prefix_+"JetNConst", &vi_JetNConst);
+  mJetData->Branch(prefix_+"JetEFrac_em",  &vd_JetEFrac_em);
+  mJetData->Branch(prefix_+"JetEFrac_had", &vd_JetEFrac_had);
+  mJetData->Branch(prefix_+"JetCharge",    &vd_JetCharge);
+  mJetData->Branch(prefix_+"JetNConst",    &vi_JetNConst);
   mJetData->Branch(prefix_+"JetIDMinimal", &vb_JetIDMinimal);
   mJetData->Branch(prefix_+"JetIDLoose",   &vb_JetIDLoose);
   mJetData->Branch(prefix_+"JetIDTight",   &vb_JetIDTight);
@@ -753,28 +734,37 @@ void JetAnalyzerPAT::bookTTree() {
   
   if (useJPTJets_ || usePFJets_) {
     if (debug_ > 5) std::cout<<"Saving JPT/PF specific information"<<std::endl;
-    mJetData->Branch(prefix_+"JetChargedFem",  &vd_JetChargedFem);
-    mJetData->Branch(prefix_+"JetNeutralFem",  &vd_JetNeutralFem);
-    mJetData->Branch(prefix_+"JetChargedFhad", &vd_JetChargedFhad);
-    mJetData->Branch(prefix_+"JetNeutralFhad", &vd_JetNeutralFhad);
-    mJetData->Branch(prefix_+"JetChargedMult", &vd_JetChargedMult);
-    mJetData->Branch(prefix_+"JetElecMulti",   &vd_JetElecMult);
-    mJetData->Branch(prefix_+"JetMuonMulti",   &vd_JetMuonMult);
+    mJetData->Branch(prefix_+"JetChargedFrac_em",  &vd_JetChargedFrac_em);
+    mJetData->Branch(prefix_+"JetNeutralFrac_em",  &vd_JetNeutralFrac_em);
+    mJetData->Branch(prefix_+"JetChargedFrac_had", &vd_JetChargedFrac_had);
+    mJetData->Branch(prefix_+"JetNeutralFrac_had", &vd_JetNeutralFrac_had);
+    mJetData->Branch(prefix_+"JetChargedMult",     &vd_JetChargedMult);
+    mJetData->Branch(prefix_+"JetElectronMulti",   &vd_JetElectronMult);
+    mJetData->Branch(prefix_+"JetMuonMulti",       &vd_JetMuonMult);
   }
   
   if (usePFJets_) {
     if (debug_ > 5) std::cout<<"Saving PF specific information"<<std::endl;
-    mJetData->Branch(prefix_+"JetChargedFmu",  &vd_JetChargedFmu);
-    mJetData->Branch(prefix_+"JetChargedFele", &vd_JetChargedFele);
-    mJetData->Branch(prefix_+"JetChargedFpho", &vd_JetChargedFpho);
+    mJetData->Branch(prefix_+"JetHFFrac_em",        &vd_JetHFFrac_em);
+    mJetData->Branch(prefix_+"JetHFFrac_had",       &vd_JetHFFrac_had);
+    mJetData->Branch(prefix_+"JetEFrac_muon",       &vd_JetEFrac_muon);
+    mJetData->Branch(prefix_+"JetChargedFrac_muon", &vd_JetChargedFrac_muon);
+    mJetData->Branch(prefix_+"JetEFrac_electron",   &vd_JetEFrac_electron);
+    mJetData->Branch(prefix_+"JetEFrac_photon",     &vd_JetEFrac_photon);
   
-    mJetData->Branch(prefix_+"JetHFFem",  &vd_JetHFFem);
-    mJetData->Branch(prefix_+"JetHFFhad", &vd_JetHFFhad);
+    mJetData->Branch(prefix_+"JetHFEn_em",        &vd_JetHFEn_em);
+    mJetData->Branch(prefix_+"JetHFEn_had",       &vd_JetHFEn_had);
+    mJetData->Branch(prefix_+"JetEEn_muon",       &vd_JetEn_muon);
+    mJetData->Branch(prefix_+"JetChargedEn_muon", &vd_JetChargedEn_muon);
+    mJetData->Branch(prefix_+"JetEn_electron",    &vd_JetEn_electron);
+    mJetData->Branch(prefix_+"JetEn_photon",      &vd_JetEn_photon);
   
-    mJetData->Branch(prefix_+"JetChargedHadMult", &vd_JetChargedHadMult);
-    mJetData->Branch(prefix_+"JetNeutralHadMult", &vd_JetNeutralHadMult);
-    mJetData->Branch(prefix_+"JetPhotonMult",     &vd_JetPhotonMult);
-    mJetData->Branch(prefix_+"JetNeutralMult",    &vd_JetNeutralMult);
+    mJetData->Branch(prefix_+"JetHFMult_em",       &vd_JetHFMult_em);
+    mJetData->Branch(prefix_+"JetHFMult_had",      &vd_JetHFMult_had);
+    mJetData->Branch(prefix_+"JetChargedMult_had", &vd_JetChargedMult_had);
+    mJetData->Branch(prefix_+"JetNeutralMult_had", &vd_JetNeutralMult_had);
+    mJetData->Branch(prefix_+"JetPhotonMult",      &vd_JetPhotonMult);
+    mJetData->Branch(prefix_+"JetNeutralMult",     &vd_JetNeutralMult);
   }
   
   if (useTrackJets_) {

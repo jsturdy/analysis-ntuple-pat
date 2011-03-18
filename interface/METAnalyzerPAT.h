@@ -56,6 +56,8 @@ class METAnalyzerPAT {
   edm::InputTag genTag_;
 
   bool doMCData_;
+  bool useCaloMET_;
+  bool usePFMET_;
   int  debug_;
   
   TString prefix_;
@@ -106,6 +108,22 @@ class METAnalyzerPAT {
   double m_METsumEt_Fullcorr;
   double m_METsignificance_Fullcorr;
 
+  //specific to calo met
+  double METmaxEt_em;
+  double METmaxEt_had;
+  double METetFrac_had;
+  double METetFrac_em;
+  double METmetSig;
+
+  //specific to PF met
+  double METFrac_neutralEM;
+  double METFrac_neutralHad;
+  double METFrac_chargedEM;
+  double METFrac_chargedHad;
+  double METFrac_muon;
+  double METFrac_type6;
+  double METFrac_type7;
+  
   double m_MET_Nocorr[2];
   double m_METpt_Nocorr;
   double m_METphi_Nocorr;

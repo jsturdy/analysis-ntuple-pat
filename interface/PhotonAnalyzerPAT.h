@@ -75,14 +75,14 @@ private:
   std::vector<double>  vd_PhotPFNeutralHadronIso;
   std::vector<double>  vd_PhotPFGammaIso;
  
-  //std::vector<double>  vd_PhotTrkIsoDeposit;
-  //std::vector<double>  vd_PhotECalIsoDeposit;
-  //std::vector<double>  vd_PhotHCalIsoDeposit;
-  //
-  //std::vector<double>  vd_PhotPFAllParticleIsoDeposit;
-  //std::vector<double>  vd_PhotPFChargedHadronIsoDeposit;
-  //std::vector<double>  vd_PhotPFNeutralHadronIsoDeposit;
-  //std::vector<double>  vd_PhotPFGammaIsoDeposit;
+  std::vector<double>  vd_PhotTrkIsoDeposit;
+  std::vector<double>  vd_PhotECalIsoDeposit;
+  std::vector<double>  vd_PhotHCalIsoDeposit;
+  
+  std::vector<double>  vd_PhotPFAllParticleIsoDeposit;
+  std::vector<double>  vd_PhotPFChargedHadronIsoDeposit;
+  std::vector<double>  vd_PhotPFNeutralHadronIsoDeposit;
+  std::vector<double>  vd_PhotPFGammaIsoDeposit;
 
   //bool m_ccPhotAssoc[50];
   std::vector<int>  vb_PhotIsEB;
@@ -95,7 +95,7 @@ private:
   std::vector<double>  vd_PhotE2OverE9;
   std::vector<double>  vd_PhotSwissCross;
   //std::vector<double>  vd_PhotTSeed;
-  std::vector<double>  vd_PhotSigmaIetaIeta;
+  std::vector<double> vd_PhotSigmaIetaIeta;
   std::vector<int>    vb_PhotHasPixelSeed;
   std::vector<int>    vb_PhotHasConversionTracks;
 
@@ -120,14 +120,14 @@ private:
     vd_PhotPFNeutralHadronIso.clear();
     vd_PhotPFGammaIso.clear();
 
-    //vd_PhotTrkIsoDeposit.clear();
-    //vd_PhotECalIsoDeposit.clear();
-    //vd_PhotHCalIsoDeposit.clear();
-    //
-    //vd_PhotPFAllParticleIsoDeposit.clear();
-    //vd_PhotPFChargedHadronIsoDeposit.clear();
-    //vd_PhotPFNeutralHadronIsoDeposit.clear();
-    //vd_PhotPFGammaIsoDeposit.clear();
+    vd_PhotTrkIsoDeposit.clear();
+    vd_PhotECalIsoDeposit.clear();
+    vd_PhotHCalIsoDeposit.clear();
+    
+    vd_PhotPFAllParticleIsoDeposit.clear();
+    vd_PhotPFChargedHadronIsoDeposit.clear();
+    vd_PhotPFNeutralHadronIsoDeposit.clear();
+    vd_PhotPFGammaIsoDeposit.clear();
 
     vb_PhotIsEB.clear();
     vb_PhotIsEE.clear();
@@ -149,47 +149,6 @@ private:
     vi_PhotGenMother.clear();
     vi_PhotGenMotherStatus.clear();
 
-    ///
-    std::vector<reco::Candidate::LorentzVector>().swap(v_photP4);
-
-    std::vector<double>().swap(vd_PhotTrkIso);
-    std::vector<double>().swap(vd_PhotECalIso);
-    std::vector<double>().swap(vd_PhotHCalIso);
-    std::vector<double>().swap(vd_PhotAllIso);
-
-    std::vector<double>().swap(vd_PhotPFAllParticleIso);
-    std::vector<double>().swap(vd_PhotPFChargedHadronIso);
-    std::vector<double>().swap(vd_PhotPFNeutralHadronIso);
-    std::vector<double>().swap(vd_PhotPFGammaIso);
-
-    //std::vector<double>().swap(vd_PhotTrkIsoDeposit);
-    //std::vector<double>().swap(vd_PhotECalIsoDeposit);
-    //std::vector<double>().swap(vd_PhotHCalIsoDeposit);
-    //
-    //std::vector<double>().swap(vd_PhotPFAllParticleIsoDeposit);
-    //std::vector<double>().swap(vd_PhotPFChargedHadronIsoDeposit);
-    //std::vector<double>().swap(vd_PhotPFNeutralHadronIsoDeposit);
-    //std::vector<double>().swap(vd_PhotPFGammaIsoDeposit);
-
-    std::vector<int>().swap(vb_PhotIsEB);
-    std::vector<int>().swap(vb_PhotIsEE);
-    //std::vector<int>().swap(vb_PhotLooseEM);
-    std::vector<int>().swap(vb_PhotLoosePhoton);
-    std::vector<int>().swap(vb_PhotTightPhoton);
-
-    std::vector<double>().swap(vd_PhotE2OverE9);
-    std::vector<double>().swap(vd_PhotSwissCross);
-    //std::vector<double>().swap(vd_PhotTSeed);
-    std::vector<double>().swap(vd_PhotSigmaIetaIeta);
-    std::vector<int>()   .swap(vb_PhotHasPixelSeed);
-    std::vector<int>()   .swap(vb_PhotHasConversionTracks);
-    std::vector<double>().swap(vd_PhotHadOverEM);
-
-    std::vector<reco::Candidate::LorentzVector>().swap(v_genphotP4);
-    std::vector<int>().swap(vi_PhotGenPdgId);
-    std::vector<int>().swap(vi_PhotGenStatus);
-    std::vector<int>().swap(vi_PhotGenMother);
-    std::vector<int>().swap(vi_PhotGenMotherStatus);
   }
 };
 

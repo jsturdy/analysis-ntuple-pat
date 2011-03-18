@@ -217,8 +217,8 @@ class JetAnalyzerPAT {
   std::vector<int>   vb_JetIDLoose;
   std::vector<int>   vb_JetIDTight;
   
-  std::vector<double> vd_JetFem;
-  std::vector<double> vd_JetFhad;
+  std::vector<double> vd_JetEFrac_em;
+  std::vector<double> vd_JetEFrac_had;
   std::vector<double> vd_JetCharge;
   std::vector<int>    vi_JetHemi;
   std::vector<int>    vi_JetNConst;
@@ -229,28 +229,43 @@ class JetAnalyzerPAT {
   std::vector<double> vd_JetN90;
   
   //jpt/pf jet specific
-  std::vector<double> vd_JetChargedFem;
-  std::vector<double> vd_JetNeutralFem;
-  std::vector<double> vd_JetChargedFhad;
-  std::vector<double> vd_JetNeutralFhad;
+  std::vector<double> vd_JetChargedFrac_em;
+  std::vector<double> vd_JetNeutralFrac_em;
+  std::vector<double> vd_JetChargedFrac_had;
+  std::vector<double> vd_JetNeutralFrac_had;
+
+  std::vector<double> vd_JetChargedEn_em;
+  std::vector<double> vd_JetNeutralEn_em;
+  std::vector<double> vd_JetChargedEn_had;
+  std::vector<double> vd_JetNeutralEn_had;
+
   std::vector<double> vd_JetChargedMult;
-  std::vector<double> vd_JetNeutralMult;
-  std::vector<double> vd_JetElecMult;
+  std::vector<double> vd_JetElectronMult;
   std::vector<double> vd_JetMuonMult;
   
   //pf jet specific
-  std::vector<double> vd_JetChargedFmu;
-  std::vector<double> vd_JetChargedFele;
-  std::vector<double> vd_JetChargedFpho;
-  std::vector<double> vd_JetHFFem;
-  std::vector<double> vd_JetHFFhad;
-  std::vector<double> vd_JetChargedHadMult;
-  std::vector<double> vd_JetNeutralHadMult;
-  std::vector<double> vd_JetHFHadMult;
-  std::vector<double> vd_JetHFEMMult;
-  std::vector<double> vd_JetHFMult;
+  std::vector<double> vd_JetHFMult_had;
+  std::vector<double> vd_JetHFMult_em;
+  std::vector<double> vd_JetNeutralMult_had;
+  std::vector<double> vd_JetChargedMult_had;
   std::vector<double> vd_JetPhotonMult;
-  std::vector<MYJETID> vjid_JetID;
+  std::vector<double> vd_JetNeutralMult;
+
+  std::vector<double> vd_JetHFFrac_em;
+  std::vector<double> vd_JetHFFrac_had;
+  std::vector<double> vd_JetEFrac_muon;
+  std::vector<double> vd_JetChargedFrac_muon;
+  std::vector<double> vd_JetEFrac_electron;
+  std::vector<double> vd_JetEFrac_photon;
+
+  std::vector<double> vd_JetHFEn_em;
+  std::vector<double> vd_JetHFEn_had;
+  std::vector<double> vd_JetEn_muon;
+  std::vector<double> vd_JetChargedEn_muon;
+  std::vector<double> vd_JetEn_electron;
+  std::vector<double> vd_JetEn_photon;
+
+  //std::vector<MYJETID> vjid_JetID;
   
   // track info:
   std::vector<int>    vi_JetTrackNo;
@@ -319,8 +334,8 @@ class JetAnalyzerPAT {
     vb_JetIDLoose.clear();
     vb_JetIDTight.clear();
     
-    vd_JetFem.clear();
-    vd_JetFhad.clear();
+    vd_JetEFrac_em.clear();
+    vd_JetEFrac_had.clear();
     vd_JetCharge.clear();
     vi_JetHemi.clear();
     vi_JetNConst.clear();
@@ -328,27 +343,41 @@ class JetAnalyzerPAT {
     vd_JetfRBX.clear();
     vd_JetN90.clear();
     
-    vd_JetChargedFem.clear();
-    vd_JetNeutralFem.clear();
-    vd_JetChargedFhad.clear();
-    vd_JetNeutralFhad.clear();
+    vd_JetChargedFrac_em.clear();
+    vd_JetNeutralFrac_em.clear();
+    vd_JetChargedFrac_had.clear();
+    vd_JetNeutralFrac_had.clear();
+
+    vd_JetChargedEn_em.clear();
+    vd_JetNeutralEn_em.clear();
+    vd_JetChargedEn_had.clear();
+    vd_JetNeutralEn_had.clear();
+
     vd_JetChargedMult.clear();
-    vd_JetNeutralMult.clear();
-    vd_JetElecMult.clear();
+    vd_JetElectronMult.clear();
     vd_JetMuonMult.clear();
     
-    vd_JetChargedFmu.clear();
-    vd_JetChargedFele.clear();
-    vd_JetChargedFpho.clear();
-    vd_JetHFFem.clear();
-    vd_JetHFFhad.clear();
-    vd_JetChargedHadMult.clear();
-    vd_JetNeutralHadMult.clear();
-    vd_JetHFHadMult.clear();
-    vd_JetHFEMMult.clear();
-    vd_JetHFMult.clear();
+    vd_JetHFMult_had.clear();
+    vd_JetHFMult_em.clear();
+    vd_JetNeutralMult_had.clear();
+    vd_JetChargedMult_had.clear();
     vd_JetPhotonMult.clear();
+    vd_JetNeutralMult.clear();
     
+    vd_JetHFFrac_em.clear();
+    vd_JetHFFrac_had.clear();
+    vd_JetEFrac_muon.clear();
+    vd_JetChargedFrac_muon.clear();
+    vd_JetEFrac_electron.clear();
+    vd_JetEFrac_photon.clear();
+
+    vd_JetHFEn_em.clear();
+    vd_JetHFEn_had.clear();
+    vd_JetEn_muon.clear();
+    vd_JetChargedEn_muon.clear();
+    vd_JetEn_electron.clear();
+    vd_JetEn_photon.clear();
+
     vi_JetTrackNo.clear();
     vd_JetTrackPhi.clear();
     vd_JetTrackPhiWeighted.clear();
@@ -376,92 +405,6 @@ class JetAnalyzerPAT {
     vi_JetPartonMotherStatus.clear();
     vi_JetPartonFlavour.clear();
 
-    ////
-    std::map<std::string,std::vector<float> >().swap(map_s_vf_correctionFactor);
-
-    //std::map<std::string,std::vector<int> >().swap(map_s_vi_JetNOverlaps);
-    //std::map<std::string,std::vector<int> >().swap(map_s_vi_JetOverlaps);
-
-    std::vector<int>().swap(vi_JetElectronNOverlaps);
-    std::vector<int>().swap(vi_JetElectronOverlaps);
-    std::vector<int>().swap(vi_JetMuonNOverlaps);
-    std::vector<int>().swap(vi_JetMuonOverlaps);
-    std::vector<int>().swap(vi_JetTauNOverlaps);
-    std::vector<int>().swap(vi_JetTauOverlaps);
-    std::vector<int>().swap(vi_JetPhotonNOverlaps);
-    std::vector<int>().swap(vi_JetPhotonOverlaps);
-
-    std::vector<float>().swap(vf_JECUncPlus);
-    std::vector<float>().swap(vf_JECUncMinus);
-    
-    std::vector<reco::Candidate::LorentzVector>().swap(v_JetP4);
-    std::vector<reco::Candidate::LorentzVector>().swap(v_RawJetP4);
-    std::vector<reco::Candidate::LorentzVector>().swap(v_GenJetP4);
-    
-    std::vector<double>().swap(vd_JetEtaEtaMoment);
-    std::vector<double>().swap(vd_JetEtaPhiMoment);
-    std::vector<double>().swap(vd_JetPhiPhiMoment);
-    
-    std::vector<int>().swap(vb_JetIDMinimal);
-    std::vector<int>().swap(vb_JetIDLoose);
-    std::vector<int>().swap(vb_JetIDTight);
-    
-    std::vector<double>().swap(vd_JetFem);
-    std::vector<double>().swap(vd_JetFhad);
-    std::vector<double>().swap(vd_JetCharge);
-    std::vector<int>().swap(vi_JetHemi);
-    std::vector<int>().swap(vi_JetNConst);
-    std::vector<double>().swap(vd_JetfHPD);
-    std::vector<double>().swap(vd_JetfRBX);
-    std::vector<double>().swap(vd_JetN90);
-    
-    std::vector<double>().swap(vd_JetChargedFem);
-    std::vector<double>().swap(vd_JetNeutralFem);
-    std::vector<double>().swap(vd_JetChargedFhad);
-    std::vector<double>().swap(vd_JetNeutralFhad);
-    std::vector<double>().swap(vd_JetChargedMult);
-    std::vector<double>().swap(vd_JetNeutralMult);
-    std::vector<double>().swap(vd_JetElecMult);
-    std::vector<double>().swap(vd_JetMuonMult);
-    
-    std::vector<double>().swap(vd_JetChargedFmu);
-    std::vector<double>().swap(vd_JetChargedFele);
-    std::vector<double>().swap(vd_JetChargedFpho);
-    std::vector<double>().swap(vd_JetHFFem);
-    std::vector<double>().swap(vd_JetHFFhad);
-    std::vector<double>().swap(vd_JetChargedHadMult);
-    std::vector<double>().swap(vd_JetNeutralHadMult);
-    std::vector<double>().swap(vd_JetHFHadMult);
-    std::vector<double>().swap(vd_JetHFEMMult);
-    std::vector<double>().swap(vd_JetHFMult);
-    std::vector<double>().swap(vd_JetPhotonMult);
-    
-    std::vector<int>().swap(vi_JetTrackNo);
-    std::vector<double>().swap(vd_JetTrackPhi);
-    std::vector<double>().swap(vd_JetTrackPhiWeighted);
-    std::vector<double>().swap(vd_JetTrackPt);
-    
-    std::vector<double>().swap(vd_JetMCCorrFactor);
-    std::vector<double>().swap(vd_JetJPTCorrFactor);
-    
-    std::vector<double>().swap(vd_JetBTag_TCHE);
-    std::vector<double>().swap(vd_JetBTag_TCHP);
-    std::vector<double>().swap(vd_JetBTag_jetProb);
-    std::vector<double>().swap(vd_JetBTag_jetBProb);
-    std::vector<double>().swap(vd_JetBTag_SSVHE);
-    std::vector<double>().swap(vd_JetBTag_SSVHP);
-    std::vector<double>().swap(vd_JetBTag_CSV);
-    std::vector<double>().swap(vd_JetBTag_CSVMVA);
-    std::vector<double>().swap(vd_JetBTag_SoftLepton);
-    std::vector<double>().swap(vd_JetBTag_SoftLeptonByIP);
-    std::vector<double>().swap(vd_JetBTag_SoftLeptonByPt);
-    
-    std::vector<reco::Candidate::LorentzVector>().swap(v_JetPartonP4);
-    std::vector<int>().swap(vi_JetPartonId);
-    std::vector<int>().swap(vi_JetPartonStatus);
-    std::vector<int>().swap(vi_JetPartonMother);
-    std::vector<int>().swap(vi_JetPartonMotherStatus);
-    std::vector<int>().swap(vi_JetPartonFlavour);
   }
 };
 #endif
