@@ -15,6 +15,7 @@ typedef std::vector<LorentzP4V>                                   LorentzP4Vs;
 typedef std::map<std::string, bool>                stringtobool;
 typedef std::map<std::string, int>                 stringtoint;
 typedef std::map<std::string, std::vector<float> > stringtovfloat;
+typedef std::map<std::string, std::vector<int> >   stringtovint;
 
 #ifdef __MAKECINT__
 
@@ -23,6 +24,7 @@ typedef std::map<std::string, std::vector<float> > stringtovfloat;
 #pragma link C++ typedef  stringtobool;
 #pragma link C++ typedef  stringtoint;
 #pragma link C++ typedef  stringtovfloat;
+#pragma link C++ typedef  stringtovint;
 
 #pragma link C++ class    LorentzP4Vs+;
 #pragma link C++ class    LorentzP4Vs::iterator;
@@ -35,8 +37,8 @@ typedef std::map<std::string, std::vector<float> > stringtovfloat;
 #pragma link C++ class    std::pair<const std::string,bool>+;
 
 //#pragma link C++ class    stringtoint+;
-//#pragma link C++ class    stringtoint::iterator;
-//#pragma link C++ class    stringtoint::const_iterator;
+#pragma link C++ class    stringtoint::iterator;
+#pragma link C++ class    stringtoint::const_iterator;
 //#pragma link C++ class    std::pair<std::string,int>+;
 //#pragma link C++ class    std::pair<const std::string,int>+;
 
@@ -45,6 +47,12 @@ typedef std::map<std::string, std::vector<float> > stringtovfloat;
 #pragma link C++ class    stringtovfloat::const_iterator;
 #pragma link C++ class    std::pair<std::string,std::vector<float> >+;
 #pragma link C++ class    std::pair<const std::string,std::vector<float> >+;
+
+#pragma link C++ class    stringtovint+;
+#pragma link C++ class    stringtovint::iterator;
+#pragma link C++ class    stringtovint::const_iterator;
+#pragma link C++ class    std::pair<std::string,std::vector<int> >+;
+#pragma link C++ class    std::pair<const std::string,std::vector<int> >+;
 
 
 #endif

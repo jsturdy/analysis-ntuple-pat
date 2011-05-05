@@ -1,6 +1,6 @@
 PROGNAME    = gammaJets.exe
-SOURCEFILES = photonJets.cc gammaJets.cc ../../common/ntupleAnalysisPAT.cc
-INCLUDES    = ../../common/ntuplePragmas.h photonJets.h ../../common/ntupleAnalysisPAT.h
+SOURCEFILES = PhotonNtupler.cc gammaJets.cc ../../analyses/diJets/DiJetStudy.cc ../../common/ntupleAnalysisPAT.cc
+INCLUDES    = ../../common/ntuplePragmas.h PhotonNtupler.h ../../analyses/diJets/DiJetStudy.h ../../common/ntupleAnalysisPAT.h
 OBJS        = $(patsubst %.cc, %.o, $(SOURCEFILES))
 
 ROOTCFLAGS   := $(shell root-config --cflags)

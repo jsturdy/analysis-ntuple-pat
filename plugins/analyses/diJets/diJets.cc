@@ -19,17 +19,19 @@ using namespace ROOT;
 
 int main(int argc, char* argv[])
 {
-  bool debug = true;
-  const int Nparam1=12;   // NUMBER OF PARAMETERS
-  for (int thearg = 0; thearg < argc; ++thearg) 
-    cout<<"arg["<<thearg<<"]" << "  -  "  << argv[thearg]<<endl;
-  cout<<endl;
+  bool debug = false;
+  const int Nparam1=11;   // NUMBER OF PARAMETERS
+  if (debug) {
+    for (int thearg = 0; thearg < argc; ++thearg) 
+      cout<<"arg["<<thearg<<"]" << "  -  "  << argv[thearg]<<endl;
+    cout<<endl;
+  }
   if(argc!=Nparam1+1)
     {
       cout << "diJets() : argc = " << argc << " is different from " << Nparam1+1<<". Exiting." <<endl;
-      cout << "Usage  : ./diJets inputFileList(or input file name) efficiencyFile triggerList  cutFile  isData  jetPrefix  metPrefix  lepPrefix  photPrefix relaxedCuts strictDiJets debug" << endl;
+      cout << "Usage  : ./diJets inputFileList(or input file name) efficiencyFile triggerList  cutFile  isData  jetPrefix  metPrefix  lepPrefix  photPrefix debug" << endl;
       cout << "Example: ./diJets ntuples.txt  efficiencyList.txt  triggerList.txt  cutFile.txt 1 Calo   CaloTypeI  0  0  1  1  1" << endl;
-      cout << "Example: ./diJets ntuple.root  efficiencyList.txt  triggerList.txt  cutFile.txt 0 PF2PAT PF         1  1  0  0  0" << endl;
+      cout << "Example: ./diJets ntuple.root  efficiencyList.txt  triggerList.txt  cutFile.txt 0 PF2PAT PFTypeI    1  1  0  0  0" << endl;
       exit (1);
     };
   //Should clean up the arguments
@@ -45,8 +47,13 @@ int main(int argc, char* argv[])
   bool isData = 0;
   ss1 >> isData;
 
-  std::string jets   = argv[6];
-  std::string mets   = argv[7];
+  std::string jets ="";
+  std::stringstream ssj ( argv[6] );
+  ssj >> jets;
+  
+  std::string mets ="";
+  std::stringstream ssm ( argv[7] );
+  ssm >> mets;
 
   std::string leps   = "";
   std::stringstream ss2 ( argv[8] );
@@ -63,15 +70,11 @@ int main(int argc, char* argv[])
     phots = "PF";
 
   std::stringstream ss4 ( argv[10] );
-  bool relaxed;
+  std::string relaxed;
   ss4 >> relaxed;
   
   std::stringstream ss5 ( argv[11] );
-  bool doStrictDiJets;
-  ss5 >> doStrictDiJets;
-
-  std::stringstream ss6 ( argv[12] );
-  ss6 >> debug;
+  ss5 >> debug;
 
   std::cout<<"inputfiles = "    <<inputfiles<<std::endl;
   std::cout<<"efficiencyList = "<<efficiencyList<<std::endl;
@@ -83,7 +86,6 @@ int main(int argc, char* argv[])
   std::cout<<"leps = "          <<leps<<std::endl;
   std::cout<<"phots = "         <<phots<<std::endl;
   std::cout<<"relaxed = "       <<relaxed<<std::endl;
-  std::cout<<"strictDiJets = "  <<doStrictDiJets<<std::endl;
   std::cout<<"debug = "         <<debug<<std::endl;
 
   //
@@ -91,6 +93,15 @@ int main(int argc, char* argv[])
   std::string tmpKey = "test";
 
   TChain *chainA = new TChain("analysisNtuplePAT/AllData");
+  //TChain *chainE = new TChain("analysisNtuplePAT/EventData");
+  TChain *chainJ = new TChain("analysisNtuplePAT/JetData");
+  TChain *chainM = new TChain("analysisNtuplePAT/METData");
+  TChain *chainL = new TChain("analysisNtuplePAT/LeptonData");
+  TChain *chainP = new TChain("analysisNtuplePAT/PhotonData");
+  TChain *chainT = new TChain("analysisNtuplePAT/TriggerData");
+  TChain *chainV = new TChain("analysisNtuplePAT/VertexData");
+  TChain *chainG = new TChain("analysisNtuplePAT/GenParticleData");
+  
   if (debug) std::cout<<"checking to see if we were passed a list "<<std::endl;
   if (inputfiles.rfind(".txt")!=string::npos) {
     if (debug) std::cout<<"opening inputfiles list "<<inputfiles<<std::endl;
@@ -106,6 +117,17 @@ int main(int argc, char* argv[])
 	  if (pName[0] == '\n') continue;// simple protection against blank lines
 	  if (debug) std::cout<<"Adding file: " << pName<<std::endl;
           chainA->Add(pName);
+          //chainE->Add(pName);
+          chainJ->Add(pName);
+          chainM->Add(pName);
+          chainL->Add(pName);
+          chainP->Add(pName);
+          chainT->Add(pName);
+          chainV->Add(pName);
+	  if (!isData)
+	    chainG->Add(pName);
+	  else
+	    chainG = 0;
         }
       //output root files
       outputfile = inputfiles.erase(inputfiles.rfind('.'));
@@ -119,28 +141,29 @@ int main(int argc, char* argv[])
       size_t position = outputfile.rfind("/input/inputlist");
       outputfile.erase(position,16);
       if (debug) std::cout<<"at step 2 "<<outputfile<<std::endl;
-	
+      
       int bb = 0;
       while (outputfile.find('/')!=string::npos)
-	{
-	  ++bb;
-	  outputfile.erase(0,outputfile.find('/')+12);
-	  if (debug) std::cout<<"at step 3."<<bb<<" "<<outputfile<<std::endl;
-	}
-      if (debug) std::cout<<"at step 4 "<<outputfile<<std::endl;
-      if (outputfile.find("PATtuple_V9_")!=string::npos)
-	outputfile.erase(0,outputfile.find("PATtuple_V9_")+12);
-      if (debug) std::cout<<"at step 5 "<<outputfile<<std::endl;
-      if (outputfile.find("DATA_")!=string::npos)
-	outputfile.erase(0,outputfile.find("DATA_")+5);
-      if (debug) std::cout<<"at step 6 "<<outputfile<<std::endl;
-      if (outputfile.find("MC_")!=string::npos)
-	outputfile.erase(0,outputfile.find("MC_")+3);
-      if (debug) std::cout<<"at step 7 "<<outputfile<<std::endl;
-      if (outputfile.find("387_")!=string::npos)
-	outputfile.erase(0,outputfile.find("387_")+4);
-       if (debug) std::cout<<"at step 8 "<<outputfile<<std::endl;
-     tmpKey = outputfile;
+     	{
+     	  ++bb;
+     	  outputfile.erase(0,outputfile.find('/')+1);
+     	  if (debug) std::cout<<"at step 3."<<bb<<" "<<outputfile<<std::endl;
+     	}
+      //if (debug) std::cout<<"at step 4 "<<outputfile<<std::endl;
+      //if (outputfile.find("PATtuple_V9_")!=string::npos)
+      //	outputfile.erase(0,outputfile.find("PATtuple_V9_")+12);
+      //if (debug) std::cout<<"at step 5 "<<outputfile<<std::endl;
+      //if (outputfile.find("DATA_")!=string::npos)
+      //	outputfile.erase(0,outputfile.find("DATA_")+5);
+      //if (debug) std::cout<<"at step 6 "<<outputfile<<std::endl;
+      //if (outputfile.find("MC_")!=string::npos)
+      //	outputfile.erase(0,outputfile.find("MC_")+3);
+      //if (debug) std::cout<<"at step 7 "<<outputfile<<std::endl;
+      //if (outputfile.find("pf2pat/")!=string::npos)
+      //	outputfile.erase(0,outputfile.find("pf2pat/")+4);
+      //if (debug) std::cout<<"at step 8 "<<outputfile<<std::endl;
+      ////outputfile.erase(0,outputfile.rfind("../../common/config/")+20.);
+      tmpKey = outputfile;
     }
     else {
       std::cout << "ERROR opening inputfiles list:" << inputfiles << std::endl;
@@ -149,6 +172,17 @@ int main(int argc, char* argv[])
   }
   else {
     chainA->Add(inputfiles.c_str());
+    //chainE->Add(inputfiles.c_str());
+    chainJ->Add(inputfiles.c_str());
+    chainM->Add(inputfiles.c_str());
+    chainL->Add(inputfiles.c_str());
+    chainP->Add(inputfiles.c_str());
+    chainT->Add(inputfiles.c_str());
+    chainV->Add(inputfiles.c_str());
+    if (!isData)
+      chainG->Add(inputfiles.c_str());
+    else
+      chainG = 0;
     outputfile = inputfiles.erase(inputfiles.rfind('.'));
     tmpKey = outputfile;
   }
@@ -156,35 +190,52 @@ int main(int argc, char* argv[])
   if (debug) std::cout<<"finished "<<outputfile<<std::endl;
   std::cout<<"Input file is: "     <<inputfiles<<std::endl;
   TTree *treeA = chainA;
+  //TTree *treeE = chainE;
+  TTree *treeJ = chainJ;
+  TTree *treeM = chainM;
+  TTree *treeL = chainL;
+  TTree *treeP = chainP;
+  TTree *treeT = chainT;
+  TTree *treeV = chainV;
+  TTree *treeG = chainG;
     
   float cutJet1 = 150;
   float cutJet2 = 150;
   float cutMET  = 250;
   char tmpoutputfile[128];
 
-  if (relaxed) {
-    std::cout<<"Using relaxed cuts"<<std::endl;
-    cutJet1 = 100;
-    cutJet2 = 100;
-    cutMET  = 200;
-  }
+  //if (relaxed) {
+  //  std::cout<<"Using relaxed cuts"<<std::endl;
+  //  cutJet1 = 100;
+  //  cutJet2 = 100;
+  //  cutMET  = 200;
+  //}
   
   sampleInfo sampVals;
   std::string sampleKey;
   sampleKey = tmpKey.erase(tmpKey.rfind("_"),string::npos);
+  //sampleKey = tmpKey;
   std::cout<<"sampleKey = "<<sampleKey<<std::endl;
   if (debug) std::cout<<"key for efficiencies "<<sampleKey<<std::endl;
 
-  DiJetStudy* analysis = new DiJetStudy(treeA, 
-					efficiencyList, 
-					triggerList, 
-					cutFile, 
-					isData, 
-					jets, 
-					mets, 
-					leps, 
-					phots, 
-					sampleKey);
+  DiJetStudy* analysis = new DiJetStudy( treeA,
+					 //treeE,
+					 treeJ,
+					 treeM,
+					 treeL,
+					 treeP,
+					 treeT,
+					 treeV,
+					 treeG,
+					 efficiencyList, 
+					 triggerList, 
+					 cutFile, 
+					 isData, 
+					 jets, 
+					 mets, 
+					 leps, 
+					 phots, 
+					 sampleKey);
 
   
   /*
@@ -210,7 +261,7 @@ int main(int argc, char* argv[])
   std::cout<<std::endl;
   */
 
-  sprintf(tmpoutputfile,"%s_j1-%d_j2-%d_m-%d_out",outputfile.c_str(),int(cutJet1),int(cutJet2),int(cutMET));
+  sprintf(tmpoutputfile,"%s_mini",outputfile.c_str());
   std::cout<<"Output file is: "<<string(tmpoutputfile)<<std::endl;
   /*
   float lumi   = sampVals.lumi;
@@ -226,11 +277,8 @@ int main(int argc, char* argv[])
   std::cout<<"\tnumGen = "    <<numGen;
   std::cout<<std::endl;
   */
-  int triggerPaths = 2;
-  //analysis->Loop(string(tmpoutputfile), float(lumi), float(xs), float(eff), float(numGen), float(cutJet1), float(cutJet2), float(cutMET));
-  analysis->Loop(string(tmpoutputfile), float(cutJet1), float(cutJet2), float(cutMET),doStrictDiJets,triggerPaths);
-  //analysis->Loop(string(tmpoutputfile), lumi, scale, cutJet1, cutJet2, cutMET);
 
+  analysis->Loop(string(tmpoutputfile), double(cutJet1), double(cutJet2), double(cutMET), debug);
   std::cout<<"Done with diJets.exe"<<std::endl;
 
   delete chainA;

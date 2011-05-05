@@ -49,6 +49,8 @@
 //
 // Class declaration
 //
+
+
 class TriggerAnalyzerPAT {
  public:
   TriggerAnalyzerPAT(const edm::ParameterSet&, TTree*);
@@ -62,7 +64,7 @@ class TriggerAnalyzerPAT {
   void beginRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
   /// Define all plots
-  void bookTTree();
+  void bookTTree(TTree*);
 
 
 
@@ -73,15 +75,18 @@ private:
   bool checkedProcess_; 
   bool getL1Info_;
   
-  char logmessage[128];
-
   // Plots
-  TTree * mTriggerData;      /// Will contain the additional di-jet specific data
+  //TTree * mTriggerData;      /// Will contain the additional di-jet specific data
 
-  std::map<std::string, bool> l1triggered;
-  std::map<std::string, int>  l1prescaled;
-  std::map<std::string, bool> hlttriggered;
-  std::map<std::string, int>  hltprescaled;
+  std::auto_ptr<std::map<std::string, bool> > l1triggered;
+  std::auto_ptr<std::map<std::string, int>  > l1prescaled;
+  std::auto_ptr<std::map<std::string, bool> > hlttriggered;
+  std::auto_ptr<std::map<std::string, int>  > hltprescaled;
+
+  //std::map<std::string, bool>  l1triggered;
+  //std::map<std::string, int>   l1prescaled;
+  //std::map<std::string, bool>  hlttriggered;
+  //std::map<std::string, int>   hltprescaled;
 
   bool trigger_result;
 
@@ -97,15 +102,12 @@ private:
 
  public:
   void maintenance() {
-    l1triggered.clear();
-    l1prescaled.clear();
-    hlttriggered.clear();
-    hltprescaled.clear();
-
-    std::map<std::string,bool>().swap(l1triggered);
-    std::map<std::string,int>() .swap(l1prescaled);
-    std::map<std::string,bool>().swap(hlttriggered);
-    std::map<std::string,int>() .swap(hltprescaled);
+    
+    l1triggered ->clear();
+    l1prescaled ->clear();
+    
+    hlttriggered->clear();
+    hltprescaled->clear();
   }
 };
 

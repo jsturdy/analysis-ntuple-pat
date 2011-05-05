@@ -30,6 +30,8 @@
 //
 // Class declaration
 //
+
+
 class MCTruthAnalyzerPAT {
  public:
   MCTruthAnalyzerPAT(const edm::ParameterSet&, TTree*);
@@ -40,7 +42,7 @@ class MCTruthAnalyzerPAT {
   void beginRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
   /// Define all plots
-  void bookTTree();
+  void bookTTree(TTree*);
   
 
 private:
@@ -51,55 +53,42 @@ private:
 
   int    debug_;
 
-  char logmessage[128];
-    
   // Plots
-  TTree * mMCTruthData;   /// Will contain the lepton data after cuts
+  //TTree * mMCTruthData;   /// Will contain the lepton data after cuts
 
   // Variables
   //int    m_AlpIdTest;
-  //std::vector<double> vd_AlpPtScale;
+  //std::vector<double>  vd_AlpPtScale;
   double d_Pthat;
 
-  std::vector<reco::Candidate::LorentzVector> v_genP4;
-  std::vector<reco::Candidate::LorentzVector> v_genParticleP4;
+  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  v_genP4;
+  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  v_genParticleP4;
+
   int               i_genLength;
-  std::vector<int>  vi_genIds;
-  std::vector<int>  vi_genRefs;
-  std::vector<int>  vi_genStatus;
-  std::vector<int>  vi_genDaughters;
+  std::auto_ptr<std::vector<int> >   vi_genIds;
+  std::auto_ptr<std::vector<int> >   vi_genRefs;
+  std::auto_ptr<std::vector<int> >   vi_genStatus;
+  std::auto_ptr<std::vector<int> >   vi_genDaughters;
 
   int               i_genParticleLength;
-  std::vector<int>  vi_genParticleIds;
-  std::vector<int>  vi_genParticleRefs;
-  std::vector<int>  vi_genParticleStatus;
-  std::vector<int>  vi_genParticleDaughters;
+  std::auto_ptr<std::vector<int> >   vi_genParticleIds;
+  std::auto_ptr<std::vector<int> >   vi_genParticleRefs;
+  std::auto_ptr<std::vector<int> >   vi_genParticleStatus;
+  std::auto_ptr<std::vector<int> >   vi_genParticleDaughters;
 
  public:
   void maintenance() {
-    v_genP4        .clear();
-    vi_genIds      .clear();
-    vi_genRefs     .clear();
-    vi_genStatus   .clear();
-    vi_genDaughters.clear();
+    v_genP4        ->clear();
+    vi_genIds      ->clear();
+    vi_genRefs     ->clear();
+    vi_genStatus   ->clear();
+    vi_genDaughters->clear();
     
-    v_genParticleP4        .clear();
-    vi_genParticleIds      .clear();
-    vi_genParticleRefs     .clear();
-    vi_genParticleStatus   .clear();
-    vi_genParticleDaughters.clear();
-
-    std::vector<reco::Candidate::LorentzVector>().swap(v_genP4);
-    std::vector<int>().swap(vi_genIds      );
-    std::vector<int>().swap(vi_genRefs     );
-    std::vector<int>().swap(vi_genStatus   );
-    std::vector<int>().swap(vi_genDaughters);
-    
-    std::vector<reco::Candidate::LorentzVector>().swap(v_genParticleP4);
-    std::vector<int>().swap(vi_genParticleIds      );
-    std::vector<int>().swap(vi_genParticleRefs     );
-    std::vector<int>().swap(vi_genParticleStatus   );
-    std::vector<int>().swap(vi_genParticleDaughters);
+    v_genParticleP4        ->clear();
+    vi_genParticleIds      ->clear();
+    vi_genParticleRefs     ->clear();
+    vi_genParticleStatus   ->clear();
+    vi_genParticleDaughters->clear();
   }
 
 };

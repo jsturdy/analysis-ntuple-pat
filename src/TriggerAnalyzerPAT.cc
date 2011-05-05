@@ -1,7 +1,7 @@
 
 // -*- C++ -*-
 //
-// Package:    SusyAnalysisNtuplePAT
+// Package:    AnalysisNtuplePAT
 // Class:      TriggerAnalyzerPAT
 // 
 /**\class TriggerAnalyzerPAT TriggerAnalyzerPAT.cc JSturdy/AnalysisNtuplePAT/src/TriggerAnalyzerPAT.cc
@@ -13,34 +13,34 @@ Description: Collects the trigger results and performs a basic trigger selection
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Mon Feb 18 15:40:44 CET 2008
-// $Id: TriggerAnalyzerPAT.cc,v 1.12 2011/03/08 21:11:36 sturdy Exp $
+// $Id: TriggerAnalyzerPAT.cc,v 1.13 2011/03/18 10:58:50 sturdy Exp $
 //
 //
-//#include "SusyAnalysis/EventSelector/interface/BJetEventSelector.h"
+
 #include "JSturdy/AnalysisNtuplePAT/interface/TriggerAnalyzerPAT.h"
-//#define _USE_MATH_DEFINES
-//#include <math.h>
 #include <TMath.h>
 #include <sstream>
 #include <map>
 
 //#ifdef __CINT__ 
 //
-//#pragma link C++ class std::map<std::string,  bool >+; 
-//#pragma link C++ class std::pair<std::string, bool >; 
-//#pragma link C++ class std::pair<const std::string, bool >; 
+//#pragma link C++ class std::map<std::string, bool >+; 
+//#pragma link C++ class std::map<std::string, int  >+; 
 //
-//#pragma link C++ class std::map<std::string,  int >+; 
-//#pragma link C++ class std::pair<std::string, int >; 
-//#pragma link C++ class std::pair<const std::string, int >; 
-//
+//#pragma link C++ class std::auto_ptr<std::map<std::string, bool> >+; 
+//#pragma link C++ class std::auto_ptr<std::map<std::string, int>  >+; 
 //#endif
 
 //________________________________________________________________________________________
-TriggerAnalyzerPAT::TriggerAnalyzerPAT(const edm::ParameterSet& triggerParams, TTree* tmpAllData)
+TriggerAnalyzerPAT::TriggerAnalyzerPAT(const edm::ParameterSet& triggerParams, TTree* mTriggerData) 
+  :
+  l1triggered (new std::map<std::string, bool> ),
+  l1prescaled (new std::map<std::string, int> ),
+  hlttriggered(new std::map<std::string, bool> ),
+  hltprescaled(new std::map<std::string, int> )
 { 
 
-  mTriggerData = tmpAllData;
+  //mTriggerData = tmpAllData;
 
   debug_    = triggerParams.getUntrackedParameter<int>("debugTriggers",0);
   doMCData_ = triggerParams.getUntrackedParameter<bool>("doMCTriggers",false);
@@ -55,17 +55,31 @@ TriggerAnalyzerPAT::TriggerAnalyzerPAT(const edm::ParameterSet& triggerParams, T
   getHLTfromConfig_   = triggerParams.getUntrackedParameter<bool>("getHLTfromConfig",false);
   if (getHLTfromConfig_)
     hlTriggerResults_ = triggerParams.getUntrackedParameter<edm::InputTag>("hlTriggerResults");
+
   //key to help getting the hlt process from event provenance
   checkedProcess_ = false;
   processName_    = "";
+
   // Initialise plots [should improve in the future]
-  bookTTree();
+  bookTTree(mTriggerData);
 }
 
 
 //________________________________________________________________________________________
 TriggerAnalyzerPAT::~TriggerAnalyzerPAT() {
-  delete mTriggerData;
+  //if (getL1Info_) {
+  //  delete l1triggered ;
+  //  delete l1prescaled ;
+  //}
+  //
+  //delete hlttriggered;
+  //delete hltprescaled;
+  //
+  //l1triggered  = 0;
+  //l1prescaled  = 0;
+  //hlttriggered = 0;
+  //hltprescaled = 0;
+  ////delete mTriggerData;
 }
 
 //
@@ -152,8 +166,10 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       std::string l1AlgName = (it->second).algoName();
       bool l1AlgBit = vAlgoBool.at(it->second.algoBitNumber());
       int  l1AlgPre = vAlgoInt.at(it->second.algoBitNumber());
-      l1triggered[l1AlgName] = l1AlgBit;
-      l1prescaled[l1AlgName] = l1AlgPre;
+      (*l1triggered)[l1AlgName] = l1AlgBit;
+      (*l1prescaled)[l1AlgName] = l1AlgPre;
+      //l1triggered[l1AlgName] = l1AlgBit;
+      //l1prescaled[l1AlgName] = l1AlgPre;
       if (debug_>5)
 	std::cout<<"L1AlgoBit named: "<<l1AlgName<<" with bit: "<<l1AlgBit<<" and prescale: "<<l1AlgPre<<std::endl;
       ++l1phys;
@@ -168,8 +184,10 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       std::string l1TechName = (it->second).algoName();
       bool l1TechBit = vTechBool.at(it->second.algoBitNumber());
       int  l1TechPre = vTechInt.at(it->second.algoBitNumber());
-      l1triggered[l1TechName] = l1TechBit;
-      l1prescaled[l1TechName] = l1TechPre;
+      (*l1triggered)[l1TechName] = l1TechBit;
+      (*l1prescaled)[l1TechName] = l1TechPre;
+      //l1triggered[l1TechName] = l1TechBit;
+      //l1prescaled[l1TechName] = l1TechPre;
       if (debug_>5)
 	std::cout<<"L1TechBit named: "<<l1TechName<<" with bit: "<<l1TechBit<<" and prescale: "<<l1TechPre<<std::endl;
       ++l1tech;
@@ -216,8 +234,10 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
     unsigned int trgIndex    = trgNames.triggerIndex(tmpName);
     int          trgResult   = hltHandle->accept(trgIndex);
     unsigned int trgPrescale = hltConfig.prescaleValue(ev,es,tmpName);
-    hlttriggered[tmpName]    = trgResult;
-    hltprescaled[tmpName]    = trgPrescale;
+    (*hlttriggered)[tmpName]    = trgResult;
+    (*hltprescaled)[tmpName]    = trgPrescale;
+    //hlttriggered[tmpName]    = trgResult;
+    //hltprescaled[tmpName]    = trgPrescale;
 
     if (debug_) 
       std::cout<<"HLT trigger named: "<<tmpName
@@ -229,7 +249,7 @@ bool TriggerAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   
   if (debug_>5)
     std::cout<<"Done analyzing triggers"<<std::endl;
-  //mTriggerData->Fill();
+
   return trigger_result;
 }
 
@@ -242,27 +262,29 @@ void TriggerAnalyzerPAT::printHLTreport( void ) {
 
 
 //________________________________________________________________________________________
-void TriggerAnalyzerPAT::bookTTree() {
-
-  std::ostringstream variables; // Container for all variables
+void TriggerAnalyzerPAT::bookTTree(TTree* mTriggerData) {
   
-  // 1. Event variables
-  variables << "weight:process";
-
+  /*
+    if (getL1Info_) {
+    l1triggered  = 0;
+    l1prescaled  = 0;
+    }
+    
+    hlttriggered = 0;
+    hltprescaled = 0;
+  */
 
   if (getL1Info_) {
     //std::map access to L1 trigger information
-    mTriggerData->Branch("L1Triggered", &l1triggered);
-    mTriggerData->Branch("L1Prescaled", &l1prescaled);
+    mTriggerData->Branch("L1Triggered", &(*l1triggered.get() ) );
+    mTriggerData->Branch("L1Prescaled", &(*l1prescaled.get() ) );
   }
 
   //HLT information
   //std::map access to HLT information
-  mTriggerData->Branch("HLTTriggered", &hlttriggered);
-  mTriggerData->Branch("HLTPrescaled", &hltprescaled);
+  mTriggerData->Branch("HLTTriggered", &(*hlttriggered.get() ));
+  mTriggerData->Branch("HLTPrescaled", &(*hltprescaled.get() ));
 
-  edm::LogInfo("TriggerEvent") << "Ntuple variables " << variables.str();
-  
 }
 
 

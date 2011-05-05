@@ -56,9 +56,6 @@ private:
   /// Called once per job, at end
   void endJob();
 
-  /// Print a summary of counts for all selectors
-  void printSummary(void);
- 
   //*** Plotting
   void initPlots();
 
@@ -68,27 +65,18 @@ private:
   int run_, event_;
 
   // Counters
-  //unsigned int nrEventTotalRaw_;          ///< Raw number of events (+1 at each event)
-  //double nrEventTotalWeighted_;           ///< Weighted #(events)
-  //std::vector<float> nrEventSelected_;    ///< Selected #(events) for each module
-  //std::vector<float> nrEventAllButOne_;   ///< All-but-one selected #(events) for each module
-  //std::vector<float> nrEventCumulative_;  ///< Cumulative selected #(events) for each module
     
   // Plots
-  TNtuple* ntuple_;      /// Will contain all the selector information we want to keep
-  TTree * mEventData;      /// Will contain the additional di-jet specific data
-  TTree * mAllData;      /// Will contain the additional di-jet specific data
-  TTree * mLeptonData;      /// Will contain the additional di-jet specific data
-  TTree * mJetData;      /// Will contain the additional di-jet specific data
-  TTree * mMETData;      /// Will contain the additional di-jet specific data
-  TTree * mPhotonData;      /// Will contain the additional di-jet specific data
-  TTree * mTriggerData;      /// Will contain the additional di-jet specific data
-  TTree * mVertexData;      /// Will contain the additional di-jet specific data
-  TTree * mGenParticleData;      /// Will contain the additional di-jet specific data
-  TTree * mTrackData;      /// Will contain the additional di-jet specific data
-
-  //float* variables_;     ///< Container for the tree variables (from selectors)
-  //bool   globalDec_;     ///< Global decision for event
+  TTree *mEventData;      /// Will contain the additional di-jet specific data
+  TTree *mAllData;      /// Will contain the additional di-jet specific data
+  TTree *mLeptonData;      /// Will contain the additional di-jet specific data
+  TTree *mJetData;      /// Will contain the additional di-jet specific data
+  TTree *mMETData;      /// Will contain the additional di-jet specific data
+  TTree *mPhotonData;      /// Will contain the additional di-jet specific data
+  TTree *mTriggerData;      /// Will contain the additional di-jet specific data
+  TTree *mVertexData;      /// Will contain the additional di-jet specific data
+  TTree *mGenParticleData;      /// Will contain the additional di-jet specific data
+  //TTree *mTrackData;      /// Will contain the additional di-jet specific data
 
   int m_Run;
   int m_Event;
@@ -96,6 +84,15 @@ private:
   int m_StoreN;
   int m_LumiSection;
   int m_BunchCrossing;
+  
+  double m_susyScanA0           ;
+  double m_susyScanCrossSection ;
+  double m_susyScanM0           ;
+  double m_susyScanM12          ;
+  double m_susyScanMu           ;
+  double m_susyScanRun          ;
+  double m_susyScantanbeta      ;
+
 
   bool m_IsData;
 
@@ -104,42 +101,17 @@ private:
   int  debug_;
   bool doMCTruth_;
 
-  int passCaloJets[2];
-  int passJPTJets[2];
-  int passPFJets[2];
-  int passPF2PATJets[2];
-  //int passTrackJets[2];
-
-  int passCaloMET[2];
-  int passCaloTypeIIMET[2];
-  int passPFMET[2];
-  int passPFTypeIMET[2];
-  int passTCMET[2];
-
-  int passLeptons[2];
-  int passPFLeptons[2];
-
-  int passPhotons[2];
-  //int passPFPhotons[2];
-
-  int passVertex[2];
-  int passTracks[2];
-  int passTriggers[2];
-  //int passHemispheres[2];
-  
   JetAnalyzerPAT        *calojetinfo;
-  JetAnalyzerPAT        *jptjetinfo;
-  JetAnalyzerPAT        *pfjetinfo;
+  //JetAnalyzerPAT        *jptjetinfo;
   JetAnalyzerPAT        *pf2patjetinfo;
-  //JetAnalyzerPAT        *trackjetinfo;
 
-  METAnalyzerPAT        *calometinfo;
+  //METAnalyzerPAT        *calometinfo;
   METAnalyzerPAT        *calomettypeiiinfo;
 
-  METAnalyzerPAT        *pfmetinfo;
+  //METAnalyzerPAT        *pfmetinfo;
   METAnalyzerPAT        *pfmettypeiinfo;
 
-  METAnalyzerPAT        *tcmetinfo;
+  //METAnalyzerPAT        *tcmetinfo;
 
   //HemisphereAnalyzerPAT *heminfo;
 
@@ -150,7 +122,7 @@ private:
   LeptonAnalyzerPAT     *pfleptons;
 
   VertexAnalyzerPAT     *vertex;
-  TrackAnalyzerPAT      *tracks;
+  //TrackAnalyzerPAT      *tracks;
   TriggerAnalyzerPAT    *triggers;
 
   MCTruthAnalyzerPAT    *geninfo;

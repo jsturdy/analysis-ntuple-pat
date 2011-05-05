@@ -26,19 +26,19 @@ def main():
     metPrefix = 'PFTypeI'
 
     lepPrefix = 'PF'
-    doPFLeps  = 0;
+    doPFLeps  = 1;
 
-    phtPrefix = 'PF'
+    phtPrefix = ''
     doPFPhots = 0;
 
     jobName = ''
     isData = 0
 
-    #cutFile        = '/uscms_data/d2/sturdy07/SUSY/CMSSW_3_8_7/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/config/cutFile_samp.txt'
-    #triggerList    = '/uscms_data/d2/sturdy07/SUSY/CMSSW_3_8_7/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/config/triggerList.txt'
-    #efficiencyList = '/uscms_data/d2/sturdy07/SUSY/CMSSW_3_8_7/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/config/sampleDef.txt'
+    #cutFile        = '/uscms_data/d2/sturdy07/SUSY/CMSSW_4_1_3_patch2/src/JSturdy/AnalysisNtuplePAT/plugins/common/config/cutFile_samp.txt'
+    #triggerList    = '/uscms_data/d2/sturdy07/SUSY/CMSSW_4_1_3_patch2/src/JSturdy/AnalysisNtuplePAT/plugins/common/config/triggerList.txt'
+    #efficiencyList = '/uscms_data/d2/sturdy07/SUSY/CMSSW_4_1_3_patch2/src/JSturdy/AnalysisNtuplePAT/plugins/common/config/sampleDef.txt'
 
-    cutFile        = './cutFile_samp.txt'
+    cutFile        = './cutFile.txt'
     triggerList    = './triggerList.txt'
     efficiencyList = './sampleDef.txt'
 
@@ -59,16 +59,22 @@ def main():
         parser.print_help()
         sys.exit()
 
-        ### Done with all sanity checks
-    if ( options.mode=='s'):
-        jobName = options.inputfile.split('/')[-1].strip('.root')
-    else:
-        jobName = options.inputText.split('/')[-1].strip('.txt')
+    ### Done with all sanity checks
 
-    if (jobName.find('PATtuple_V9_DATA')>=0):
+    if ( options.mode=='s'):
+            print options.inputfile.split('/')
+            jobName = options.inputfile.split('/')[-1].strip('.root')
+    else:
+        print options.inputText.split('/')
+        #jobName = options.inputText.split('/')[-1].strip('.tx')
+        jobName = options.inputText.split('/')[-1]
+        jobName = jobName[0:-4]
+
+    print jobName
+    if (jobName.find('Run2010')>=0 or jobName.find('Run2011')>=0 or jobName.find('Prompt')>=0):
         print("Job is Data")
         isData = 1
-    elif (jobName.find('PATtuple_V9_MC')>=0):
+    else:
         print("Job is MC ")
         isData = 0
 
@@ -85,8 +91,12 @@ def main():
 
     if (lepPrefix == "PF") :
         doPFLeps  = 1
+    else:
+        doPFLeps = 0
     if (phtPrefix == "PF"):
         doPFPhots = 1
+    else:
+        doPFPhots = 0
     
     extraDir = ""
     if (jetPrefix=="Calo"):
@@ -99,10 +109,11 @@ def main():
     if ( options.outputDir==None ):
         print ("No output directory specified, using JobName and current working directory")
         pwd = os.getcwd()
-        outputmain = '/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw387/newDiJetResults/'+extraDir+'_'+metPrefix+jobName
+        outputmain = '/uscmst1b_scratch/lpc1/3DayLifetime/sturdy07/tmp/cmssw413/newDiJetResults/'+extraDir+jobName
         print ("output directory is %s")%(outputmain)
 
     os.system("mkdir -p "+outputmain+"/input/")
+    os.system("mkdir -p "+outputmain+"/log/")
     os.system("mkdir -p "+outputmain+"/src/")
     os.system("mkdir -p "+outputmain+"/root/")
 
@@ -132,35 +143,36 @@ def main():
                 inputfile.write(line)
             continue
         inputfile.close()
-        for cut in range(2):
+        #for cut in range(2):
         ###Condor steps
-            outputname = "%s/src/submit_%02d-%02d.sub"%(outputmain,ijob,cut)
-            FILE = open(outputname,"w")
-            FILE.write("universe = vanilla\n")
-            FILE.write("Executable = /uscms_data/d2/sturdy07/SUSY/CMSSW_3_8_7/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/condorDiJets.csh\n")
-            FILE.write("Should_Transfer_Files = YES\n")
-            FILE.write("WhenToTransferOutput = ON_EXIT\n")
-            tmpcutFile        = "/uscms_data/d2/sturdy07/SUSY/CMSSW_3_8_7/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/config/cutFile_samp.txt"
-            tmptriggerList    = "/uscms_data/d2/sturdy07/SUSY/CMSSW_3_8_7/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/config/triggerList.txt"
-            tmpefficiencyList = "/uscms_data/d2/sturdy07/SUSY/CMSSW_3_8_7/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/config/sampleDef.txt"
-            tmppragmaLib       = "/uscms_data/d2/sturdy07/SUSY/CMSSW_3_8_7/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/ntuplePragmas.so"
-            FILE.write("Transfer_Input_Files = %s,%s,%s,%s\n"%(tmpcutFile,tmptriggerList,tmpefficiencyList,tmppragmaLib))
-            FILE.write("Output = job_%02d-%02d.stdout\n"%(ijob,cut))
-            FILE.write("Error = job_%02d-%02d.stderr\n"%(ijob,cut))
-            FILE.write("Log = job_%02d-%02d.log\n"%(ijob,cut))
-            FILE.write("notification = never \n")
-            #FILE.write("notification = error \n")
-            #FILE.write("notify_user = $(logname)@fnal.gov \n")
-            #FILE.write("Arguments = $(PROCESS) %s  %s  %s  %s  %d  %s  %s  %d  %d  %s/root/  %d  %d\n"%(inputfilename,efficiencyList,triggerList,cutFile,int(isData),jetPrefix,metPrefix,doPFLeps,doPFPhots,outputmain,cut,debug))
-            FILE.write("Arguments = $(PROCESS) %s  %s  %s  %s  %d  %s  %s  %d  %d  $_CONDOR_SCRATCH_DIR  %d  %d\n"%(inputfilename,efficiencyList,triggerList,cutFile,int(isData),jetPrefix,metPrefix,doPFLeps,doPFPhots,cut,debug))
-            FILE.write("Queue 1\n")
-            
-            FILE.close()
-            os.chdir(outputmain+"/root/")
-            print (os.getcwd())
-            cmd = "condor_submit "+outputname
-            print (cmd)
-            os.system(cmd)
+        outputname = "%s/src/submit_%02d.sub"%(outputmain,ijob)
+        FILE = open(outputname,"w")
+        FILE.write("universe = vanilla\n")
+        FILE.write("Executable = /uscms_data/d2/sturdy07/SUSY/CMSSW_4_1_3_patch2/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/condorDiJets.csh\n")
+        FILE.write("Should_Transfer_Files = YES\n")
+        FILE.write("WhenToTransferOutput = ON_EXIT\n")
+        tmpcutFile        = "/uscms_data/d2/sturdy07/SUSY/CMSSW_4_1_3_patch2/src/JSturdy/AnalysisNtuplePAT/plugins/common/config/cutFile.txt"
+        tmptriggerList    = "/uscms_data/d2/sturdy07/SUSY/CMSSW_4_1_3_patch2/src/JSturdy/AnalysisNtuplePAT/plugins/common/config/triggerList.txt"
+        tmpefficiencyList = "/uscms_data/d2/sturdy07/SUSY/CMSSW_4_1_3_patch2/src/JSturdy/AnalysisNtuplePAT/plugins/common/config/sampleDef.txt"
+        tmppragmaLib      = "/uscms_data/d2/sturdy07/SUSY/CMSSW_4_1_3_patch2/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/ntuplePragmas.so"
+        FILE.write("Transfer_Input_Files = %s,%s,%s,%s\n"%(tmpcutFile,tmptriggerList,tmpefficiencyList,tmppragmaLib))
+        FILE.write("Output = ../log/job_%02d.stdout\n"%(ijob))
+        FILE.write("Error = ../log/job_%02d.stderr\n"%(ijob))
+        FILE.write("Log = ../log/job_%02d.log\n"%(ijob))
+        FILE.write("notification = never \n")
+        #FILE.write("notification = error \n")
+        #FILE.write("notify_user = $(logname)@fnal.gov \n")
+        #FILE.write("Arguments = $(PROCESS) %s  %s  %s  %s  %d  %s  %s  %d  %d  %s/root/  %d  %d\n"%(inputfilename,efficiencyList,triggerListFile,int(isData),jetPrefix,metPrefix,doPFLeps,doPFPhots,outputmain,debug))
+        FILE.write("Requirements = (Memory >= 599 && OpSys == \"LINUX\" && (Arch == \"INTEL\" || Arch ==\"x86_64\"))\n")
+        FILE.write("Arguments = $(PROCESS) %s  %s  %s  %s  %d  %s  %s  %d  %d  $_CONDOR_SCRATCH_DIR  %d\n"%(inputfilename,efficiencyList,triggerList,cutFile,int(isData),jetPrefix,metPrefix,doPFLeps,doPFPhots,debug))
+        FILE.write("Queue 1\n")
+        
+        FILE.close()
+        os.chdir(outputmain+"/root/")
+        print (os.getcwd())
+        cmd = "condor_submit "+outputname
+        print (cmd)
+        os.system(cmd)
         
 
 if __name__ == '__main__':

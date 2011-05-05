@@ -36,6 +36,8 @@
 //
 // Class declaration
 //
+
+
 class METAnalyzerPAT {
  public:
   METAnalyzerPAT(const edm::ParameterSet&, TTree*);
@@ -46,7 +48,7 @@ class METAnalyzerPAT {
   void beginRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
   /// Define all plots
-  void bookTTree();
+  void bookTTree(TTree*);
   
  private:
   
@@ -64,9 +66,7 @@ class METAnalyzerPAT {
 
   bool met_result;       /// result of the met cut
 
-  char logmessage[128];
-
-  TTree * mMETData;      /// Will contain the data passing the MET cut
+  //TTree * mMETData;      /// Will contain the data passing the MET cut
 
   // Generated MET
   double m_METGen[3];
@@ -76,15 +76,10 @@ class METAnalyzerPAT {
   int nFullMET;
   int nUncorrMET;
  
-  //boost::shared_ptr<reco::Candidate::LorentzVector> mep4 ( new reco::Candidate::LorentzVector() );
-  //boost::shared_ptr<std::map<std::string, float> > corrX ( new std::map<std::string, float>() );
-  //boost::shared_ptr<std::map<std::string, float> > corrY ( new std::map<std::string, float>() );
-  //boost::shared_ptr<std::map<std::string, float> > corrSumET ( new std::map<std::string, float>() );
-
-  reco::Candidate::LorentzVector mep4;
-  reco::Candidate::LorentzVector genMETP4;
-  reco::Candidate::LorentzVector genTrueMETP4;
-  reco::Candidate::LorentzVector genCaloMETP4;
+  std::auto_ptr<reco::Candidate::LorentzVector> mep4;
+  std::auto_ptr<reco::Candidate::LorentzVector> genMETP4;
+  std::auto_ptr<reco::Candidate::LorentzVector> genTrueMETP4;
+  std::auto_ptr<reco::Candidate::LorentzVector> genCaloMETP4;
 
   double genSumEt;
   double genTrueSumEt;
@@ -98,9 +93,11 @@ class METAnalyzerPAT {
   double genTrueSignificance;
   double genCaloSignificance;
 
-  std::map<std::string, float> corrX;
-  std::map<std::string, float> corrY;
-  std::map<std::string, float> corrSumET;
+  //std::auto_ptr<std::map<std::string, double> >  corrX;
+  //std::auto_ptr<std::map<std::string, double> >  corrY;
+  //std::auto_ptr<std::map<std::string, double> >  corrSumET;
+  //std::auto_ptr<std::map<std::string, double> >  corrMETPhi;
+  //std::auto_ptr<std::map<std::string, double> >  corrPt;
   
   double m_MET_Fullcorr[3];
   double m_METpt_Fullcorr;
@@ -145,13 +142,11 @@ class METAnalyzerPAT {
   double localPi;
   
   void maintenance() {
-    corrX.clear();
-    corrY.clear();
-    corrSumET.clear();
-
-    std::map<std::string,float>().swap(corrX);
-    std::map<std::string,float>().swap(corrY);
-    std::map<std::string,float>().swap(corrSumET);
+    //corrX->clear();
+    //corrY->clear();
+    //corrSumET->clear();
+    //corrMETPhi->clear();
+    //corrPt->clear();
   }
 };
 

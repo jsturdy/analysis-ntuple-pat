@@ -11,7 +11,7 @@
 //
 // Original Author:  Jared Sturdy
 //         Created:  Tue Feb 2 12:11:44 PDT 2010
-// $Id: METAnalyzerPAT.cc,v 1.13 2011/03/15 14:55:52 sturdy Exp $
+// $Id: METAnalyzerPAT.cc,v 1.14 2011/03/18 10:58:50 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/METAnalyzerPAT.h"
@@ -20,29 +20,37 @@
 
 
 //________________________________________________________________________________________
-METAnalyzerPAT::METAnalyzerPAT(const edm::ParameterSet& metParams, TTree* tmpAllData)
+METAnalyzerPAT::METAnalyzerPAT(const edm::ParameterSet& metParams, TTree* mMETData)
+  :
+  mep4        (new reco::Candidate::LorentzVector ),
+  //corrX       (new std::map<std::string,doubld> ),
+  //corrY       (new std::map<std::string,doubld> ),
+  //corrSumET   (new std::map<std::string,doubld> ),
+  //corrMETPhi  (new std::map<std::string,doubld> ),
+  //corrPt      (new std::map<std::string,doubld> ),
+  //genMETP4    (new reco::Candidate::LorentzVector ),
+  genTrueMETP4(new reco::Candidate::LorentzVector ),
+  genCaloMETP4(new reco::Candidate::LorentzVector )
 { 
-  mMETData = tmpAllData;
-
   debug_     = metParams.getUntrackedParameter<int>("debugMET",0);
   prefix_    = metParams.getUntrackedParameter<std::string>("prefixMET","Calo");
 
   doMCData_  = metParams.getUntrackedParameter<bool>("doMCMET",false);
   // get the data tags
   metTag_   = metParams.getUntrackedParameter<edm::InputTag>("metTag");
-  useCaloMET_ = metParams.getUntrackedParameter<bool>("useCaloMET",false);
-  usePFMET_   = metParams.getUntrackedParameter<bool>("usePFMET",false);
+  useCaloMET_ = metParams.getUntrackedParameter<bool>("doCaloMET",false);
+  usePFMET_   = metParams.getUntrackedParameter<bool>("doPFMET",  false);
 
   localPi = acos(-1.0);
 
   // Initialise plots [should improve in the future]
-  bookTTree();
+  bookTTree(mMETData);
 }
 
 
 //________________________________________________________________________________________
 METAnalyzerPAT::~METAnalyzerPAT() {
-  delete mMETData;
+  //delete mMETData;
 }
 
 //
@@ -80,7 +88,7 @@ bool METAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   const pat::MET& theMET = metHandle->front();
 
   
-  mep4   = theMET.p4();
+  (*mep4)   = theMET.p4();
   //double melong = theMET.e_longitudinal();
   double met    = theMET.et();
   double mex    = theMET.momentum().X();
@@ -112,7 +120,7 @@ bool METAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
     METFrac_neutralHad = theMET.NeutralHadEtFraction();
     METFrac_chargedEM  = theMET.ChargedEMEtFraction();
     METFrac_chargedHad = theMET.ChargedHadEtFraction();
-    METFrac_muon = theMET.MuonEtFraction();
+    METFrac_muon  = theMET.MuonEtFraction();
     METFrac_type6 = theMET.Type6EtFraction();
     METFrac_type7 = theMET.Type7EtFraction();
   }
@@ -165,7 +173,7 @@ bool METAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
       }
     
       if ( genMetCaloHandle.isValid() ) {
-	genCaloMETP4        = genMETCalo.p4();
+	(*genCaloMETP4)        = genMETCalo.p4();
 	m_METGenCalo[0]     = genMETCalo.px();
 	m_METGenCalo[1]     = genMETCalo.py();
 	m_METGenCalo[2]     = genMETCalo.pz();
@@ -189,7 +197,7 @@ bool METAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
     
       const reco::GenMET& genMETTrue = genMetTrueHandle->front();
       if ( genMetTrueHandle.isValid() ) {
-	genTrueMETP4        = genMETTrue.p4();
+	(*genTrueMETP4)        = genMETTrue.p4();
 	m_METGenTrue[0]     = genMETTrue.px();
 	m_METGenTrue[1]     = genMETTrue.py();
 	m_METGenTrue[2]     = genMETTrue.pz();
@@ -227,17 +235,14 @@ bool METAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 }
 
 //________________________________________________________________________________________
-void METAnalyzerPAT::bookTTree() {
-
-  std::ostringstream variables; // Container for all variables
-  
+void METAnalyzerPAT::bookTTree(TTree* mMETData) {
 
   // Add the branches
   //general MET information
   mMETData->Branch("nFull"+prefix_+"MET",   &nFullMET,   "nFull"+prefix_+"MET/I");
   mMETData->Branch("nUncorr"+prefix_+"MET", &nUncorrMET, "nUncorr"+prefix_+"MET/I");
 
-  mMETData->Branch(prefix_+"METP4",   &mep4);
+  mMETData->Branch(prefix_+"METP4",   &(*mep4.get() ));
 
   //mMETData->Branch(prefix_+"MET_Fullcorr",              m_MET_Fullcorr,             prefix_+"MET_Fullcorr[nFull"+prefix_+"MET]/D");
   //mMETData->Branch(prefix_+"METpt_Fullcorr",           &m_METpt_Fullcorr,           prefix_+"METpt_Fullcorr/D");
@@ -283,22 +288,20 @@ void METAnalyzerPAT::bookTTree() {
     //mMETData->Branch(prefix_+"GenSumEt",        &genSumEt,        prefix_+"GenSumEt/D");
     //mMETData->Branch(prefix_+"GenMetSig",       &genMetSig,       prefix_+"GenMetSig/D");
     //mMETData->Branch(prefix_+"GenSignificance", &genSignificance, prefix_+"GenSignificance/D");
-    //mMETData->Branch(prefix_+"GenMETP4",        &genMETP4);
+    //mMETData->Branch(prefix_+"GenMETP4",        &(*genMETP4.get() ));
     
     mMETData->Branch("GenMETTrue",           m_METGenTrue,        "GenMETTrue[3]/D");
     mMETData->Branch("GenTrueSumEt",        &genTrueSumEt,        "GenTrueSumEt/D");
     mMETData->Branch("GenTrueMetSig",       &genTrueMetSig,       "GenTrueMetSig/D");
     mMETData->Branch("GenTrueSignificance", &genTrueSignificance, "GenTrueSignificance/D");
-    mMETData->Branch("GenTrueMETP4",        &genTrueMETP4);
+    mMETData->Branch("GenTrueMETP4",        &(*genTrueMETP4.get() ));
     
     mMETData->Branch("GenMETCalo",           m_METGenCalo,        "GenMETCalo[3]/D");
     mMETData->Branch("GenCaloSumEt",        &genCaloSumEt,        "GenCaloSumEt/D");
     mMETData->Branch("GenCaloMetSig",       &genCaloMetSig,       "GenCaloMetSig/D");
     mMETData->Branch("GenCaloSignificance", &genCaloSignificance, "GenCaloSignificance/D");
-    mMETData->Branch("GenCaloMETP4",        &genCaloMETP4);
+    mMETData->Branch("GenCaloMETP4",        &(*genCaloMETP4.get() ));
   }
-  
-  edm::LogInfo("AnalysisNtuplePAT::METAnalyzerPAT") << "MET Ntuple variables " << variables.str();
   
 }
 

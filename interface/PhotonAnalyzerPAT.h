@@ -33,6 +33,8 @@
 //
 // Class declaration
 //
+
+
 class PhotonAnalyzerPAT {
  public:
   PhotonAnalyzerPAT(const edm::ParameterSet&, TTree*);
@@ -43,7 +45,7 @@ class PhotonAnalyzerPAT {
   void beginRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
   /// Define all plots
-  void bookTTree();
+  void bookTTree(TTree* mPhotonData);
   
 
 private:
@@ -55,99 +57,118 @@ private:
   int    debug_;
   TString prefix_;
 
-  char logmessage[128];
-
   // Plots
-  TTree * mPhotonData;      /// Will contain the additional di-jet specific data
+  //TTree * mPhotonData;      /// Will contain the additional di-jet specific data
 
   // Variables
-  std::vector<reco::Candidate::LorentzVector> v_photP4;
   int    i_PhotN;
   bool   bool_PhotVeto;
-
-  std::vector<double>  vd_PhotTrkIso;
-  std::vector<double>  vd_PhotECalIso;
-  std::vector<double>  vd_PhotHCalIso;
-  std::vector<double>  vd_PhotAllIso;
-
-  std::vector<double>  vd_PhotPFAllParticleIso;
-  std::vector<double>  vd_PhotPFChargedHadronIso;
-  std::vector<double>  vd_PhotPFNeutralHadronIso;
-  std::vector<double>  vd_PhotPFGammaIso;
- 
-  std::vector<double>  vd_PhotTrkIsoDeposit;
-  std::vector<double>  vd_PhotECalIsoDeposit;
-  std::vector<double>  vd_PhotHCalIsoDeposit;
   
-  std::vector<double>  vd_PhotPFAllParticleIsoDeposit;
-  std::vector<double>  vd_PhotPFChargedHadronIsoDeposit;
-  std::vector<double>  vd_PhotPFNeutralHadronIsoDeposit;
-  std::vector<double>  vd_PhotPFGammaIsoDeposit;
+  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  v_photP4;
 
-  //bool m_ccPhotAssoc[50];
-  std::vector<int>  vb_PhotIsEB;
-  std::vector<int>  vb_PhotIsEE;
-  //std::vector<int>  vb_PhotLooseEM;
-  std::vector<int>  vb_PhotLoosePhoton;
-  std::vector<int>  vb_PhotTightPhoton;
+  std::auto_ptr<std::vector<double> >  vd_PhotTrkIso;
+  std::auto_ptr<std::vector<double> >  vd_PhotECalIso;
+  std::auto_ptr<std::vector<double> >  vd_PhotHCalIso;
+  std::auto_ptr<std::vector<double> >  vd_PhotAllIso;
 
-  std::vector<double>  vd_PhotHadOverEM;
-  std::vector<double>  vd_PhotE2OverE9;
-  std::vector<double>  vd_PhotSwissCross;
-  //std::vector<double>  vd_PhotTSeed;
-  std::vector<double> vd_PhotSigmaIetaIeta;
-  std::vector<int>    vb_PhotHasPixelSeed;
-  std::vector<int>    vb_PhotHasConversionTracks;
+  std::auto_ptr<std::vector<double> >  vd_PhotPFAllParticleIso;
+  std::auto_ptr<std::vector<double> >  vd_PhotPFChargedHadronIso;
+  std::auto_ptr<std::vector<double> >  vd_PhotPFNeutralHadronIso;
+  std::auto_ptr<std::vector<double> >  vd_PhotPFGammaIso;
+ 
+  std::auto_ptr<std::vector<double> >  vd_PhotTrkIsoDeposit;
+  std::auto_ptr<std::vector<double> >  vd_PhotECalIsoDeposit;
+  std::auto_ptr<std::vector<double> >  vd_PhotHCalIsoDeposit;
+  
+  std::auto_ptr<std::vector<double> >  vd_PhotPFAllParticleIsoDeposit;
+  std::auto_ptr<std::vector<double> >  vd_PhotPFChargedHadronIsoDeposit;
+  std::auto_ptr<std::vector<double> >  vd_PhotPFNeutralHadronIsoDeposit;
+  std::auto_ptr<std::vector<double> >  vd_PhotPFGammaIsoDeposit;
 
-  std::vector<reco::Candidate::LorentzVector> v_genphotP4;
+  std::auto_ptr<std::vector<double> >  vd_PhotSCEta ;
+  std::auto_ptr<std::vector<double> >  vd_PhotSCPhi ;
+  std::auto_ptr<std::vector<double> >  vd_PhotSCEn  ;
+  std::auto_ptr<std::vector<double> >  vd_PhotSCPt  ;
+  std::auto_ptr<std::vector<double> >  vd_PhotSCRawE;
 
-  std::vector<int> vi_PhotGenPdgId;
-  std::vector<int> vi_PhotGenStatus;
-  std::vector<int> vi_PhotGenMother;
-  std::vector<int> vi_PhotGenMotherStatus;
+  std::auto_ptr<std::vector<int> >  vb_PhotIsEB;
+  std::auto_ptr<std::vector<int> >  vb_PhotIsEE;
+  std::auto_ptr<std::vector<int> >  vb_PhotIsEBGap;
+  std::auto_ptr<std::vector<int> >  vb_PhotIsEEGap;
+  std::auto_ptr<std::vector<int> >  vb_PhotIsEBEEGap;
+
+  std::auto_ptr<std::vector<int> >  vb_PhotLoosePhoton;
+  std::auto_ptr<std::vector<int> >  vb_PhotTightPhoton;
+
+  std::auto_ptr<std::vector<double> >  vd_PhotHadOverEM;
+  std::auto_ptr<std::vector<double> >  vd_PhotE2OverE9;
+  std::auto_ptr<std::vector<double> >  vd_PhotSwissCross;
+  std::auto_ptr<std::vector<double> >  vd_PhotTSeed;
+  std::auto_ptr<std::vector<double> >  vd_PhotESeed;
+  std::auto_ptr<std::vector<double> >  vd_PhotSigmaIetaIeta;
+  std::auto_ptr<std::vector<int> >  vb_PhotHasPixelSeed;
+  std::auto_ptr<std::vector<int> >  vb_PhotHasConversionTracks;
+
+  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  v_genphotP4;
+
+  std::auto_ptr<std::vector<int> >  vi_PhotGenPdgId;
+  std::auto_ptr<std::vector<int> >  vi_PhotGenStatus;
+  std::auto_ptr<std::vector<int> >  vi_PhotGenMother;
+  std::auto_ptr<std::vector<int> >  vi_PhotGenMotherStatus;
   //
 
   void maintenancePhots() {
-    v_photP4.clear();
+    v_photP4->clear();
 
-    vd_PhotTrkIso.clear();
-    vd_PhotECalIso.clear();
-    vd_PhotHCalIso.clear();
-    vd_PhotAllIso.clear();
+    vd_PhotTrkIso->clear();
+    vd_PhotECalIso->clear();
+    vd_PhotHCalIso->clear();
+    vd_PhotAllIso->clear();
 
-    vd_PhotPFAllParticleIso.clear();
-    vd_PhotPFChargedHadronIso.clear();
-    vd_PhotPFNeutralHadronIso.clear();
-    vd_PhotPFGammaIso.clear();
+    vd_PhotPFAllParticleIso->clear();
+    vd_PhotPFChargedHadronIso->clear();
+    vd_PhotPFNeutralHadronIso->clear();
+    vd_PhotPFGammaIso->clear();
 
-    vd_PhotTrkIsoDeposit.clear();
-    vd_PhotECalIsoDeposit.clear();
-    vd_PhotHCalIsoDeposit.clear();
+    vd_PhotTrkIsoDeposit->clear();
+    vd_PhotECalIsoDeposit->clear();
+    vd_PhotHCalIsoDeposit->clear();
     
-    vd_PhotPFAllParticleIsoDeposit.clear();
-    vd_PhotPFChargedHadronIsoDeposit.clear();
-    vd_PhotPFNeutralHadronIsoDeposit.clear();
-    vd_PhotPFGammaIsoDeposit.clear();
+    vd_PhotPFAllParticleIsoDeposit->clear();
+    vd_PhotPFChargedHadronIsoDeposit->clear();
+    vd_PhotPFNeutralHadronIsoDeposit->clear();
+    vd_PhotPFGammaIsoDeposit->clear();
 
-    vb_PhotIsEB.clear();
-    vb_PhotIsEE.clear();
-    //vb_PhotLooseEM.clear();
-    vb_PhotLoosePhoton.clear();
-    vb_PhotTightPhoton.clear();
+    vd_PhotSCEta ->clear();
+    vd_PhotSCPhi ->clear();
+    vd_PhotSCEn  ->clear();
+    vd_PhotSCPt  ->clear();
+    vd_PhotSCRawE->clear();
 
-    vd_PhotE2OverE9.clear();
-    vd_PhotSwissCross.clear();
-    //vd_PhotTSeed.clear();
-    vd_PhotSigmaIetaIeta.clear();
-    vb_PhotHasPixelSeed.clear();
-    vb_PhotHasConversionTracks.clear();
-    vd_PhotHadOverEM.clear();
+    vb_PhotIsEB->clear();
+    vb_PhotIsEE->clear();
+    vb_PhotIsEBGap->clear();
+    vb_PhotIsEEGap->clear();
+    vb_PhotIsEBEEGap->clear();
 
-    v_genphotP4.clear();
-    vi_PhotGenPdgId.clear();
-    vi_PhotGenStatus.clear();
-    vi_PhotGenMother.clear();
-    vi_PhotGenMotherStatus.clear();
+    vb_PhotLoosePhoton->clear();
+    vb_PhotTightPhoton->clear();
+
+    vd_PhotHadOverEM->clear();
+    vd_PhotE2OverE9->clear();
+    vd_PhotSwissCross->clear();
+    vd_PhotTSeed->clear();
+    vd_PhotESeed->clear();
+    vd_PhotSigmaIetaIeta->clear();
+    vb_PhotHasPixelSeed->clear();
+    vb_PhotHasConversionTracks->clear();
+
+    v_genphotP4->clear();
+
+    vi_PhotGenPdgId->clear();
+    vi_PhotGenStatus->clear();
+    vi_PhotGenMother->clear();
+    vi_PhotGenMotherStatus->clear();
 
   }
 };

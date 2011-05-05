@@ -38,6 +38,8 @@
 //
 // Class declaration
 //
+
+
 class TrackAnalyzerPAT {
  public:
   TrackAnalyzerPAT(const edm::ParameterSet&, TTree*);
@@ -47,7 +49,7 @@ class TrackAnalyzerPAT {
 
   void beginRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
-  void bookTTree();
+  void bookTTree(TTree*);
 
  private:
 
@@ -56,10 +58,7 @@ class TrackAnalyzerPAT {
   bool doMCData_;
   int  debug_;
 
-  char logmessage[128];
-
-  //TTree * mAllData;        /// Will contain all the data
-  TTree * mTrackData;      /// Will contain the additional track parameters
+  //TTree * mTrackData;      /// Will contain the additional track parameters
 
   bool track_result;
 

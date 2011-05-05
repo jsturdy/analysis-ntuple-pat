@@ -8,7 +8,7 @@ set file    = ${2}
 echo $1
 echo $2 
 
-cd /uscms_data/d2/sturdy07/SUSY/CMSSW_3_7_0_patch4/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/
+cd /uscms_data/d2/sturdy07/SUSY/CMSSW_4_1_3_patch2/src/JSturdy/AnalysisNtuplePAT/plugins/analyses/diJets/
 source /uscmst1/prod/sw/cms/cshrc uaf
 cmsenv
 

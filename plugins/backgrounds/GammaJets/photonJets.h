@@ -8,8 +8,8 @@
 #ifndef photonJets_h
 #define photonJets_h
 
-#include "/uscms_data/d2/sturdy07/SUSY/new387/CMSSW_4_1_1/src/JSturdy/AnalysisNtuplePAT/plugins/common/ntupleAnalysisPAT.h"
-#include "/uscms_data/d2/sturdy07/SUSY/new387/CMSSW_4_1_1/src/JSturdy/AnalysisNtuplePAT/plugins/common/ntuplePragmas.h"
+#include "../../common/ntupleAnalysisPAT.h"
+#include "../../common/ntuplePragmas.h"
 
 class photonJets : public ntupleAnalysisPAT {
  public :
@@ -28,11 +28,9 @@ class photonJets : public ntupleAnalysisPAT {
   virtual ~photonJets();
   
   virtual void     Loop(const std::string &outfilename="outfile.root", 
-			const double &cutJet1=100., 
-			const double &cutJet2=100., 
-			const double &cutMET=200., 
 			const bool& strictDiJets=true, 
-			const int& triggerPaths=2);
+			const int& triggerPaths=2
+			);
   
   //print out the event information for events that pass our cuts
   //if the event is real data, print out extra information

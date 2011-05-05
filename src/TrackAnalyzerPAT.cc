@@ -13,17 +13,15 @@ Description: Collects variables related to tracks
 //
 // Original Author:  Jared Sturdy (from SusyAnalysisNtuplePAT)
 //         Created:  Fri Jan 29 16:10:31 PDT 2010
-// $Id: TrackAnalyzerPAT.cc,v 1.7 2010/11/08 15:30:00 sturdy Exp $
+// $Id: TrackAnalyzerPAT.cc,v 1.8 2011/03/08 21:11:36 sturdy Exp $
 //
 //
 #include "JSturdy/AnalysisNtuplePAT/interface/TrackAnalyzerPAT.h"
 #include <TMath.h>
 
 //________________________________________________________________________________________
-TrackAnalyzerPAT::TrackAnalyzerPAT(const edm::ParameterSet& trackParams, TTree* tmpAllData)
+TrackAnalyzerPAT::TrackAnalyzerPAT(const edm::ParameterSet& trackParams, TTree* mTrackData)
 { 
-  mTrackData = tmpAllData;
-
   debug_   = trackParams.getUntrackedParameter<int>("debugTracks",0);
   //doMCData_  = trackParams.getUntrackedParameter<bool>("doMCTracks",false);
   //if (doMCData_)
@@ -32,13 +30,13 @@ TrackAnalyzerPAT::TrackAnalyzerPAT(const edm::ParameterSet& trackParams, TTree* 
   localPi = acos(-1.0);
 
   // Initialise plots [should improve in the future]
-  bookTTree();
+  bookTTree(mTrackData);
 }
 
 
 //________________________________________________________________________________________
 TrackAnalyzerPAT::~TrackAnalyzerPAT() {
-  delete mTrackData;
+  //delete mTrackData;
 }
 
 //
@@ -107,12 +105,7 @@ bool TrackAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
 }
 
 //________________________________________________________________________________________
-void TrackAnalyzerPAT::bookTTree() {
-
-  std::ostringstream variables; // Container for all variables
-  
-  // 1. Event variables
-  variables << "weight:process";
+void TrackAnalyzerPAT::bookTTree(TTree* mTrackData) {
 
   ////mTrackData->Branch("MPTP3",  &v_MPTP3,  "MPTP3");
   mTrackData->Branch("MPTPhi", &m_MPTPhi, "MPTPhi/D");
@@ -120,8 +113,6 @@ void TrackAnalyzerPAT::bookTTree() {
   mTrackData->Branch("MPTPy",  &m_MPTPy,  "MPTPy/D");
   mTrackData->Branch("MPTPz",  &m_MPTPz,  "MPTPz/D");
 
-  edm::LogInfo("TrackEvent") << "Ntuple variables " << variables.str();
-  
 }
 
 

@@ -60,17 +60,19 @@ photonJets::~photonJets()
 }
 
 
-void photonJets::Loop(const std::string &outputfile, const double &cutJet1, const double &cutJet2, const double &cutMET, const bool& strictDiJets, const int& triggerPaths)
+void photonJets::Loop(const std::string &outputfile,
+		      const bool& strictDiJets,
+		      const int& triggerPaths)
 {
   int debug_ = 0;
-  printf("converted args: %s  pT1: %4.6f  pT2: %4.6f  MET: %4.6f  strictDiJets:  %d  triggerPaths:  %d\n",
-	 outputfile.c_str(), cutJet1, cutJet2, cutMET, strictDiJets, triggerPaths);
+  printf("converted args: %s  pT1: %4.6f  pT2: %4.6f  MET: %4.6f  strictDiJets:  %d\n",
+	 outputfile.c_str(), cutJet1, cutJet2, cutMET, strictDiJets);
   
-  gROOT->ProcessLine(".L /uscms_data/d2/sturdy07/SUSY/new387/CMSSW_4_1_1/src/JSturdy/AnalysisNtuplePAT/plugins/common/ntuplePragmas.so");
+  gROOT->ProcessLine(".L /uscms_data/d2/sturdy07/SUSY/new387/CMSSW_3_9_9/src/JSturdy/AnalysisNtuplePAT/plugins/common/ntuplePragmas_h.so");
   
-  jet1_minpt = cutJet1;
-  jet2_minpt = cutJet2;
-  cut_met    = cutMET;
+  jet1_minpt = 100;
+  jet2_minpt = 100;
+  cut_met    = 200;
 
   outfilename_ = outputfile;
   
@@ -471,6 +473,7 @@ void photonJets::Loop(const std::string &outputfile, const double &cutJet1, cons
 
       if (debug_)
 	std::cout<<"looping over photons to see if there are jet matchers"<<std::endl;
+
       for (int phot = 0; phot < nPhots; ++phot) {
 	//currently searching for highest pt photon in jet cone
 	//need to search for closeest?
@@ -478,26 +481,41 @@ void photonJets::Loop(const std::string &outputfile, const double &cutJet1, cons
 	if ( !jetID(jet,false) ){ //for jets failing loose jetID
 	  if (photIndexFail < 0) {
 	    if (jetPhotDeltaR < 0.1)
-	      photIndexFail = jet;
+	      photIndexFailTight = jet;
+	    else if (jetPhotDeltaR > 0.1 && jetPhotDeltaR < 0.4)
+	      photIndexFailLoose = jet;
 	  }
 	  else
 	    if (jetPhotDeltaR < 0.1) {
-	      if (photIndexFail == phot)
-		++secondPhotonDRMatchFail;
-	      ++photonDRMatchesFail[jet];
+	      if (photIndexFailTight == phot)
+		++secondPhotonDRMatchFailTight;
+	      ++photonDRMatchesFailTight[jet];
+	    }
+	    else if (jetPhotDeltaR > 0.1 && jetPhotDeltaR < 0.4) {
+	      if (photIndexFailLoose == phot)
+		++secondPhotonDRMatchFailLoose;
+	      ++photonDRMatchesFailLoose[jet];
 	    }
 	}
 	else { //for jets passing loose jetID
 	  if (photIndexPass < 0) {
 	    if (jetPhotDeltaR < 0.1)
-	      photIndexPass = jet;
+	      photIndexPassTight = jet;
+	    else if (jetPhotDeltaR > 0.1 && jetPhotDeltaR < 0.4)
+	      photIndexPassLoose = jet;
 	  }
 	  else
 	    if (jetPhotDeltaR < 0.1) {
-	      if (photIndexPass == phot)
-		++secondPhotonDRMatchPass;
-	      ++photonDRMatchesPass[jet];
+	      if (photIndexPassTight == phot)
+		++secondPhotonDRMatchPassTight;
+	      ++photonDRMatchesPassTight[jet];
 	    }
+	    else if (jetPhotDeltaR > 0.1 && jetPhotDeltaR < 0.4) {
+	      if (photIndexPassLoose == phot)
+		++secondPhotonDRMatchPassLoose;
+	      ++photonDRMatchesPassLoose[jet];
+	    }
+
 	}
       }
     }
@@ -585,16 +603,21 @@ void photonJets::Loop(const std::string &outputfile, const double &cutJet1, cons
       if (debug_)
 	std::cout<<"Using "<<photonTriggerPath    <<" as the photon trigger"    <<std::endl;
       
-      stringtobool::iterator trigbit = HLTTriggered->find(photonTriggerPath);
-      if (trigbit!=HLTTriggered->end())
+      stringtobool::iterator trigbit  = HLTTriggered->find(photonTriggerPath);
+      stringtoint::iterator  trigpres = HLTPrescaled->find(photonTriggerPath);
+      if (trigbit!=HLTTriggered->end()) {
 	hltPhotonTriggerSelection[0] = trigbit->second;
+	std::cout<<"Found "<<trigbit->first
+		 <<" with result "<<trigbit->second
+		 <<" and prescale "<<trigpres->second
+		 <<std::endl;
+      }
       
       hltTriggerSelection[0] = 
 	hltPhotonTriggerSelection[0];
       
       triggerselection = hltTriggerSelection[0];
-      
-      
+
       //get the met related variables
       double met    = METP4->Pt();
       double rawmet = METpt_Nocorr;

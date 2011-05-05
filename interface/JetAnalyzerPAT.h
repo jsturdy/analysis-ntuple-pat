@@ -62,7 +62,7 @@ class JetAnalyzerPAT {
   void beginRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
   /// Define all plots
-  void bookTTree();
+  void bookTTree(TTree*);
 
   typedef struct {
     double Ht;
@@ -169,32 +169,45 @@ class JetAnalyzerPAT {
 
   std::string   jetCorTag_;
 
-  char logmessage[128];
-
   // Plots
-  TTree * mJetData;      /// Will contain the data passing the jet selection
+  //TTree * mJetData;      /// Will contain the data passing the jet selection
 
-  std::map<std::string, std::vector<float> > map_s_vf_correctionFactor;
-  //std::map<std::string, std::vector<int> >   map_s_vi_JetOverlaps;
-  //std::map<std::string, std::vector<int> >   map_s_vi_JetNOverlaps;
-  std::vector<int>                           vi_JetElectronOverlaps;
-  std::vector<int>                           vi_JetElectronNOverlaps;
-  std::vector<int>                           vi_JetMuonOverlaps;
-  std::vector<int>                           vi_JetMuonNOverlaps;
-  std::vector<int>                           vi_JetTauOverlaps;
-  std::vector<int>                           vi_JetTauNOverlaps;
-  std::vector<int>                           vi_JetPhotonOverlaps;
-  std::vector<int>                           vi_JetPhotonNOverlaps;
+  //std::auto_ptr<std::map<std::string, std::auto_ptr<std::vector<double> > >  map_s_vd_correctionFactor;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorUnc;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL1;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL2;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL3;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL2L3;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL5uds;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL5c;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL5b;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL5glu;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL7uds;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL7c;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL7b;
+  std::auto_ptr<std::vector<double> >  vd_correctionFactorL7glu;
 
-  std::vector<reco::Candidate::LorentzVector > v_JetP4;
-  std::vector<reco::Candidate::LorentzVector > v_RawJetP4;
-  std::vector<reco::Candidate::LorentzVector > v_GenJetP4;
+  //std::auto_ptr<std::map<std::string, std::auto_ptr<std::vector<int> > >  map_s_vi_JetOverlaps;
+  //std::auto_ptr<std::map<std::string, std::auto_ptr<std::vector<int> > >  map_s_vi_JetNOverlaps;
 
-  reco::Candidate::LorentzVector MHtP4;
-  reco::Candidate::LorentzVector GenMHtP4;
+  std::auto_ptr<std::vector<int> >  vi_JetElectronOverlaps;
+  std::auto_ptr<std::vector<int> >  vi_JetElectronNOverlaps;
+  std::auto_ptr<std::vector<int> >  vi_JetMuonOverlaps;
+  std::auto_ptr<std::vector<int> >  vi_JetMuonNOverlaps;
+  std::auto_ptr<std::vector<int> >  vi_JetTauOverlaps;
+  std::auto_ptr<std::vector<int> >  vi_JetTauNOverlaps;
+  std::auto_ptr<std::vector<int> >  vi_JetPhotonOverlaps;
+  std::auto_ptr<std::vector<int> >  vi_JetPhotonNOverlaps;
 
-  std::vector<float> vf_JECUncPlus;
-  std::vector<float> vf_JECUncMinus;
+  std::auto_ptr<std::vector<reco::Candidate::LorentzVector > >  v_JetP4;
+  std::auto_ptr<std::vector<reco::Candidate::LorentzVector > >  v_RawJetP4;
+  std::auto_ptr<std::vector<reco::Candidate::LorentzVector > >  v_GenJetP4;
+
+  std::auto_ptr<reco::Candidate::LorentzVector> MHtP4;
+  std::auto_ptr<reco::Candidate::LorentzVector> GenMHtP4;
+
+  std::auto_ptr<std::vector<double> >  vd_JECUncPlus;
+  std::auto_ptr<std::vector<double> >  vd_JECUncMinus;
 
   int    i_NJets;
 
@@ -204,100 +217,90 @@ class JetAnalyzerPAT {
   MYMHT GenMHt;
   double d_GenHt;
 
-  std::vector<double> vd_JetEtaEtaMoment;
-  std::vector<double> vd_JetEtaPhiMoment;
-  std::vector<double> vd_JetPhiPhiMoment;
+  std::auto_ptr<std::vector<double > >  vd_JetEtaEtaMoment;
+  std::auto_ptr<std::vector<double > >  vd_JetEtaPhiMoment;
+  std::auto_ptr<std::vector<double > >  vd_JetPhiPhiMoment;
 
   //JetID variables
-  pat::strbitset retmin;
-  pat::strbitset retloo;
-  pat::strbitset rettig;
-
-  std::vector<int>   vb_JetIDMinimal;
-  std::vector<int>   vb_JetIDLoose;
-  std::vector<int>   vb_JetIDTight;
+  std::auto_ptr<std::vector<int> >  vb_JetIDMinimal;
+  std::auto_ptr<std::vector<int> >  vb_JetIDLoose;
+  std::auto_ptr<std::vector<int> >  vb_JetIDTight;
   
-  std::vector<double> vd_JetEFrac_em;
-  std::vector<double> vd_JetEFrac_had;
-  std::vector<double> vd_JetCharge;
-  std::vector<int>    vi_JetHemi;
-  std::vector<int>    vi_JetNConst;
+  std::auto_ptr<std::vector<double> >  vd_JetEFrac_em;
+  std::auto_ptr<std::vector<double> >  vd_JetEFrac_had;
+  std::auto_ptr<std::vector<double> >  vd_JetCharge;
+  std::auto_ptr<std::vector<int> >     vi_JetHemi;
+  std::auto_ptr<std::vector<int> >     vi_JetNConst;
 
   //calo/jpt jet specific
-  std::vector<double> vd_JetfHPD;
-  std::vector<double> vd_JetfRBX;
-  std::vector<double> vd_JetN90;
+  std::auto_ptr<std::vector<double> >  vd_JetfHPD;
+  std::auto_ptr<std::vector<double> >  vd_JetfRBX;
+  std::auto_ptr<std::vector<double> >  vd_JetN90;
   
   //jpt/pf jet specific
-  std::vector<double> vd_JetChargedFrac_em;
-  std::vector<double> vd_JetNeutralFrac_em;
-  std::vector<double> vd_JetChargedFrac_had;
-  std::vector<double> vd_JetNeutralFrac_had;
+  std::auto_ptr<std::vector<double> >  vd_JetChargedFrac_em;
+  std::auto_ptr<std::vector<double> >  vd_JetNeutralFrac_em;
+  std::auto_ptr<std::vector<double> >  vd_JetChargedFrac_had;
+  std::auto_ptr<std::vector<double> >  vd_JetNeutralFrac_had;
 
-  std::vector<double> vd_JetChargedEn_em;
-  std::vector<double> vd_JetNeutralEn_em;
-  std::vector<double> vd_JetChargedEn_had;
-  std::vector<double> vd_JetNeutralEn_had;
+  std::auto_ptr<std::vector<double> >  vd_JetChargedEn_em;
+  std::auto_ptr<std::vector<double> >  vd_JetNeutralEn_em;
+  std::auto_ptr<std::vector<double> >  vd_JetChargedEn_had;
+  std::auto_ptr<std::vector<double> >  vd_JetNeutralEn_had;
 
-  std::vector<double> vd_JetChargedMult;
-  std::vector<double> vd_JetElectronMult;
-  std::vector<double> vd_JetMuonMult;
+  std::auto_ptr<std::vector<double> >  vd_JetChargedMult;
+  std::auto_ptr<std::vector<double> >  vd_JetElectronMult;
+  std::auto_ptr<std::vector<double> >  vd_JetMuonMult;
   
   //pf jet specific
-  std::vector<double> vd_JetHFMult_had;
-  std::vector<double> vd_JetHFMult_em;
-  std::vector<double> vd_JetNeutralMult_had;
-  std::vector<double> vd_JetChargedMult_had;
-  std::vector<double> vd_JetPhotonMult;
-  std::vector<double> vd_JetNeutralMult;
+  std::auto_ptr<std::vector<double> >  vd_JetHFMult_had;
+  std::auto_ptr<std::vector<double> >  vd_JetHFMult_em;
+  std::auto_ptr<std::vector<double> >  vd_JetNeutralMult_had;
+  std::auto_ptr<std::vector<double> >  vd_JetChargedMult_had;
+  std::auto_ptr<std::vector<double> >  vd_JetPhotonMult;
+  std::auto_ptr<std::vector<double> >  vd_JetNeutralMult;
 
-  std::vector<double> vd_JetHFFrac_em;
-  std::vector<double> vd_JetHFFrac_had;
-  std::vector<double> vd_JetEFrac_muon;
-  std::vector<double> vd_JetChargedFrac_muon;
-  std::vector<double> vd_JetEFrac_electron;
-  std::vector<double> vd_JetEFrac_photon;
+  std::auto_ptr<std::vector<double> >  vd_JetHFFrac_em;
+  std::auto_ptr<std::vector<double> >  vd_JetHFFrac_had;
+  std::auto_ptr<std::vector<double> >  vd_JetEFrac_muon;
+  std::auto_ptr<std::vector<double> >  vd_JetChargedFrac_muon;
+  std::auto_ptr<std::vector<double> >  vd_JetEFrac_electron;
+  std::auto_ptr<std::vector<double> >  vd_JetEFrac_photon;
 
-  std::vector<double> vd_JetHFEn_em;
-  std::vector<double> vd_JetHFEn_had;
-  std::vector<double> vd_JetEn_muon;
-  std::vector<double> vd_JetChargedEn_muon;
-  std::vector<double> vd_JetEn_electron;
-  std::vector<double> vd_JetEn_photon;
+  std::auto_ptr<std::vector<double> >  vd_JetHFEn_em;
+  std::auto_ptr<std::vector<double> >  vd_JetHFEn_had;
+  std::auto_ptr<std::vector<double> >  vd_JetEn_muon;
+  std::auto_ptr<std::vector<double> >  vd_JetChargedEn_muon;
+  std::auto_ptr<std::vector<double> >  vd_JetEn_electron;
+  std::auto_ptr<std::vector<double> >  vd_JetEn_photon;
 
-  //std::vector<MYJETID> vjid_JetID;
-  
   // track info:
-  std::vector<int>    vi_JetTrackNo;
-  std::vector<double> vd_JetTrackPhi;
-  std::vector<double> vd_JetTrackPhiWeighted;
-  std::vector<double> vd_JetTrackPt;
+  std::auto_ptr<std::vector<int> >     vi_JetTrackNo;
+  std::auto_ptr<std::vector<double> >  vd_JetTrackPhi;
+  std::auto_ptr<std::vector<double> >  vd_JetTrackPhiWeighted;
+  std::auto_ptr<std::vector<double> >  vd_JetTrackPt;
   
-  //calo jet corrections
-  std::vector<double> vd_JetMCCorrFactor;
-  std::vector<double> vd_JetJPTCorrFactor;
-
   //b-tagging
-  std::vector<BTAGINFO> vbtag_JetBtag;
-  std::vector<double> vd_JetBTag_TCHE;
-  std::vector<double> vd_JetBTag_TCHP;
-  std::vector<double> vd_JetBTag_jetProb;
-  std::vector<double> vd_JetBTag_jetBProb;
-  std::vector<double> vd_JetBTag_SSVHE;
-  std::vector<double> vd_JetBTag_SSVHP;
-  std::vector<double> vd_JetBTag_CSV;
-  std::vector<double> vd_JetBTag_CSVMVA;
-  std::vector<double> vd_JetBTag_SoftLepton;
-  std::vector<double> vd_JetBTag_SoftLeptonByIP;
-  std::vector<double> vd_JetBTag_SoftLeptonByPt;
+  //std::auto_ptr<std::vector<BTAGINFO> >  vbtag_JetBtag;
+  std::auto_ptr<std::vector<double> >  vd_JetBTag_TCHE;
+  std::auto_ptr<std::vector<double> >  vd_JetBTag_TCHP;
+  std::auto_ptr<std::vector<double> >  vd_JetBTag_jetProb;
+  std::auto_ptr<std::vector<double> >  vd_JetBTag_jetBProb;
+  std::auto_ptr<std::vector<double> >  vd_JetBTag_SSVHE;
+  std::auto_ptr<std::vector<double> >  vd_JetBTag_SSVHP;
+  std::auto_ptr<std::vector<double> >  vd_JetBTag_CSV;
+  std::auto_ptr<std::vector<double> >  vd_JetBTag_CSVMVA;
+  std::auto_ptr<std::vector<double> >  vd_JetBTag_SoftLepton;
+  std::auto_ptr<std::vector<double> >  vd_JetBTag_SoftLeptonByIP;
+  std::auto_ptr<std::vector<double> >  vd_JetBTag_SoftLeptonByPt;
   
   //Parton level id for gen jets?
-  std::vector<reco::Candidate::LorentzVector > v_JetPartonP4;
-  std::vector<int>    vi_JetPartonId;
-  std::vector<int>    vi_JetPartonStatus;
-  std::vector<int>    vi_JetPartonMother;
-  std::vector<int>    vi_JetPartonMotherStatus;
-  std::vector<int>    vi_JetPartonFlavour;
+  std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  v_JetPartonP4;
+  std::auto_ptr<std::vector<int> >  vi_JetPartonId;
+  std::auto_ptr<std::vector<int> >  vi_JetPartonStatus;
+  std::auto_ptr<std::vector<int> >  vi_JetPartonMother;
+  std::auto_ptr<std::vector<int> >  vi_JetPartonMotherStatus;
+  std::auto_ptr<std::vector<int> >  vi_JetPartonFlavour;
 
   //Result of some predefined preselection
   bool   bool_JetPreselection;
@@ -305,105 +308,122 @@ class JetAnalyzerPAT {
  public:
   void maintenance() {
     //Setup the vectors
-    map_s_vf_correctionFactor.clear();
+    //map_s_vd_correctionFactor->clear();
+    vd_correctionFactorUnc->clear();
+    vd_correctionFactorL1->clear();
+    vd_correctionFactorL2->clear();
+    vd_correctionFactorL3->clear();
+    vd_correctionFactorL2L3->clear();
+    vd_correctionFactorL5uds->clear();
+    vd_correctionFactorL5c->clear();
+    vd_correctionFactorL5b->clear();
+    vd_correctionFactorL5glu->clear();
+    vd_correctionFactorL7uds->clear();
+    vd_correctionFactorL7c->clear();
+    vd_correctionFactorL7b->clear();
+    vd_correctionFactorL7glu->clear();
 
-    //map_s_vi_JetNOverlaps.clear();
-    //map_s_vi_JetOverlaps.clear();
+    //map_s_vi_JetNOverlaps->clear();
+    //map_s_vi_JetOverlaps->clear();
 
-    vi_JetElectronNOverlaps.clear();
-    vi_JetElectronOverlaps.clear();
-    vi_JetMuonNOverlaps.clear();
-    vi_JetMuonOverlaps.clear();
-    vi_JetTauNOverlaps.clear();
-    vi_JetTauOverlaps.clear();
-    vi_JetPhotonNOverlaps.clear();
-    vi_JetPhotonOverlaps.clear();
+    vi_JetElectronNOverlaps->clear();
+    vi_JetElectronOverlaps->clear();
+    vi_JetMuonNOverlaps->clear();
+    vi_JetMuonOverlaps->clear();
+    vi_JetTauNOverlaps->clear();
+    vi_JetTauOverlaps->clear();
+    vi_JetPhotonNOverlaps->clear();
+    vi_JetPhotonOverlaps->clear();
 
-    vf_JECUncPlus.clear();
-    vf_JECUncMinus.clear();
+    v_JetP4->clear();
+    v_RawJetP4->clear();
+    v_GenJetP4->clear();
     
-    v_JetP4.clear();
-    v_RawJetP4.clear();
-    v_GenJetP4.clear();
-    
-    vd_JetEtaEtaMoment.clear();
-    vd_JetEtaPhiMoment.clear();
-    vd_JetPhiPhiMoment.clear();
-    
-    vb_JetIDMinimal.clear();
-    vb_JetIDLoose.clear();
-    vb_JetIDTight.clear();
-    
-    vd_JetEFrac_em.clear();
-    vd_JetEFrac_had.clear();
-    vd_JetCharge.clear();
-    vi_JetHemi.clear();
-    vi_JetNConst.clear();
-    vd_JetfHPD.clear();
-    vd_JetfRBX.clear();
-    vd_JetN90.clear();
-    
-    vd_JetChargedFrac_em.clear();
-    vd_JetNeutralFrac_em.clear();
-    vd_JetChargedFrac_had.clear();
-    vd_JetNeutralFrac_had.clear();
+    //reco::Candidate::LorentzVector MHtP4;
+    //reco::Candidate::LorentzVector GenMHtP4;
 
-    vd_JetChargedEn_em.clear();
-    vd_JetNeutralEn_em.clear();
-    vd_JetChargedEn_had.clear();
-    vd_JetNeutralEn_had.clear();
+    vd_JECUncPlus->clear();
+    vd_JECUncMinus->clear();
+    
+    vd_JetEtaEtaMoment->clear();
+    vd_JetEtaPhiMoment->clear();
+    vd_JetPhiPhiMoment->clear();
+    
+    vb_JetIDMinimal->clear();
+    vb_JetIDLoose->clear();
+    vb_JetIDTight->clear();
+    
+    vd_JetEFrac_em->clear();
+    vd_JetEFrac_had->clear();
+    vd_JetCharge->clear();
+    vi_JetHemi->clear();
+    vi_JetNConst->clear();
 
-    vd_JetChargedMult.clear();
-    vd_JetElectronMult.clear();
-    vd_JetMuonMult.clear();
-    
-    vd_JetHFMult_had.clear();
-    vd_JetHFMult_em.clear();
-    vd_JetNeutralMult_had.clear();
-    vd_JetChargedMult_had.clear();
-    vd_JetPhotonMult.clear();
-    vd_JetNeutralMult.clear();
-    
-    vd_JetHFFrac_em.clear();
-    vd_JetHFFrac_had.clear();
-    vd_JetEFrac_muon.clear();
-    vd_JetChargedFrac_muon.clear();
-    vd_JetEFrac_electron.clear();
-    vd_JetEFrac_photon.clear();
+    vd_JetfHPD->clear();
+    vd_JetfRBX->clear();
+    vd_JetN90->clear();
 
-    vd_JetHFEn_em.clear();
-    vd_JetHFEn_had.clear();
-    vd_JetEn_muon.clear();
-    vd_JetChargedEn_muon.clear();
-    vd_JetEn_electron.clear();
-    vd_JetEn_photon.clear();
+    vd_JetChargedFrac_em->clear();
+    vd_JetNeutralFrac_em->clear();
+    vd_JetChargedFrac_had->clear();
+    vd_JetNeutralFrac_had->clear();
 
-    vi_JetTrackNo.clear();
-    vd_JetTrackPhi.clear();
-    vd_JetTrackPhiWeighted.clear();
-    vd_JetTrackPt.clear();
+    vd_JetChargedEn_em->clear();
+    vd_JetNeutralEn_em->clear();
+    vd_JetChargedEn_had->clear();
+    vd_JetNeutralEn_had->clear();
+
+    vd_JetChargedMult->clear();
+    vd_JetElectronMult->clear();
+    vd_JetMuonMult->clear();
+
     
-    vd_JetMCCorrFactor.clear();
-    vd_JetJPTCorrFactor.clear();
+    vd_JetHFMult_had->clear();
+    vd_JetHFMult_em->clear();
+    vd_JetNeutralMult_had->clear();
+    vd_JetChargedMult_had->clear();
+    vd_JetPhotonMult->clear();
+    vd_JetNeutralMult->clear();
     
-    vd_JetBTag_TCHE.clear();
-    vd_JetBTag_TCHP.clear();
-    vd_JetBTag_jetProb.clear();
-    vd_JetBTag_jetBProb.clear();
-    vd_JetBTag_SSVHE.clear();
-    vd_JetBTag_SSVHP.clear();
-    vd_JetBTag_CSV.clear();
-    vd_JetBTag_CSVMVA.clear();
-    vd_JetBTag_SoftLepton.clear();
-    vd_JetBTag_SoftLeptonByIP.clear();
-    vd_JetBTag_SoftLeptonByPt.clear();
+    vd_JetHFFrac_em->clear();
+    vd_JetHFFrac_had->clear();
+    vd_JetEFrac_muon->clear();
+    vd_JetChargedFrac_muon->clear();
+    vd_JetEFrac_electron->clear();
+    vd_JetEFrac_photon->clear();
+
+    vd_JetHFEn_em->clear();
+    vd_JetHFEn_had->clear();
+    vd_JetEn_muon->clear();
+    vd_JetChargedEn_muon->clear();
+    vd_JetEn_electron->clear();
+    vd_JetEn_photon->clear();
+
+
+    vi_JetTrackNo->clear();
+    vd_JetTrackPhi->clear();
+    vd_JetTrackPhiWeighted->clear();
+    vd_JetTrackPt->clear();
+
+    vd_JetBTag_TCHE->clear();
+    vd_JetBTag_TCHP->clear();
+    vd_JetBTag_jetProb->clear();
+    vd_JetBTag_jetBProb->clear();
+    vd_JetBTag_SSVHE->clear();
+    vd_JetBTag_SSVHP->clear();
+    vd_JetBTag_CSV->clear();
+    vd_JetBTag_CSVMVA->clear();
+    vd_JetBTag_SoftLepton->clear();
+    vd_JetBTag_SoftLeptonByIP->clear();
+    vd_JetBTag_SoftLeptonByPt->clear();
     
-    v_JetPartonP4.clear();
-    vi_JetPartonId.clear();
-    vi_JetPartonStatus.clear();
-    vi_JetPartonMother.clear();
-    vi_JetPartonMotherStatus.clear();
-    vi_JetPartonFlavour.clear();
+    //generator information
+    v_JetPartonP4->clear();
+    vi_JetPartonId->clear();
+    vi_JetPartonStatus->clear();
+    vi_JetPartonMother->clear();
+    vi_JetPartonMotherStatus->clear();
+    vi_JetPartonFlavour->clear();
 
   }
 };
