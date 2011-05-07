@@ -39,6 +39,7 @@ MCTruthAnalyzerPAT::MCTruthAnalyzerPAT(const edm::ParameterSet& genParams, TTree
   vi_genParticleRefs     (new std::vector<int> ),
   vi_genParticleStatus   (new std::vector<int> ),
   vi_genParticleDaughters(new std::vector<int> )
+
 { 
 
   genParticleTag_ = genParams.getUntrackedParameter<edm::InputTag>("genParticleTag");
@@ -60,6 +61,37 @@ MCTruthAnalyzerPAT::~MCTruthAnalyzerPAT()
 //________________________________________________________________________________________
 void MCTruthAnalyzerPAT::beginRun(const edm::Run& run, const edm::EventSetup&es)
 {
+  d_xs            = -999.;
+  d_xsLO          = -999.;
+  d_xsLOerr       = -999.;
+  d_xsNLO         = -999.;
+  d_xsNLOerr      = -999.;
+  d_filterEff     = -999.;
+  d_xsInternal    = -999.;
+  d_xsInternalerr = -999.;
+  
+  edm::Handle<GenRunInfoProduct> genRunInfo;
+  run.getByType( genRunInfo );
+  //  run.getByLabel( "generator", genRunInfo );
+  if ( genRunInfo.isValid() ){
+    d_xs = genRunInfo->crossSection();
+    
+    d_xsLO     = genRunInfo->externalXSecLO().value();
+    d_xsLOerr  = genRunInfo->externalXSecLO().error();
+    d_xsNLO    = genRunInfo->externalXSecNLO().value();
+    d_xsNLOerr = genRunInfo->externalXSecNLO().error();
+    
+    d_filterEff  = genRunInfo->filterEfficiency();
+    
+    d_xsInternal     = genRunInfo->internalXSec().value();
+    d_xsInternalerr  = genRunInfo->internalXSec().error();
+  }
+}
+
+//________________________________________________________________________________________
+void MCTruthAnalyzerPAT::endRun(const edm::Run& run, const edm::EventSetup&es)
+{
+  
 }
 
 //________________________________________________________________________________________
@@ -75,14 +107,42 @@ bool MCTruthAnalyzerPAT::filter(const edm::Event& ev, const edm::EventSetup& es)
   std::ostringstream dbg;
 
   maintenance();
-  
-  //get pthat of process
-  d_Pthat = -999.;
-  
-  Handle<double> genEventScale;
-  ev.getByLabel( "genEventScale", genEventScale );
-  if ( genEventScale.isValid() ) d_Pthat = *genEventScale;
 
+  //get pthat of process
+  d_pThat = -999.;
+  
+  //Handle<double> genEventScale;
+  //ev.getByLabel( "genEventScale", genEventScale );
+  //if ( genEventScale.isValid() )
+  //  d_pThat = *genEventScale;
+
+  d_weight   = -999.;
+  d_alphaQCD = -999.;
+  d_alphaQED = -999.;
+  d_qScale   = -999.;
+  d_scalePDF = -999.;
+  d_x1       = -999.;
+  d_x2       = -999.;
+  d_x1PDF    = -999.;
+  d_x2PDF    = -999.;
+
+  Handle<GenEventInfoProduct> genEventInfo;
+  ev.getByType( genEventInfo );
+  if ( genEventInfo.isValid() ) {
+    d_pThat = (genEventInfo->hasBinningValues()) ? (genEventInfo->binningValues())[0] : 0.0;
+    
+    d_weight = genEventInfo->weight();
+    d_alphaQCD = genEventInfo->alphaQCD();
+    d_alphaQED = genEventInfo->alphaQED();
+
+    d_qScale = genEventInfo->qScale();
+    d_scalePDF = genEventInfo->pdf()->scalePDF;
+    d_x1 = genEventInfo->pdf()->x.first;
+    d_x2 = genEventInfo->pdf()->x.second;
+    d_x1PDF = genEventInfo->pdf()->xPDF.first;
+    d_x2PDF = genEventInfo->pdf()->xPDF.second;
+
+  }
   //gen particle collection
   Handle<reco::GenParticleCollection>  genParticles;
   ev.getByLabel(genParticleTag_, genParticles);   
@@ -175,7 +235,26 @@ void MCTruthAnalyzerPAT::bookTTree(TTree* mMCTruthData) {
   mMCTruthData->Branch("genParticleMother",       &(*vi_genParticleRefs.get() ) );
   mMCTruthData->Branch("genParticleDaughters",    &(*vi_genParticleDaughters.get() ) );
   
-  mMCTruthData->Branch("pthat", &d_Pthat, "pthat/D");
+  mMCTruthData->Branch("pthat", &d_pThat, "pthat/D");
+
+  mMCTruthData->Branch("samp_xsLO"         , &d_xsLO         , "samp_xsLO/D"         );
+  mMCTruthData->Branch("samp_xsLOerr"      , &d_xsLOerr      , "samp_xsLOerr/D"      );
+  mMCTruthData->Branch("samp_xsNLO"        , &d_xsNLO        , "samp_xsNLO/D"        );
+  mMCTruthData->Branch("samp_xsNLOerr"     , &d_xsNLOerr     , "samp_xsNLOerr/D"     );
+  mMCTruthData->Branch("samp_xsInternal"   , &d_xsInternal   , "samp_xsInternal/D"   );
+  mMCTruthData->Branch("samp_xsInternalerr", &d_xsInternalerr, "samp_xsInternalerr/D");
+  mMCTruthData->Branch("samp_xs"           , &d_xs           , "samp_xs/D"           );
+  mMCTruthData->Branch("samp_filterEff"    , &d_filterEff    , "samp_filterEff/D"    );
+
+  mMCTruthData->Branch("proc_weight",   &d_weight,   "proc_weight/D"  );
+  mMCTruthData->Branch("proc_alphaQCD", &d_alphaQCD, "proc_alphaQCD/D");
+  mMCTruthData->Branch("proc_alphaQED", &d_alphaQED, "proc_alphaQED/D");
+  mMCTruthData->Branch("proc_qScale",   &d_qScale,   "proc_qScale/D"  );
+  mMCTruthData->Branch("proc_scalePDF", &d_scalePDF, "proc_scalePDF/D");
+  mMCTruthData->Branch("proc_x1",       &d_x1,       "proc_x1/D"      );
+  mMCTruthData->Branch("proc_x2",       &d_x2,       "proc_x2/D"      );
+  mMCTruthData->Branch("proc_x1PDF",    &d_x1PDF,    "proc_x1PDF/D"   );
+  mMCTruthData->Branch("proc_x2PDF",    &d_x2PDF,    "proc_x2PDF/D"   );
   
 }
 

@@ -18,6 +18,7 @@
 // Framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -25,6 +26,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 //#include "DataFormats/PatCandidates/interface/PATObject.h"
 
 //
@@ -40,6 +43,7 @@ class MCTruthAnalyzerPAT {
   bool filter(const edm::Event& evt,const edm::EventSetup& es );
   
   void beginRun(const edm::Run& run, const edm::EventSetup& es);
+  void endRun(const edm::Run& run, const edm::EventSetup& es);
   //*** Plotting
   /// Define all plots
   void bookTTree(TTree*);
@@ -56,10 +60,29 @@ private:
   // Plots
   //TTree * mMCTruthData;   /// Will contain the lepton data after cuts
 
+  double
+    d_xsLO,
+    d_xsLOerr,
+    d_xsNLO,
+    d_xsNLOerr,
+    d_xsInternal,
+    d_xsInternalerr,
+    d_xs,
+    d_filterEff    ;
+  double
+    d_weight,
+    d_alphaQCD,
+    d_alphaQED,
+    d_qScale,
+    d_scalePDF,
+    d_x1,
+    d_x2,
+    d_x1PDF,
+    d_x2PDF;
   // Variables
   //int    m_AlpIdTest;
   //std::vector<double>  vd_AlpPtScale;
-  double d_Pthat;
+  double d_pThat;
 
   std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  v_genP4;
   std::auto_ptr<std::vector<reco::Candidate::LorentzVector> >  v_genParticleP4;
@@ -75,6 +98,7 @@ private:
   std::auto_ptr<std::vector<int> >   vi_genParticleRefs;
   std::auto_ptr<std::vector<int> >   vi_genParticleStatus;
   std::auto_ptr<std::vector<int> >   vi_genParticleDaughters;
+
 
  public:
   void maintenance() {
